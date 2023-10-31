@@ -1,5 +1,6 @@
 package com.fake.soundremote.util
 
+import androidx.annotation.IntDef
 import com.fake.soundremote.network.KeepAliveData
 import com.fake.soundremote.network.KeystrokeData
 import com.fake.soundremote.network.PacketData
@@ -26,6 +27,24 @@ object Net {
         AUDIO_DATA_PCM(0x20),
         AUDIO_DATA_OPUS(0x21),
     }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        COMPRESSION_NONE,
+        COMPRESSION_64,
+        COMPRESSION_128,
+        COMPRESSION_192,
+        COMPRESSION_256,
+        COMPRESSION_320
+    )
+    annotation class Compression
+
+    const val COMPRESSION_NONE = 0
+    const val COMPRESSION_64 = 1
+    const val COMPRESSION_128 = 2
+    const val COMPRESSION_192 = 3
+    const val COMPRESSION_256 = 4
+    const val COMPRESSION_320 = 5
 
     private val keepAlivePacket: ByteBuffer
     private val BYTE_ORDER: ByteOrder = ByteOrder.LITTLE_ENDIAN
