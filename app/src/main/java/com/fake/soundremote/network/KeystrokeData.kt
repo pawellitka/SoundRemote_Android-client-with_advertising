@@ -3,17 +3,17 @@ package com.fake.soundremote.network
 import java.nio.ByteBuffer
 
 /*
-signed 32bit    Virtual-key code
-signed 32bit    Bit field of the mod keys.
+unsigned 8bit    Virtual-key code
+unsigned 8bit    Bit field of the mod keys
 */
-private const val SIZE = 8
+private const val SIZE = 2
 
 data class KeystrokeData(val keyCode: Int, val mods: Int) : PacketData {
 
     override fun writeToBuffer(dest: ByteBuffer) {
         require(dest.remaining() >= SIZE)
-        dest.putInt(keyCode)
-        dest.putInt(mods)
+        dest.put(keyCode.toByte())
+        dest.put(mods.toByte())
     }
 
     override val size: Int
