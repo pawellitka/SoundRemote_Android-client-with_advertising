@@ -1,10 +1,13 @@
 package com.fake.soundremote.util
 
 import androidx.annotation.IntDef
+import com.fake.soundremote.network.ConnectData
+import com.fake.soundremote.network.DisconnectData
 import com.fake.soundremote.network.KeepAliveData
 import com.fake.soundremote.network.KeystrokeData
 import com.fake.soundremote.network.PacketData
 import com.fake.soundremote.network.PacketHeader
+import com.fake.soundremote.network.SetFormatData
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -47,10 +50,12 @@ object Net {
     const val COMPRESSION_320 = 5
 
     private val keepAlivePacket: ByteBuffer
+    private val disconnectPacket: ByteBuffer
     private val BYTE_ORDER: ByteOrder = ByteOrder.LITTLE_ENDIAN
 
     init {
         keepAlivePacket = createPacket(PacketType.CLIENT_KEEP_ALIVE, KeepAliveData())
+        disconnectPacket = createPacket(PacketType.DISCONNECT, DisconnectData())
     }
 
     fun readUByte(data: ByteBuffer): Int {
@@ -69,6 +74,21 @@ object Net {
         data.writeToBuffer(packet)
         packet.rewind()
         return packet
+    }
+
+    fun getConnectPacket(@Compression compression: Int): ByteBuffer {
+        val data = ConnectData(compression)
+        return createPacket(PacketType.CONNECT, data)
+    }
+
+    fun getDisconnectPacket(): ByteBuffer {
+        disconnectPacket.rewind()
+        return disconnectPacket
+    }
+
+    fun getSetFormatPacket(@Compression compression: Int): ByteBuffer {
+        val data = SetFormatData(compression)
+        return createPacket(PacketType.SET_FORMAT, data)
     }
 
     fun getKeystrokePacket(keyCode: Int, mods: Int): ByteBuffer {
