@@ -19,8 +19,12 @@ object Net {
     enum class PacketType(val value: Int) {
         CLIENT_KEEP_ALIVE(0x01),
         SERVER_KEEP_ALIVE(0x02),
+        CONNECT(0x03),
+        DISCONNECT(0x04),
+        SET_FORMAT(0x05),
         KEYSTROKE(0x10),
-        AUDIO_DATA_OPUS(0x20),
+        AUDIO_DATA_PCM(0x20),
+        AUDIO_DATA_OPUS(0x21),
     }
 
     private val keepAlivePacket: ByteBuffer
