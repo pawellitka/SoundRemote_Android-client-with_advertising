@@ -43,6 +43,7 @@ import com.fake.soundremote.network.Connection
 import com.fake.soundremote.util.ACTION_CLOSE
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Key
+import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.SystemMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -215,7 +216,8 @@ internal class MainService : MediaBrowserServiceCompat() {
         scope.launch {
             val serverPort = userPreferencesRepo.getServerPort()
             val clientPort = userPreferencesRepo.getClientPort()
-            if (!connection.connect(serverAddress, serverPort, clientPort)) {
+            @Net.Compression val compression = Net.COMPRESSION_192
+            if (!connection.connect(serverAddress, serverPort, clientPort, compression)) {
                 return@launch
             }
         }

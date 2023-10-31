@@ -50,7 +50,12 @@ internal class Connection(
         _connectionStatus.value = newStatus
     }
 
-    suspend fun connect(address: String, serverPort: Int, localPort: Int): Boolean =
+    suspend fun connect(
+        address: String,
+        serverPort: Int,
+        localPort: Int,
+        @Net.Compression compression: Int
+    ): Boolean =
         withContext(Dispatchers.IO) {
             shutdown()
 
@@ -87,6 +92,7 @@ internal class Connection(
                     return@withContext false
                 }
             }
+            sendConnect(compression)
             receiveJob = receive()
             keepAliveJob = keepAlive()
             true
@@ -121,6 +127,11 @@ internal class Connection(
         closeJob?.join()
         closeJob = null
         updateStatus(ConnectionStatus.DISCONNECTED)
+    }
+
+    private fun sendConnect(@Net.Compression compression: Int) {
+        val packet = Net.getConnectPacket(compression)
+        send(packet)
     }
 
     fun sendKeystroke(keyCode: Int, mods: Int) {
