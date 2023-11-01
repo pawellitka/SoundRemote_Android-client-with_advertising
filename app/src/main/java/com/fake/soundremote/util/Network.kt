@@ -27,7 +27,7 @@ object Net {
         DISCONNECT(0x04),
         SET_FORMAT(0x05),
         KEYSTROKE(0x10),
-        AUDIO_DATA_PCM(0x20),
+        AUDIO_DATA_UNCOMPRESSED(0x20),
         AUDIO_DATA_OPUS(0x21),
     }
 
