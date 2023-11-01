@@ -98,7 +98,18 @@ internal class Connection(
             true
         }
 
-    fun close() {
+    /**
+     * Sends the disconnect packet and closes the connection.
+     */
+    fun disconnect() {
+        scope.launch {
+            send(Net.getDisconnectPacket()).join()
+            shutdown()
+        }
+    }
+
+    // TODO: refactor out
+    private fun close() {
         scope.launch { shutdown() }
     }
 

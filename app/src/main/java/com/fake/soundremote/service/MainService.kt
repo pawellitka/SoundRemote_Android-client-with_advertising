@@ -163,7 +163,7 @@ internal class MainService : MediaBrowserServiceCompat() {
     }
 
     private fun stopProcessing() {
-        connection.close()
+        disconnect()
         unregisterCallStateListener()
         mediaSession.isActive = false
     }
@@ -240,7 +240,7 @@ internal class MainService : MediaBrowserServiceCompat() {
     }
 
     fun disconnect() {
-        connection.close()
+        connection.disconnect()
     }
 
     fun sendKeystroke(keystroke: Keystroke) {
