@@ -86,6 +86,9 @@ internal class MainService : MediaBrowserServiceCompat() {
     val isMuted: StateFlow<Boolean>
         get() = _isMuted
 
+    // Flag to detect the initial collected compression value
+    private var initialCompressionValue = true
+
     // Call state
     @Suppress("DEPRECATION")
     private lateinit var phoneStateListener: android.telephony.PhoneStateListener
@@ -109,6 +112,19 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Update audio compression when changed by user
+        scope.launch {
+            userPreferencesRepo.audioCompressionFlow.collect {
+                audioPipe.audioCompressed = it != Net.COMPRESSION_NONE
+                if (initialCompressionValue) {
+                    initialCompressionValue = false
+                } else {
+                    Log.i(TAG, "Audio compression changed")
+                    connection.sendSetFormat(it)
+                }
+            }
+        }
 
         mediaSession = createMediaSession()
         sessionToken = mediaSession.sessionToken
@@ -216,7 +232,7 @@ internal class MainService : MediaBrowserServiceCompat() {
         scope.launch {
             val serverPort = userPreferencesRepo.getServerPort()
             val clientPort = userPreferencesRepo.getClientPort()
-            @Net.Compression val compression = Net.COMPRESSION_192
+            @Net.Compression val compression = userPreferencesRepo.getAudioCompression()
             if (!connection.connect(serverAddress, serverPort, clientPort, compression)) {
                 return@launch
             }
