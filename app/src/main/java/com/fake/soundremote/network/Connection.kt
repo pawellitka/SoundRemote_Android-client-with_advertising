@@ -134,6 +134,11 @@ internal class Connection(
         send(packet)
     }
 
+    fun sendSetFormat(@Net.Compression compression: Int) {
+        val packet = Net.getSetFormatPacket(compression)
+        send(packet)
+    }
+
     fun sendKeystroke(keyCode: Int, mods: Int) {
         val keystrokePacket = Net.getKeystrokePacket(keyCode, mods)
         send(keystrokePacket)
