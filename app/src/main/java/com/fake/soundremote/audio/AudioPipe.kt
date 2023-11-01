@@ -23,10 +23,11 @@ class AudioPipe(private val receivedAudio: ReceiveChannel<ByteArray>) {
     private val playLock = Any()
     private val stopLock = Any()
 
+    var audioCompressed = true
+
     @PipeState
     var state: Int = PIPE_STOPPED
         private set
-
 
     fun start() {
         if (state == PIPE_RELEASED) {
@@ -40,8 +41,12 @@ class AudioPipe(private val receivedAudio: ReceiveChannel<ByteArray>) {
                 playback.start()
                 while (isActive) {
                     val audio = receivedAudio.receive()
-                    val decodedBytes = decoder.decode(audio, decodedData)
-                    playback.play(decodedData, decodedBytes)
+                    if (audioCompressed) {
+                        val decodedBytes = decoder.decode(audio, decodedData)
+                        playback.play(decodedData, decodedBytes)
+                    } else {
+                        playback.play(audio, audio.size)
+                    }
                 }
             }
         }
