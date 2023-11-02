@@ -33,7 +33,6 @@ internal class Connection(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var receiveJob: Job? = null
     private var keepAliveJob: Job? = null
-    private var closeJob: Job? = null
     private var pendingRequests = mutableMapOf<Net.PacketType, Request>()
 
     private var serverAddress: InetSocketAddress? = null
@@ -94,9 +93,9 @@ internal class Connection(
                     return@withContext false
                 }
             }
-            sendConnect(compression)
             receiveJob = receive()
             keepAliveJob = keepAlive()
+            sendConnect(compression)
             true
         }
 
@@ -110,35 +109,22 @@ internal class Connection(
         }
     }
 
-    // TODO: refactor out
-    private fun close() {
-        scope.launch { shutdown() }
-    }
-
-    private suspend fun shutdown() {
-        if (currentStatus == ConnectionStatus.DISCONNECTED) return
-        if (closeJob == null) {
-            closeJob = scope.launch(Dispatchers.IO) {
-                synchronized(sendLock) {
-                    serverAddress = null
-                    sendChannel?.close()
-                    sendChannel = null
-                }
-
-                receiveJob?.cancel()
-                keepAliveJob?.cancel()
-
-                // Close channel after cancelling receiving job to avoid trying to invoke receive
-                // from closed or null channel
-                dataChannel?.close()
-                dataChannel = null
-
-                receiveJob?.join()
-                keepAliveJob?.join()
-            }
+    private suspend fun shutdown() = withContext(Dispatchers.IO) {
+        if (currentStatus == ConnectionStatus.DISCONNECTED) return@withContext
+        synchronized(sendLock) {
+            serverAddress = null
+            sendChannel?.close()
+            sendChannel = null
         }
-        closeJob?.join()
-        closeJob = null
+
+        receiveJob?.cancel()
+        keepAliveJob?.cancel()
+
+        // Close channel after cancelling receiving job to avoid trying to invoke receive
+        // from closed or null channel
+        dataChannel?.close()
+        dataChannel = null
+
         updateStatus(ConnectionStatus.DISCONNECTED)
     }
 
@@ -196,23 +182,23 @@ internal class Connection(
         }
     }
 
-    private fun keepAlive() = scope.launch(Dispatchers.IO) {
+    private fun keepAlive() = scope.launch {
         serverLastContact = System.nanoTime()
         while (isActive) {
-            send(Net.getKeepAlivePacket())
+            delay(1000L)
 
             val elapsedNanos = System.nanoTime() - serverLastContact
-            if (TimeUnit.SECONDS.convert(elapsedNanos, TimeUnit.NANOSECONDS) >=
-                Net.SERVER_TIMEOUT_SECONDS
-            ) {
+            val elapsedSeconds = TimeUnit.SECONDS.convert(elapsedNanos, TimeUnit.NANOSECONDS)
+            if (elapsedSeconds >= Net.SERVER_TIMEOUT_SECONDS) {
                 when (currentStatus) {
                     ConnectionStatus.CONNECTING -> sendMessage(SystemMessage.MESSAGE_CONNECT_FAILED)
                     ConnectionStatus.CONNECTED -> sendMessage(SystemMessage.MESSAGE_DISCONNECTED)
                     else -> Unit
                 }
-                close()
+                shutdown()
             }
-            delay(1000L)
+
+            send(Net.getKeepAlivePacket())
         }
     }
 
@@ -229,7 +215,7 @@ internal class Connection(
         updateServerLastContact()
     }
 
-    private suspend fun processAck(buffer: ByteBuffer) {
+    private fun processAck(buffer: ByteBuffer) {
         if (pendingRequests.isEmpty()) return
         val ackData = AckData.read(buffer) ?: return
         val i = pendingRequests.iterator()
