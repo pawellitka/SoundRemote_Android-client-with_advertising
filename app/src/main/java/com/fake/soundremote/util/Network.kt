@@ -77,8 +77,8 @@ object Net {
         return packet
     }
 
-    fun getConnectPacket(@Compression compression: Int): ByteBuffer {
-        val data = ConnectData(compression)
+    fun getConnectPacket(@Compression compression: Int, requestId: UShort): ByteBuffer {
+        val data = ConnectData(compression, requestId)
         return createPacket(PacketType.CONNECT, data)
     }
 
@@ -87,8 +87,8 @@ object Net {
         return disconnectPacket
     }
 
-    fun getSetFormatPacket(@Compression compression: Int): ByteBuffer {
-        val data = SetFormatData(compression)
+    fun getSetFormatPacket(@Compression compression: Int, requestId: UShort): ByteBuffer {
+        val data = SetFormatData(compression, requestId)
         return createPacket(PacketType.SET_FORMAT, data)
     }
 

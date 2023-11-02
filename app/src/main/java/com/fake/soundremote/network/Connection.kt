@@ -24,6 +24,7 @@ import java.nio.channels.AlreadyBoundException
 import java.nio.channels.AsynchronousCloseException
 import java.nio.channels.DatagramChannel
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 internal class Connection(
     private val audioDataSink: SendChannel<ByteArray>,
@@ -33,6 +34,7 @@ internal class Connection(
     private var receiveJob: Job? = null
     private var keepAliveJob: Job? = null
     private var closeJob: Job? = null
+    private var pendingRequests = mutableMapOf<Net.PacketType, Request>()
 
     private var serverAddress: InetSocketAddress? = null
     private var dataChannel: DatagramChannel? = null
@@ -141,13 +143,17 @@ internal class Connection(
     }
 
     private fun sendConnect(@Net.Compression compression: Int) {
-        val packet = Net.getConnectPacket(compression)
+        val request = Request()
+        val packet = Net.getConnectPacket(compression, request.id)
         scope.launch { send(packet) }
+        pendingRequests[Net.PacketType.CONNECT] = request
     }
 
     fun sendSetFormat(@Net.Compression compression: Int) {
-        val packet = Net.getSetFormatPacket(compression)
+        val request = Request()
+        val packet = Net.getSetFormatPacket(compression, request.id)
         scope.launch { send(packet) }
+        pendingRequests[Net.PacketType.SET_FORMAT] = request
     }
 
     fun sendKeystroke(keyCode: Int, mods: Int) {
@@ -223,3 +229,8 @@ internal class Connection(
         serverLastContact = newContactTime
     }
 }
+
+private data class Request(
+    val id: UShort = Random.nextInt(0, UShort.MAX_VALUE.toInt()).toUShort(),
+    val sentAt: Long = System.nanoTime()
+)

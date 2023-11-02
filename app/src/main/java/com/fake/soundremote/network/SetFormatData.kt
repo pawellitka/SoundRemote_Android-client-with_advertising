@@ -5,13 +5,15 @@ import java.nio.ByteBuffer
 
 /*
 unsigned 8bit    compression
+unsigned 16bit   request id
 */
-private const val SIZE = 1
+private const val SIZE = 3
 
-data class SetFormatData(@Net.Compression val compression: Int) : PacketData {
+data class SetFormatData(@Net.Compression val compression: Int, val requestId: UShort) : PacketData {
     override fun writeToBuffer(dest: ByteBuffer) {
         require(dest.remaining() >= SIZE)
         dest.put(compression.toByte())
+        dest.putShort(requestId.toShort())
     }
 
     override val size: Int
