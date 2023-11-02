@@ -189,6 +189,8 @@ internal class Connection(
                         updateServerLastSeen()
                     }
 
+                    Net.PacketType.ACK.value -> processAck(buf)
+
                     else -> {}
                 }
             }
@@ -225,11 +227,36 @@ internal class Connection(
     }
 
     private suspend fun processAudioData(buffer: ByteBuffer) {
-        if (!processAudio) return
+        if (currentStatus != ConnectionStatus.CONNECTED || !processAudio) return
         val packetData = ByteArray(buffer.remaining())
         buffer.get(packetData)
         audioDataSink.send(packetData)
         updateServerLastSeen()
+    }
+
+    private suspend fun processAck(buffer: ByteBuffer) {
+        if (pendingRequests.isEmpty()) return
+        val ackData = AckData.read(buffer) ?: return
+        val i = pendingRequests.iterator()
+        while (i.hasNext()) {
+            val (type, request) = i.next()
+            if (request.id == ackData.requestId) {
+                when (type) {
+                    Net.PacketType.CONNECT -> {
+                        if (currentStatus == ConnectionStatus.CONNECTING) {
+                            updateStatus(ConnectionStatus.CONNECTED)
+                        }
+                    }
+
+                    // TODO: Process format change acknowledgement
+                    Net.PacketType.SET_FORMAT -> {}
+
+                    else -> {}
+                }
+                i.remove()
+                return
+            }
+        }
     }
 }
 
