@@ -185,9 +185,7 @@ internal class Connection(
                     Net.PacketType.AUDIO_DATA_OPUS.value,
                     Net.PacketType.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf)
 
-                    Net.PacketType.SERVER_KEEP_ALIVE.value -> {
-                        updateServerLastSeen()
-                    }
+                    Net.PacketType.SERVER_KEEP_ALIVE.value -> updateServerLastContact()
 
                     Net.PacketType.ACK.value -> processAck(buf)
 
@@ -218,12 +216,9 @@ internal class Connection(
         }
     }
 
-    private fun updateServerLastSeen() {
-        val newContactTime = System.nanoTime()
-        if (currentStatus == ConnectionStatus.CONNECTING) {
-            updateStatus(ConnectionStatus.CONNECTED)
-        }
-        serverLastContact = newContactTime
+    private fun updateServerLastContact() {
+        if (currentStatus != ConnectionStatus.CONNECTED) return
+        serverLastContact = System.nanoTime()
     }
 
     private suspend fun processAudioData(buffer: ByteBuffer) {
@@ -231,7 +226,7 @@ internal class Connection(
         val packetData = ByteArray(buffer.remaining())
         buffer.get(packetData)
         audioDataSink.send(packetData)
-        updateServerLastSeen()
+        updateServerLastContact()
     }
 
     private suspend fun processAck(buffer: ByteBuffer) {
