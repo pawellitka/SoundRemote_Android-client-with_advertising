@@ -183,12 +183,7 @@ internal class Connection(
                 val header: PacketHeader? = PacketHeader.read(buf)
                 when (header?.type) {
                     Net.PacketType.AUDIO_DATA_OPUS.value,
-                    Net.PacketType.AUDIO_DATA_UNCOMPRESSED.value -> if (processAudio) {
-                        val packetData = ByteArray(buf.remaining())
-                        buf.get(packetData)
-                        audioDataSink.send(packetData)
-                        updateServerLastSeen()
-                    }
+                    Net.PacketType.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf)
 
                     Net.PacketType.SERVER_KEEP_ALIVE.value -> {
                         updateServerLastSeen()
@@ -227,6 +222,14 @@ internal class Connection(
             updateStatus(ConnectionStatus.CONNECTED)
         }
         serverLastContact = newContactTime
+    }
+
+    private suspend fun processAudioData(buffer: ByteBuffer) {
+        if (!processAudio) return
+        val packetData = ByteArray(buffer.remaining())
+        buffer.get(packetData)
+        audioDataSink.send(packetData)
+        updateServerLastSeen()
     }
 }
 
