@@ -63,6 +63,10 @@ object Net {
         return data.get().toInt() and 0xFF
     }
 
+    fun ByteBuffer.getUShort(): UShort {
+        return short.toUShort()
+    }
+
     fun createPacketBuffer(size: Int): ByteBuffer {
         return ByteBuffer.allocate(size).order(BYTE_ORDER)
     }
