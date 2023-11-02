@@ -103,7 +103,7 @@ internal class Connection(
      */
     fun disconnect() {
         scope.launch {
-            send(Net.getDisconnectPacket()).join()
+            send(Net.getDisconnectPacket())
             shutdown()
         }
     }
@@ -142,20 +142,20 @@ internal class Connection(
 
     private fun sendConnect(@Net.Compression compression: Int) {
         val packet = Net.getConnectPacket(compression)
-        send(packet)
+        scope.launch { send(packet) }
     }
 
     fun sendSetFormat(@Net.Compression compression: Int) {
         val packet = Net.getSetFormatPacket(compression)
-        send(packet)
+        scope.launch { send(packet) }
     }
 
     fun sendKeystroke(keyCode: Int, mods: Int) {
         val keystrokePacket = Net.getKeystrokePacket(keyCode, mods)
-        send(keystrokePacket)
+        scope.launch { send(keystrokePacket) }
     }
 
-    private fun send(data: ByteBuffer) = scope.launch(Dispatchers.IO) {
+    private suspend fun send(data: ByteBuffer) = withContext(Dispatchers.IO) {
         synchronized(sendLock) {
             serverAddress?.let { address ->
                 sendChannel?.send(data, address)
