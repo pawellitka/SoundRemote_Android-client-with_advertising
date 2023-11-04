@@ -33,15 +33,24 @@ internal fun SettingsScreen(
     val compressionOptions = remember {
         compressionOptions()
     }
+    val compressionSummaryId = remember(settings.audioCompression) {
+        compressionOptions.find { it.value == settings.audioCompression }?.textStringId
+    }
+
     Column(modifier) {
         TopAppBar(
             title = { Text(stringResource(R.string.settings_title)) },
             navigationIcon = { NavigateUpButton(onNavigateUp) },
         )
         SelectPreference(
+            title = stringResource(R.string.pref_compression_title),
+            summary = if (compressionSummaryId == null) {
+                ""
+            } else {
+                stringResource(compressionSummaryId)
+            },
             options = compressionOptions,
-            value = settings.audioCompression,
-            label = stringResource(R.string.pref_compression_title),
+            selected = settings.audioCompression,
             onSelect = onSetAudioCompression,
         )
         IntPreference(
