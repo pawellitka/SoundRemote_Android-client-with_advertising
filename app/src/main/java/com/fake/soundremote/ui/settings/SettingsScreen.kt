@@ -71,6 +71,9 @@ internal fun SettingsScreen(
     }
 }
 
+val preferenceItemPadding = Modifier
+    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 24.dp)
+
 @Composable
 private fun IntPreference(
     title: String,
@@ -84,8 +87,9 @@ private fun IntPreference(
     var showEdit by rememberSaveable { mutableStateOf(false) }
 
     Column(
-        modifier.clickable(onClick = { showEdit = true })
-            .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 24.dp)
+        modifier
+            .clickable(onClick = { showEdit = true })
+            .then(preferenceItemPadding)
     ) {
         val summaryText = if (defaultValue == null) {
             stringResource(R.string.pref_summary_template_short).format(value, summary)
