@@ -1,5 +1,6 @@
 package com.fake.soundremote.ui.settings
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,8 +14,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 
-internal data class SelectableOption<T>(val value: T, val text: String)
+internal data class SelectableOption<T>(val value: T, @StringRes val textStringId: Int)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +28,7 @@ internal fun <T> SelectPreference(
     modifier: Modifier = Modifier,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val text = options.find { it.value == value }?.text ?: ""
+    val text = options.find { it.value == value }?.let { stringResource(it.textStringId) } ?: ""
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
@@ -39,7 +41,9 @@ internal fun <T> SelectPreference(
                 .fillMaxWidth()
                 .menuAnchor(),
             readOnly = true,
-            label = { Text(label) },
+            label = {
+                Text(label)
+            },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
@@ -51,7 +55,7 @@ internal fun <T> SelectPreference(
             options.forEach { option ->
                 DropdownMenuItem(
                     text = {
-                        Text(text = option.text)
+                        Text(text = stringResource(option.textStringId))
                     },
                     onClick = {
                         onSelect(option.value)
