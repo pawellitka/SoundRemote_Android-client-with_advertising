@@ -16,7 +16,7 @@ enum class ConnectionStatus {
 }
 
 object Net {
-    const val PROTOCOL_SIGNATURE: Char = 0xA571.toChar()
+    const val PROTOCOL_SIGNATURE: UShort = 0xA571u
     const val RECEIVE_BUFFER_CAPACITY = 2048
     const val SERVER_TIMEOUT_SECONDS = 5
 
@@ -65,6 +65,10 @@ object Net {
 
     fun ByteBuffer.getUShort(): UShort {
         return short.toUShort()
+    }
+
+    fun ByteBuffer.putUShort(value: UShort) {
+        putShort(value.toShort())
     }
 
     fun createPacketBuffer(size: Int): ByteBuffer {
