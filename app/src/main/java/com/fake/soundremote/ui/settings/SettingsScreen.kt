@@ -2,7 +2,6 @@ package com.fake.soundremote.ui.settings
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -11,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.fake.soundremote.R
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.ui.util.NavigateUpButton
@@ -71,9 +69,6 @@ internal fun SettingsScreen(
         )
     }
 }
-
-val preferenceItemPadding = Modifier
-    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 24.dp)
 
 private fun compressionOptions(): List<SelectableOption<Int>> = listOf(
     SelectableOption(Net.COMPRESSION_NONE, R.string.compression_none),
