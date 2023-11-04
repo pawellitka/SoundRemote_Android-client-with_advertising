@@ -85,6 +85,7 @@
     <string name="settings_title">Settings</string>
     <string name="pref_server_port_title">Server port</string>
     <string name="pref_client_port_title">Client port</string>
+    <string name="pref_compression_title">Audio compression</string>
     <string name="pref_server_port_summary">Must match server port used by server.</string>
     <string name="pref_client_port_summary">Must match client port used by server.</string>
     <string name="pref_default_value_template">Default value: %1s.</string>
