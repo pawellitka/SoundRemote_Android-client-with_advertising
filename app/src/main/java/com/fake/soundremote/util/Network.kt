@@ -76,7 +76,7 @@ object Net {
         val packet = createPacketBuffer(packetSize)
         val header = PacketHeader(type, packetSize)
         header.write(packet)
-        data.writeToBuffer(packet)
+        data.write(packet)
         packet.rewind()
         return packet
     }

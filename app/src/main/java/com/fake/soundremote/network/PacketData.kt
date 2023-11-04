@@ -9,7 +9,7 @@ interface PacketData {
      * @param dest [ByteBuffer] to write to.
      * @throws IllegalArgumentException if there are fewer than [size] bytes remaining in [dest].
      */
-    fun writeToBuffer(dest: ByteBuffer)
+    fun write(dest: ByteBuffer)
 
     val size: Int
 }

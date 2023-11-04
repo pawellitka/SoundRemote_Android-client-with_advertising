@@ -10,7 +10,7 @@ private const val SIZE = 2
 
 data class KeystrokeData(val keyCode: Int, val mods: Int) : PacketData {
 
-    override fun writeToBuffer(dest: ByteBuffer) {
+    override fun write(dest: ByteBuffer) {
         require(dest.remaining() >= SIZE)
         dest.put(keyCode.toByte())
         dest.put(mods.toByte())
