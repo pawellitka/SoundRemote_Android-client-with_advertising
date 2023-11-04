@@ -1,6 +1,7 @@
 package com.fake.soundremote.network
 
 import com.fake.soundremote.util.Net
+import com.fake.soundremote.util.Net.getUByte
 import java.nio.ByteBuffer
 
 data class PacketHeader(val type: Int, val packetSize: Int) {
@@ -41,7 +42,7 @@ data class PacketHeader(val type: Int, val packetSize: Int) {
             if (buffer.remaining() < SIZE) return null
             val signature = buffer.char
             if (signature != Net.PROTOCOL_SIGNATURE) return null
-            val type = Net.readUByte(buffer)
+            val type = buffer.getUByte().toInt()
             val packetSize = buffer.char
             val header = PacketHeader(type, packetSize.code)
             return if (buffer.limit() != header.packetSize) null else header

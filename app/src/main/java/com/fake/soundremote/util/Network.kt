@@ -59,8 +59,8 @@ object Net {
         disconnectPacket = createPacket(PacketType.DISCONNECT, DisconnectData())
     }
 
-    fun readUByte(data: ByteBuffer): Int {
-        return data.get().toInt() and 0xFF
+    fun ByteBuffer.getUByte(): UByte {
+        return get().toUByte()
     }
 
     fun ByteBuffer.getUShort(): UShort {
