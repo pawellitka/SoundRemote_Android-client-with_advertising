@@ -1,7 +1,5 @@
 package com.fake.soundremote.ui.settings
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -23,8 +21,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.fake.soundremote.R
-import com.fake.soundremote.ui.util.ListItemHeadline
-import com.fake.soundremote.ui.util.ListItemSupport
 
 @Composable
 internal fun IntPreference(
@@ -37,23 +33,21 @@ internal fun IntPreference(
     defaultValue: Int? = null,
 ) {
     var showEdit by rememberSaveable { mutableStateOf(false) }
-
-    Column(
-        modifier
-            .clickable(onClick = { showEdit = true })
-            .then(preferenceItemPadding)
-    ) {
-        val summaryText = if (defaultValue == null) {
-            stringResource(R.string.pref_summary_template_short).format(value, summary)
-        } else {
-            val defaultValueText = stringResource(R.string.pref_default_value_template)
-                .format(defaultValue)
-            stringResource(R.string.pref_summary_template)
-                .format(value, summary, defaultValueText)
-        }
-        ListItemHeadline(title)
-        ListItemSupport(summaryText)
+    val summaryText = if (defaultValue == null) {
+        stringResource(R.string.pref_summary_template_short).format(value, summary)
+    } else {
+        val defaultValueText = stringResource(R.string.pref_default_value_template)
+            .format(defaultValue)
+        stringResource(R.string.pref_summary_template)
+            .format(value, summary, defaultValueText)
     }
+
+    PreferenceItem(
+        title = title,
+        summary = summaryText,
+        onClick = { showEdit = true },
+        modifier = modifier,
+    )
     if (showEdit) {
         var editValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
             mutableStateOf(TextFieldValue(value.toString()))
