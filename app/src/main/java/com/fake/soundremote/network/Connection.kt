@@ -40,6 +40,7 @@ internal class Connection(
     private var sendChannel: DatagramChannel? = null
     private val sendLock = Any()
 
+    private var serverProtocol: UByte = 1u
     private var serverLastContact: Long = 0
     private var _connectionStatus = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     val connectionStatus: StateFlow<ConnectionStatus>
@@ -223,11 +224,7 @@ internal class Connection(
             val (type, request) = i.next()
             if (request.id == ackData.requestId) {
                 when (type) {
-                    Net.PacketType.CONNECT -> {
-                        if (currentStatus == ConnectionStatus.CONNECTING) {
-                            updateStatus(ConnectionStatus.CONNECTED)
-                        }
-                    }
+                    Net.PacketType.CONNECT -> processAckConnect(buffer)
 
                     // TODO: Process format change acknowledgement
                     Net.PacketType.SET_FORMAT -> {}
@@ -237,6 +234,20 @@ internal class Connection(
                 i.remove()
                 return
             }
+        }
+    }
+
+    /**
+     * Process ACK response on a Connect request.
+     * @param buffer [ByteBuffer] must be positioned on ACK packet custom data.
+     */
+    private fun processAckConnect(buffer: ByteBuffer) {
+        if (currentStatus == ConnectionStatus.CONNECTING) {
+            updateStatus(ConnectionStatus.CONNECTED)
+        }
+        val ackConnectResponse = AckConnectData.read(buffer)
+        if (ackConnectResponse != null) {
+            serverProtocol = ackConnectResponse.protocol
         }
     }
 }
