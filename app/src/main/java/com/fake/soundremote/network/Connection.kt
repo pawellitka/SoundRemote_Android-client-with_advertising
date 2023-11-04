@@ -169,6 +169,8 @@ internal class Connection(
                 buf.flip()
                 val header: PacketHeader? = PacketHeader.read(buf)
                 when (header?.type) {
+                    Net.PacketType.DISCONNECT.value -> processDisconnect()
+
                     Net.PacketType.AUDIO_DATA_OPUS.value,
                     Net.PacketType.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf)
 
@@ -249,6 +251,10 @@ internal class Connection(
         if (ackConnectResponse != null) {
             serverProtocol = ackConnectResponse.protocol
         }
+    }
+
+    private fun processDisconnect() {
+        scope.launch { shutdown() }
     }
 }
 
