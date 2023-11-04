@@ -23,7 +23,8 @@ import javax.inject.Singleton
 
 data class SettingsScreenPreferences(
     val serverPort: Int,
-    val clientPort: Int
+    val clientPort: Int,
+    val audioCompression: Int,
 )
 
 private const val KEY_SERVER_PORT = "server_port"
@@ -59,7 +60,9 @@ class UserPreferencesRepository(
         .map { preferences ->
             val serverPort = preferences[PreferencesKeys.SERVER_PORT] ?: DEFAULT_SERVER_PORT
             val clientPort = preferences[PreferencesKeys.CLIENT_PORT] ?: DEFAULT_CLIENT_PORT
-            SettingsScreenPreferences(serverPort, clientPort)
+            val audioCompression =
+                preferences[PreferencesKeys.AUDIO_COMPRESSION] ?: DEFAULT_AUDIO_COMPRESSION
+            SettingsScreenPreferences(serverPort, clientPort, audioCompression)
         }
 
     val serverAddressFlow: Flow<String> = preferencesFlow
@@ -102,6 +105,12 @@ class UserPreferencesRepository(
 
     suspend fun getClientPort(): Int = withContext(defaultDispatcher) {
         settingsScreenPreferencesFlow.first().clientPort
+    }
+
+    suspend fun setAudioCompression(value: Int) = withContext(defaultDispatcher) {
+        dataStore.edit { prefs ->
+            prefs[intPreferencesKey(KEY_AUDIO_COMPRESSION)] = value
+        }
     }
 
     suspend fun getAudioCompression(): Int = withContext(defaultDispatcher) {

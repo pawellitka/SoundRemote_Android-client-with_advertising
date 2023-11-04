@@ -41,6 +41,7 @@ internal fun SettingsScreen(
     settings: SettingsUIState,
     onSetServerPort: (Int) -> Unit,
     onSetClientPort: (Int) -> Unit,
+    onSetAudioCompression: (Int) -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -168,9 +169,10 @@ private fun cleanUIntInput(newValue: TextFieldValue, oldValue: TextFieldValue): 
 private fun SettingsScreenPreview() {
     SoundRemoteTheme {
         SettingsScreen(
-            settings = SettingsUIState(1234, 5678),
+            settings = SettingsUIState(1234, 5678, 0),
             onSetClientPort = {},
             onSetServerPort = {},
+            onSetAudioCompression = {},
             onNavigateUp = {},
         )
     }

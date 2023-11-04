@@ -26,6 +26,7 @@ fun NavGraphBuilder.settingsScreen(
             settings = settings,
             onSetServerPort = { viewModel.setServerPort(it) },
             onSetClientPort = { viewModel.setClientPort(it) },
+            onSetAudioCompression = { viewModel.setAudioCompression(it) },
             onNavigateUp = onNavigateUp,
         )
         LaunchedEffect(Unit) {
