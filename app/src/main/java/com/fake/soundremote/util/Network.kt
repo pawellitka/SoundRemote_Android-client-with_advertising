@@ -21,20 +21,20 @@ typealias PacketSizeType = UShort
 
 object Net {
     const val PROTOCOL_VERSION: UByte = 1u
-    const val PROTOCOL_SIGNATURE: UShort = 0xA571u
+    const val PROTOCOL_SIGNATURE: PacketSignatureType = 0xA571u
     const val RECEIVE_BUFFER_CAPACITY = 2048
     const val SERVER_TIMEOUT_SECONDS = 5
 
-    enum class PacketType(val value: Int) {
-        CONNECT(0x01),
-        DISCONNECT(0x02),
-        SET_FORMAT(0x03),
-        KEYSTROKE(0x10),
-        AUDIO_DATA_UNCOMPRESSED(0x20),
-        AUDIO_DATA_OPUS(0x21),
-        CLIENT_KEEP_ALIVE(0x30),
-        SERVER_KEEP_ALIVE(0x31),
-        ACK(0xF0),
+    enum class PacketCategory(val value: PacketCategoryType) {
+        CONNECT(0x01u),
+        DISCONNECT(0x02u),
+        SET_FORMAT(0x03u),
+        KEYSTROKE(0x10u),
+        AUDIO_DATA_UNCOMPRESSED(0x20u),
+        AUDIO_DATA_OPUS(0x21u),
+        CLIENT_KEEP_ALIVE(0x30u),
+        SERVER_KEEP_ALIVE(0x31u),
+        ACK(0xF0u),
     }
 
     @Retention(AnnotationRetention.SOURCE)
@@ -60,8 +60,8 @@ object Net {
     private val BYTE_ORDER: ByteOrder = ByteOrder.LITTLE_ENDIAN
 
     init {
-        keepAlivePacket = createPacket(PacketType.CLIENT_KEEP_ALIVE, KeepAliveData())
-        disconnectPacket = createPacket(PacketType.DISCONNECT, DisconnectData())
+        keepAlivePacket = createPacket(PacketCategory.CLIENT_KEEP_ALIVE, KeepAliveData())
+        disconnectPacket = createPacket(PacketCategory.DISCONNECT, DisconnectData())
     }
 
     fun ByteBuffer.getUByte(): UByte {
@@ -84,10 +84,10 @@ object Net {
         return ByteBuffer.allocate(size).order(BYTE_ORDER)
     }
 
-    private fun createPacket(type: PacketType, data: PacketData): ByteBuffer {
+    private fun createPacket(category: PacketCategory, data: PacketData): ByteBuffer {
         val packetSize = PacketHeader.SIZE + data.size
         val packet = createPacketBuffer(packetSize)
-        val header = PacketHeader(type, packetSize)
+        val header = PacketHeader(category, packetSize)
         header.write(packet)
         data.write(packet)
         packet.rewind()
@@ -96,7 +96,7 @@ object Net {
 
     fun getConnectPacket(@Compression compression: Int, requestId: UShort): ByteBuffer {
         val data = ConnectData(compression, requestId)
-        return createPacket(PacketType.CONNECT, data)
+        return createPacket(PacketCategory.CONNECT, data)
     }
 
     fun getDisconnectPacket(): ByteBuffer {
@@ -106,12 +106,12 @@ object Net {
 
     fun getSetFormatPacket(@Compression compression: Int, requestId: UShort): ByteBuffer {
         val data = SetFormatData(compression, requestId)
-        return createPacket(PacketType.SET_FORMAT, data)
+        return createPacket(PacketCategory.SET_FORMAT, data)
     }
 
     fun getKeystrokePacket(keyCode: Int, mods: Int): ByteBuffer {
         val data = KeystrokeData(keyCode, mods)
-        return createPacket(PacketType.KEYSTROKE, data)
+        return createPacket(PacketCategory.KEYSTROKE, data)
     }
 
     fun getKeepAlivePacket(): ByteBuffer {

@@ -35,7 +35,7 @@ internal class Connection(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var receiveJob: Job? = null
     private var keepAliveJob: Job? = null
-    private var pendingRequests = mutableMapOf<Net.PacketType, Request>()
+    private var pendingRequests = mutableMapOf<Net.PacketCategory, Request>()
 
     private var serverAddress: InetSocketAddress? = null
     private var dataChannel: DatagramChannel? = null
@@ -135,14 +135,14 @@ internal class Connection(
         val request = Request()
         val packet = Net.getConnectPacket(compression, request.id)
         scope.launch { send(packet) }
-        pendingRequests[Net.PacketType.CONNECT] = request
+        pendingRequests[Net.PacketCategory.CONNECT] = request
     }
 
     fun sendSetFormat(@Net.Compression compression: Int) {
         val request = Request()
         val packet = Net.getSetFormatPacket(compression, request.id)
         scope.launch { send(packet) }
-        pendingRequests[Net.PacketType.SET_FORMAT] = request
+        pendingRequests[Net.PacketCategory.SET_FORMAT] = request
     }
 
     fun sendKeystroke(keyCode: Int, mods: Int) {
@@ -170,12 +170,12 @@ internal class Connection(
                 dataChannel?.receive(buf)
                 buf.flip()
                 val header: PacketHeader? = PacketHeader.read(buf)
-                when (header?.type) {
-                    Net.PacketType.DISCONNECT.value -> processDisconnect()
-                    Net.PacketType.AUDIO_DATA_OPUS.value -> processAudioData(buf, false)
-                    Net.PacketType.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf, true)
-                    Net.PacketType.SERVER_KEEP_ALIVE.value -> updateServerLastContact()
-                    Net.PacketType.ACK.value -> processAck(buf)
+                when (header?.category) {
+                    Net.PacketCategory.DISCONNECT.value -> processDisconnect()
+                    Net.PacketCategory.AUDIO_DATA_OPUS.value -> processAudioData(buf, false)
+                    Net.PacketCategory.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf, true)
+                    Net.PacketCategory.SERVER_KEEP_ALIVE.value -> updateServerLastContact()
+                    Net.PacketCategory.ACK.value -> processAck(buf)
                     else -> {}
                 }
             }
@@ -225,13 +225,13 @@ internal class Connection(
         val ackData = AckData.read(buffer) ?: return
         val i = pendingRequests.iterator()
         while (i.hasNext()) {
-            val (type, request) = i.next()
+            val (category, request) = i.next()
             if (request.id == ackData.requestId) {
-                when (type) {
-                    Net.PacketType.CONNECT -> processAckConnect(buffer)
+                when (category) {
+                    Net.PacketCategory.CONNECT -> processAckConnect(buffer)
 
                     // TODO: Process format change acknowledgement
-                    Net.PacketType.SET_FORMAT -> {}
+                    Net.PacketCategory.SET_FORMAT -> {}
 
                     else -> {}
                 }
