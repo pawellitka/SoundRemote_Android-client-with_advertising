@@ -15,6 +15,10 @@ enum class ConnectionStatus {
     DISCONNECTED, CONNECTING, CONNECTED
 }
 
+typealias PacketSignatureType = UShort
+typealias PacketCategoryType = UByte
+typealias PacketSizeType = UShort
+
 object Net {
     const val PROTOCOL_VERSION: UByte = 1u
     const val PROTOCOL_SIGNATURE: UShort = 0xA571u

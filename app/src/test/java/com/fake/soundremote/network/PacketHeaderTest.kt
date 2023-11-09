@@ -1,6 +1,11 @@
 package com.fake.soundremote.network
 
 import com.fake.soundremote.util.Net
+import com.fake.soundremote.util.Net.putUByte
+import com.fake.soundremote.util.Net.putUShort
+import com.fake.soundremote.util.PacketCategoryType
+import com.fake.soundremote.util.PacketSignatureType
+import com.fake.soundremote.util.PacketSizeType
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -45,24 +50,24 @@ internal class PacketHeaderTest {
                 // Size less than header size
                 Arguments.arguments(
                     generateEmptyByteBuffer(PacketHeader.SIZE - 1)
-                        .putChar(Net.PROTOCOL_SIGNATURE)
+                        .putUShort(Net.PROTOCOL_SIGNATURE)
                 ),
-                // Mismatched size field and packet size
+                // Mismatched size field value and packet size
                 Arguments.arguments(
                     generateByteBuffer(
                         capacity = 100,
                         signature = Net.PROTOCOL_SIGNATURE,
-                        type = 20.toByte(),
-                        size = 101.toChar()
+                        category = 20u,
+                        size = 101u
                     )
                 ),
                 // Incorrect signature
                 Arguments.arguments(
                     generateByteBuffer(
                         capacity = 50,
-                        signature = Net.PROTOCOL_SIGNATURE + 1,
-                        type = 20.toByte(),
-                        size = 50.toChar()
+                        signature = (Net.PROTOCOL_SIGNATURE + 1u).toUShort(),
+                        category = 20u,
+                        size = 50u,
                     )
                 ),
             )
@@ -75,8 +80,8 @@ internal class PacketHeaderTest {
                     generateByteBuffer(
                         capacity = 100,
                         signature = Net.PROTOCOL_SIGNATURE,
-                        type = 20.toByte(),
-                        size = 100.toChar()
+                        category = 20u,
+                        size = 100u
                     ), PacketHeader(20, 100)
                 ),
                 // Type byte value > Byte.MAX_VALUE
@@ -84,8 +89,8 @@ internal class PacketHeaderTest {
                     generateByteBuffer(
                         capacity = 50,
                         signature = Net.PROTOCOL_SIGNATURE,
-                        type = 200.toByte(),
-                        size = 50.toChar()
+                        category = 200u,
+                        size = 50u,
                     ), PacketHeader(200, 50)
                 ),
             )
@@ -97,14 +102,14 @@ internal class PacketHeaderTest {
 
         private fun generateByteBuffer(
             capacity: Int,
-            signature: Char,
-            type: Byte,
-            size: Char
+            signature: PacketSignatureType,
+            category: PacketCategoryType,
+            size: PacketSizeType,
         ): ByteBuffer {
             val result = Net.createPacketBuffer(capacity)
-                .putChar(signature)
-                .put(type)
-                .putChar(size)
+                .putUShort(signature)
+                .putUByte(category)
+                .putUShort(size)
             result.rewind()
             return result
         }
