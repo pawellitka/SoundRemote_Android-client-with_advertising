@@ -3,6 +3,7 @@ package com.fake.soundremote.network
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.Net.getUByte
 import com.fake.soundremote.util.Net.getUShort
+import com.fake.soundremote.util.Net.putUByte
 import com.fake.soundremote.util.Net.putUShort
 import java.nio.ByteBuffer
 
@@ -17,8 +18,8 @@ data class PacketHeader(val type: Int, val packetSize: Int) {
     fun write(dest: ByteBuffer) {
         require(dest.remaining() >= SIZE)
         dest.putUShort(Net.PROTOCOL_SIGNATURE)
-        dest.put(type.toByte())
-        dest.putChar(packetSize.toChar())
+        dest.putUByte(type.toUByte())
+        dest.putUShort(packetSize.toUShort())
     }
 
     companion object {
@@ -45,8 +46,8 @@ data class PacketHeader(val type: Int, val packetSize: Int) {
             val signature = buffer.getUShort()
             if (signature != Net.PROTOCOL_SIGNATURE) return null
             val type = buffer.getUByte().toInt()
-            val packetSize = buffer.char
-            val header = PacketHeader(type, packetSize.code)
+            val packetSize = buffer.getUShort().toInt()
+            val header = PacketHeader(type, packetSize)
             return if (buffer.limit() != header.packetSize) null else header
         }
     }
