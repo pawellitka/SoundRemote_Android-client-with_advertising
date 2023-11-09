@@ -78,9 +78,10 @@ internal class MainService : MediaBrowserServiceCompat() {
     private val _systemMessages: Channel<SystemMessage> = Channel(5, BufferOverflow.DROP_OLDEST)
     val systemMessages: ReceiveChannel<SystemMessage>
         get() = _systemMessages
-    private var receivedAudio = Channel<ByteArray>(5, BufferOverflow.DROP_OLDEST)
-    private val connection = Connection(receivedAudio, _systemMessages)
-    private val audioPipe = AudioPipe(receivedAudio)
+    private var uncompressedAudio = Channel<ByteArray>(5, BufferOverflow.DROP_OLDEST)
+    private var opusAudio = Channel<ByteArray>(5, BufferOverflow.DROP_OLDEST)
+    private val connection = Connection(uncompressedAudio, opusAudio, _systemMessages)
+    private val audioPipe = AudioPipe(uncompressedAudio, opusAudio)
     val connectionStatus = connection.connectionStatus
     private var _isMuted = MutableStateFlow(false)
     val isMuted: StateFlow<Boolean>
@@ -116,7 +117,6 @@ internal class MainService : MediaBrowserServiceCompat() {
         // Update audio compression when changed by user
         scope.launch {
             userPreferencesRepo.audioCompressionFlow.collect {
-                audioPipe.audioCompressed = it != Net.COMPRESSION_NONE
                 if (initialCompressionValue) {
                     initialCompressionValue = false
                 } else {

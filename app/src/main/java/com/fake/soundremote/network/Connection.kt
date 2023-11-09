@@ -28,7 +28,8 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 internal class Connection(
-    private val audioDataSink: SendChannel<ByteArray>,
+    private val uncompressedAudio: SendChannel<ByteArray>,
+    private val opusAudio: SendChannel<ByteArray>,
     private val connectionMessages: SendChannel<SystemMessage>
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -171,14 +172,10 @@ internal class Connection(
                 val header: PacketHeader? = PacketHeader.read(buf)
                 when (header?.type) {
                     Net.PacketType.DISCONNECT.value -> processDisconnect()
-
-                    Net.PacketType.AUDIO_DATA_OPUS.value,
-                    Net.PacketType.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf)
-
+                    Net.PacketType.AUDIO_DATA_OPUS.value -> processAudioData(buf, false)
+                    Net.PacketType.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf, true)
                     Net.PacketType.SERVER_KEEP_ALIVE.value -> updateServerLastContact()
-
                     Net.PacketType.ACK.value -> processAck(buf)
-
                     else -> {}
                 }
             }
@@ -211,11 +208,15 @@ internal class Connection(
         serverLastContact.set(System.nanoTime())
     }
 
-    private suspend fun processAudioData(buffer: ByteBuffer) {
+    private suspend fun processAudioData(buffer: ByteBuffer, uncompressed: Boolean) {
         if (currentStatus != ConnectionStatus.CONNECTED || !processAudio) return
         val packetData = ByteArray(buffer.remaining())
         buffer.get(packetData)
-        audioDataSink.send(packetData)
+        if (uncompressed) {
+            uncompressedAudio.send(packetData)
+        } else {
+            opusAudio.send(packetData)
+        }
         updateServerLastContact()
     }
 
