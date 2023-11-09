@@ -68,12 +68,12 @@ object Net {
         return short.toUShort()
     }
 
-    fun ByteBuffer.putUByte(value: UByte) {
-        put(value.toByte())
+    fun ByteBuffer.putUByte(value: UByte): ByteBuffer {
+        return put(value.toByte())
     }
 
-    fun ByteBuffer.putUShort(value: UShort) {
-        putShort(value.toShort())
+    fun ByteBuffer.putUShort(value: UShort): ByteBuffer {
+        return putShort(value.toShort())
     }
 
     fun createPacketBuffer(size: Int): ByteBuffer {
