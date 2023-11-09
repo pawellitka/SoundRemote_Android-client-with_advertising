@@ -24,6 +24,7 @@ import java.nio.channels.AlreadyBoundException
 import java.nio.channels.AsynchronousCloseException
 import java.nio.channels.DatagramChannel
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 internal class Connection(
@@ -41,7 +42,7 @@ internal class Connection(
     private val sendLock = Any()
 
     private var serverProtocol: UByte = 1u
-    private var serverLastContact: Long = 0
+    private var serverLastContact = AtomicLong(0)
     private var _connectionStatus = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     val connectionStatus: StateFlow<ConnectionStatus>
         get() = _connectionStatus
@@ -186,11 +187,11 @@ internal class Connection(
     }
 
     private fun keepAlive() = scope.launch {
-        serverLastContact = System.nanoTime()
+        serverLastContact.set(System.nanoTime())
         while (isActive) {
             delay(1000L)
 
-            val elapsedNanos = System.nanoTime() - serverLastContact
+            val elapsedNanos = System.nanoTime() - serverLastContact.get()
             val elapsedSeconds = TimeUnit.SECONDS.convert(elapsedNanos, TimeUnit.NANOSECONDS)
             if (elapsedSeconds >= Net.SERVER_TIMEOUT_SECONDS) {
                 when (currentStatus) {
@@ -207,7 +208,7 @@ internal class Connection(
 
     private fun updateServerLastContact() {
         if (currentStatus != ConnectionStatus.CONNECTED) return
-        serverLastContact = System.nanoTime()
+        serverLastContact.set(System.nanoTime())
     }
 
     private suspend fun processAudioData(buffer: ByteBuffer) {
