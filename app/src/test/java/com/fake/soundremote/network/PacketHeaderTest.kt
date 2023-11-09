@@ -9,6 +9,7 @@ import com.fake.soundremote.util.PacketSizeType
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -38,6 +39,28 @@ internal class PacketHeaderTest {
             val actual = PacketHeader.read(buffer)
 
             assertEquals(expected, actual)
+        }
+    }
+
+    @DisplayName("writeHeader")
+    @Nested
+    inner class WriteHeaderTests {
+        @DisplayName("Writes correctly")
+        @Test
+        fun header_WritesCorrectly() {
+            val size: PacketSizeType = 12u
+            val expected = generateByteBuffer(
+                capacity = size.toInt(),
+                signature = Net.PROTOCOL_SIGNATURE,
+                category = Net.PacketCategory.ACK.value,
+                size = size,
+            )
+
+            val actual = Net.createPacketBuffer(size.toInt())
+            PacketHeader(Net.PacketCategory.ACK, size.toInt()).write(actual)
+            actual.rewind()
+
+            assertTrue(expected == actual)
         }
     }
 
@@ -82,7 +105,7 @@ internal class PacketHeaderTest {
                         signature = Net.PROTOCOL_SIGNATURE,
                         category = 20u,
                         size = 100u
-                    ), PacketHeader(20, 100)
+                    ), PacketHeader(20u, 100)
                 ),
                 // Type byte value > Byte.MAX_VALUE
                 Arguments.arguments(
@@ -91,7 +114,7 @@ internal class PacketHeaderTest {
                         signature = Net.PROTOCOL_SIGNATURE,
                         category = 200u,
                         size = 50u,
-                    ), PacketHeader(200, 50)
+                    ), PacketHeader(200u, 50)
                 ),
             )
         }
