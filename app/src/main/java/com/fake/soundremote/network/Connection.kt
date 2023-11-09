@@ -228,7 +228,7 @@ internal class Connection(
             val (category, request) = i.next()
             if (request.id == ackData.requestId) {
                 when (category) {
-                    Net.PacketCategory.CONNECT -> processAckConnect(buffer)
+                    Net.PacketCategory.CONNECT -> processAckConnect(ackData.customData)
 
                     // TODO: Process format change acknowledgement
                     Net.PacketCategory.SET_FORMAT -> {}
