@@ -6,23 +6,22 @@ import com.fake.soundremote.util.Net.putUShort
 import com.fake.soundremote.util.PacketRequestIdType
 import java.nio.ByteBuffer
 
-/*
-unsigned 16bit   request id
-unsigned 8bit    compression
-*/
-private const val SIZE = 3
-
 data class SetFormatData(
     @Net.Compression val compression: Int,
     val requestId: PacketRequestIdType
-) :
-    PacketData {
+) : PacketData {
     override fun write(dest: ByteBuffer) {
         require(dest.remaining() >= SIZE)
         dest.putUShort(requestId)
         dest.putUByte(compression.toUByte())
     }
 
-    override val size: Int
-        get() = SIZE
+    companion object {
+        /**
+         * unsigned 16bit   Request id
+         *
+         * unsigned 8bit    Compression
+         */
+        const val SIZE = 3
+    }
 }

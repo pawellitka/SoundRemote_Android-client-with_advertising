@@ -5,6 +5,7 @@ import java.nio.ByteBuffer
 class DisconnectData : PacketData {
     override fun write(dest: ByteBuffer) {}
 
-    override val size: Int
-        get() = 0
+    companion object {
+        const val SIZE = 0
+    }
 }

@@ -62,8 +62,10 @@ object Net {
     private val BYTE_ORDER: ByteOrder = ByteOrder.LITTLE_ENDIAN
 
     init {
-        keepAlivePacket = createPacket(PacketCategory.CLIENT_KEEP_ALIVE, KeepAliveData())
-        disconnectPacket = createPacket(PacketCategory.DISCONNECT, DisconnectData())
+        keepAlivePacket =
+            createPacket(PacketCategory.CLIENT_KEEP_ALIVE, KeepAliveData(), KeepAliveData.SIZE)
+        disconnectPacket =
+            createPacket(PacketCategory.DISCONNECT, DisconnectData(), DisconnectData.SIZE)
     }
 
     fun ByteBuffer.getUByte(): UByte {
@@ -86,8 +88,12 @@ object Net {
         return ByteBuffer.allocate(size).order(BYTE_ORDER)
     }
 
-    private fun createPacket(category: PacketCategory, data: PacketData): ByteBuffer {
-        val packetSize = PacketHeader.SIZE + data.size
+    private fun createPacket(
+        category: PacketCategory,
+        data: PacketData,
+        dataSize: Int
+    ): ByteBuffer {
+        val packetSize = PacketHeader.SIZE + dataSize
         val packet = createPacketBuffer(packetSize)
         val header = PacketHeader(category, packetSize)
         header.write(packet)
@@ -101,7 +107,7 @@ object Net {
         requestId: PacketRequestIdType
     ): ByteBuffer {
         val data = ConnectData(compression, requestId)
-        return createPacket(PacketCategory.CONNECT, data)
+        return createPacket(PacketCategory.CONNECT, data, ConnectData.SIZE)
     }
 
     fun getDisconnectPacket(): ByteBuffer {
@@ -114,12 +120,12 @@ object Net {
         requestId: PacketRequestIdType
     ): ByteBuffer {
         val data = SetFormatData(compression, requestId)
-        return createPacket(PacketCategory.SET_FORMAT, data)
+        return createPacket(PacketCategory.SET_FORMAT, data, SetFormatData.SIZE)
     }
 
     fun getKeystrokePacket(keyCode: Int, mods: Int): ByteBuffer {
         val data = KeystrokeData(keyCode, mods)
-        return createPacket(PacketCategory.KEYSTROKE, data)
+        return createPacket(PacketCategory.KEYSTROKE, data, KeystrokeData.SIZE)
     }
 
     fun getKeepAlivePacket(): ByteBuffer {
