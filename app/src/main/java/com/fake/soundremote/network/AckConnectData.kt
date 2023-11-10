@@ -2,12 +2,13 @@ package com.fake.soundremote.network
 
 import com.fake.soundremote.network.PacketHeader.Companion.SIZE
 import com.fake.soundremote.util.Net.getUByte
+import com.fake.soundremote.util.PacketProtocolType
 import java.nio.ByteBuffer
 
 /**
  * Custom data for ACK response on a Connect request.
  */
-data class AckConnectData(val protocol: UByte) {
+data class AckConnectData(val protocol: PacketProtocolType) {
     companion object {
         /*
         unsigned 8bit   protocol version

@@ -18,9 +18,11 @@ enum class ConnectionStatus {
 typealias PacketSignatureType = UShort
 typealias PacketCategoryType = UByte
 typealias PacketSizeType = UShort
+typealias PacketRequestIdType = UShort
+typealias PacketProtocolType = UByte
 
 object Net {
-    const val PROTOCOL_VERSION: UByte = 1u
+    const val PROTOCOL_VERSION: PacketProtocolType = 1u
     const val PROTOCOL_SIGNATURE: PacketSignatureType = 0xA571u
     const val RECEIVE_BUFFER_CAPACITY = 2048
     const val SERVER_TIMEOUT_SECONDS = 5
@@ -94,7 +96,10 @@ object Net {
         return packet
     }
 
-    fun getConnectPacket(@Compression compression: Int, requestId: UShort): ByteBuffer {
+    fun getConnectPacket(
+        @Compression compression: Int,
+        requestId: PacketRequestIdType
+    ): ByteBuffer {
         val data = ConnectData(compression, requestId)
         return createPacket(PacketCategory.CONNECT, data)
     }
@@ -104,7 +109,10 @@ object Net {
         return disconnectPacket
     }
 
-    fun getSetFormatPacket(@Compression compression: Int, requestId: UShort): ByteBuffer {
+    fun getSetFormatPacket(
+        @Compression compression: Int,
+        requestId: PacketRequestIdType
+    ): ByteBuffer {
         val data = SetFormatData(compression, requestId)
         return createPacket(PacketCategory.SET_FORMAT, data)
     }

@@ -3,9 +3,10 @@ package com.fake.soundremote.network
 import com.fake.soundremote.network.PacketHeader.Companion.SIZE
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.Net.getUShort
+import com.fake.soundremote.util.PacketRequestIdType
 import java.nio.ByteBuffer
 
-data class AckData(val requestId: UShort, val customData: ByteBuffer) {
+data class AckData(val requestId: PacketRequestIdType, val customData: ByteBuffer) {
     companion object {
         const val CUSTOM_DATA_SIZE = 4
 

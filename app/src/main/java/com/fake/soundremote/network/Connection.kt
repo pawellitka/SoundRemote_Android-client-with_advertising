@@ -3,6 +3,7 @@ package com.fake.soundremote.network
 import android.os.Build
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Net
+import com.fake.soundremote.util.PacketProtocolType
 import com.fake.soundremote.util.SystemMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +43,7 @@ internal class Connection(
     private var sendChannel: DatagramChannel? = null
     private val sendLock = Any()
 
-    private var serverProtocol: UByte = 1u
+    private var serverProtocol: PacketProtocolType = 1u
     private var serverLastContact = AtomicLong(0)
     private var _connectionStatus = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     val connectionStatus: StateFlow<ConnectionStatus>
