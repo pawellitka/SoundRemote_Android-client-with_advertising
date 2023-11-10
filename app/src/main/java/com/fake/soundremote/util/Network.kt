@@ -20,6 +20,8 @@ typealias PacketCategoryType = UByte
 typealias PacketSizeType = UShort
 typealias PacketRequestIdType = UShort
 typealias PacketProtocolType = UByte
+typealias PacketKeyType = UByte
+typealias PacketModsType = UByte
 
 object Net {
     const val PROTOCOL_VERSION: PacketProtocolType = 1u
@@ -123,7 +125,7 @@ object Net {
         return createPacket(PacketCategory.SET_FORMAT, data, SetFormatData.SIZE)
     }
 
-    fun getKeystrokePacket(keyCode: Int, mods: Int): ByteBuffer {
+    fun getKeystrokePacket(keyCode: PacketKeyType, mods: PacketModsType): ByteBuffer {
         val data = KeystrokeData(keyCode, mods)
         return createPacket(PacketCategory.KEYSTROKE, data, KeystrokeData.SIZE)
     }

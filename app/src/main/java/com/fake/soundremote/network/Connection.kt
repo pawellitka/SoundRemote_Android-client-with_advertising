@@ -147,7 +147,7 @@ internal class Connection(
     }
 
     fun sendKeystroke(keyCode: Int, mods: Int) {
-        val keystrokePacket = Net.getKeystrokePacket(keyCode, mods)
+        val keystrokePacket = Net.getKeystrokePacket(keyCode.toUByte(), mods.toUByte())
         scope.launch { send(keystrokePacket) }
     }
 

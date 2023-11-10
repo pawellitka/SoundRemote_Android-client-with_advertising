@@ -1,13 +1,16 @@
 package com.fake.soundremote.network
 
+import com.fake.soundremote.util.Net.putUByte
+import com.fake.soundremote.util.PacketKeyType
+import com.fake.soundremote.util.PacketModsType
 import java.nio.ByteBuffer
 
-data class KeystrokeData(val keyCode: Int, val mods: Int) : PacketData {
+data class KeystrokeData(val keyCode: PacketKeyType, val mods: PacketModsType) : PacketData {
 
     override fun write(dest: ByteBuffer) {
         require(dest.remaining() >= SIZE)
-        dest.put(keyCode.toByte())
-        dest.put(mods.toByte())
+        dest.putUByte(keyCode)
+        dest.putUByte(mods)
     }
 
     companion object {
