@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 internal class AckDataTest {
     @DisplayName("Reads correctly")
     @Test
-    fun ackData_ReadsCorrectly() {
+    fun read_ReadsCorrectly() {
         val requestId: PacketRequestIdType = 0xFAAFu
         val customData = 0xFA123456.toInt()
         val expectedCustomData = Net.createPacketBuffer(AckData.CUSTOM_DATA_SIZE)

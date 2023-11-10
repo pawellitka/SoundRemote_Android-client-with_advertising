@@ -19,14 +19,14 @@ import java.util.stream.Stream
 @DisplayName("PacketHeader")
 internal class PacketHeaderTest {
 
-    @DisplayName("readHeader")
+    @DisplayName("read")
     @Nested
     inner class ReadHeaderTests {
 
         @DisplayName("Returns null given invalid datagram")
         @ParameterizedTest
         @MethodSource("com.fake.soundremote.network.PacketHeaderTest#invalidDatagramProvider")
-        fun invalidDatagram_ReturnsNull(buffer: ByteBuffer) {
+        fun readInvalidDatagram_ReturnsNull(buffer: ByteBuffer) {
             val actual = PacketHeader.read(buffer)
 
             assertNull(actual)
@@ -35,19 +35,19 @@ internal class PacketHeaderTest {
         @DisplayName("Returns correct packet header given valid datagram")
         @ParameterizedTest
         @MethodSource("com.fake.soundremote.network.PacketHeaderTest#validDatagramProvider")
-        fun validDatagram_ReturnsCorrectHeader(buffer: ByteBuffer, expected: PacketHeader) {
+        fun readValidDatagram_ReturnsCorrectHeader(buffer: ByteBuffer, expected: PacketHeader) {
             val actual = PacketHeader.read(buffer)
 
             assertEquals(expected, actual)
         }
     }
 
-    @DisplayName("writeHeader")
+    @DisplayName("write")
     @Nested
     inner class WriteHeaderTests {
         @DisplayName("Writes correctly")
         @Test
-        fun header_WritesCorrectly() {
+        fun write_WritesCorrectly() {
             val size: PacketSizeType = 12u
             val expected = generateByteBuffer(
                 capacity = size.toInt(),
