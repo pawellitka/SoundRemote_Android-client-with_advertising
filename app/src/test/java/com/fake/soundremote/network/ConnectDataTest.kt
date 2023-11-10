@@ -11,20 +11,29 @@ import org.junit.jupiter.api.Test
 
 @DisplayName("ConnectData")
 internal class ConnectDataTest {
+    @DisplayName("SIZE has correct value")
+    @Test
+    fun size_ReturnsCorrectValue() {
+        val expected = 4
+
+        val actual = ConnectData.SIZE
+
+        Assertions.assertEquals(expected, actual)
+    }
+
     @DisplayName("Writes correctly")
     @Test
     fun write_WritesCorrectly() {
         val requestId: PacketRequestIdType = 0xFAAFu
         @Net.Compression val compression = COMPRESSION_320
-        val connectData = ConnectData(compression, requestId)
-        val expected = Net.createPacketBuffer(connectData.size)
+        val expected = Net.createPacketBuffer(ConnectData.SIZE)
         expected.putUByte(Net.PROTOCOL_VERSION)
         expected.putUShort(requestId)
         expected.putUByte(compression.toUByte())
         expected.rewind()
 
-        val actual = Net.createPacketBuffer(connectData.size)
-        connectData.write(actual)
+        val actual = Net.createPacketBuffer(ConnectData.SIZE)
+        ConnectData(compression, requestId).write(actual)
         actual.rewind()
 
         Assertions.assertEquals(expected, actual)

@@ -7,13 +7,12 @@ import org.junit.jupiter.api.Test
 
 @DisplayName("DisconnectData")
 internal class DisconnectDataTest {
-
-    @DisplayName("size has correct value")
+    @DisplayName("SIZE has correct value")
     @Test
     fun size_ReturnsCorrectValue() {
         val expected = 0
 
-        val actual = DisconnectData().size
+        val actual = DisconnectData.SIZE
 
         assertEquals(expected, actual)
     }
@@ -22,10 +21,10 @@ internal class DisconnectDataTest {
     @Test
     fun write_WritesCorrectly() {
         val disconnectData = DisconnectData()
-        val expected = Net.createPacketBuffer(disconnectData.size)
+        val expected = Net.createPacketBuffer(DisconnectData.SIZE)
         expected.rewind()
 
-        val actual = Net.createPacketBuffer(disconnectData.size)
+        val actual = Net.createPacketBuffer(DisconnectData.SIZE)
         disconnectData.write(actual)
         actual.rewind()
 

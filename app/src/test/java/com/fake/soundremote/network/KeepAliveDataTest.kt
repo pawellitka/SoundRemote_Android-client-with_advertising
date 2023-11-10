@@ -7,13 +7,12 @@ import org.junit.jupiter.api.Test
 
 @DisplayName("KeepAliveData")
 class KeepAliveDataTest {
-
-    @DisplayName("size has correct value")
+    @DisplayName("SIZE has correct value")
     @Test
     fun size_ReturnsCorrectValue() {
         val expected = 0
 
-        val actual = KeepAliveData().size
+        val actual = KeepAliveData.SIZE
 
         assertEquals(expected, actual)
     }
@@ -22,14 +21,13 @@ class KeepAliveDataTest {
     @Test
     fun write_WritesCorrectly() {
         val keepAliveData = KeepAliveData()
-        val expected = Net.createPacketBuffer(keepAliveData.size)
+        val expected = Net.createPacketBuffer(KeepAliveData.SIZE)
         expected.rewind()
 
-        val actual = Net.createPacketBuffer(keepAliveData.size)
+        val actual = Net.createPacketBuffer(KeepAliveData.SIZE)
         keepAliveData.write(actual)
         actual.rewind()
 
         assertEquals(expected, actual)
     }
-
 }
