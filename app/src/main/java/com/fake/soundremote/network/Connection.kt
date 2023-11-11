@@ -248,7 +248,7 @@ internal class Connection(
         scope.launch { shutdown() }
     }
 
-    private fun createSendChannel(): DatagramChannel {
+    fun createSendChannel(): DatagramChannel {
         return DatagramChannel.open()
     }
 
@@ -261,7 +261,7 @@ internal class Connection(
      * @throws SecurityException
      * @throws IOException
      */
-    private fun createReceiveChannel(bindAddress: InetSocketAddress): DatagramChannel {
+    fun createReceiveChannel(bindAddress: InetSocketAddress): DatagramChannel {
         val channel = DatagramChannel.open()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             channel.setOption(StandardSocketOptions.SO_REUSEADDR, true)
