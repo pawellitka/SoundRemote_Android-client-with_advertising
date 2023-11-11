@@ -71,7 +71,7 @@ dependencies {
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.core.ktx)
 // Local tests
-    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.bundles.local.tests)
 // Room
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
