@@ -5,6 +5,7 @@ import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.PacketProtocolType
 import com.fake.soundremote.util.SystemMessage
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,7 +19,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.InetSocketAddress
-import java.net.SocketException
 import java.net.StandardSocketOptions
 import java.nio.ByteBuffer
 import java.nio.channels.AlreadyBoundException
@@ -31,9 +31,10 @@ import kotlin.random.Random
 internal class Connection(
     private val uncompressedAudio: SendChannel<ByteArray>,
     private val opusAudio: SendChannel<ByteArray>,
-    private val connectionMessages: SendChannel<SystemMessage>
+    private val connectionMessages: SendChannel<SystemMessage>,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private var receiveJob: Job? = null
     private var keepAliveJob: Job? = null
     private var pendingRequests = mutableMapOf<Net.PacketCategory, Request>()
@@ -60,48 +61,35 @@ internal class Connection(
         serverPort: Int,
         localPort: Int,
         @Net.Compression compression: Int
-    ): Boolean =
-        withContext(Dispatchers.IO) {
-            shutdown()
+    ): Boolean = withContext(dispatcher) {
+        shutdown()
 
-            updateStatus(ConnectionStatus.CONNECTING)
+        updateStatus(ConnectionStatus.CONNECTING)
+        try {
             synchronized(sendLock) {
                 serverAddress = InetSocketAddress(address, serverPort)
-                sendChannel = DatagramChannel.open()
+                sendChannel = createSendChannel()
             }
-            dataChannel = DatagramChannel.open().also {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    it.setOption(StandardSocketOptions.SO_REUSEADDR, true)
-                }
-            }
-
-            val bindAddress = InetSocketAddress(localPort)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                try {
-                    dataChannel?.bind(bindAddress)
-                } catch (e: AlreadyBoundException) {
-                    sendMessage(SystemMessage.MESSAGE_ALREADY_BOUND)
-                    shutdown()
-                    return@withContext false
-                } catch (e: IOException) {
-                    sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
-                    shutdown()
-                    return@withContext false
-                }
+            dataChannel = createReceiveChannel(InetSocketAddress(localPort))
+        } catch (e: IllegalStateException) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && e is AlreadyBoundException) {
+                sendMessage(SystemMessage.MESSAGE_ALREADY_BOUND)
             } else {
-                try {
-                    dataChannel?.socket()?.bind(bindAddress)
-                } catch (e: SocketException) {
-                    sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
-                    shutdown()
-                    return@withContext false
-                }
+                sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
             }
-            receiveJob = receive()
-            keepAliveJob = keepAlive()
-            sendConnect(compression)
-            true
+            shutdown()
+            return@withContext false
+        } catch (e: Exception) {
+            sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
+            shutdown()
+            return@withContext false
         }
+
+        receiveJob = receive()
+        keepAliveJob = keepAlive()
+        sendConnect(compression)
+        true
+    }
 
     /**
      * Sends the disconnect packet and closes the connection.
@@ -113,7 +101,7 @@ internal class Connection(
         }
     }
 
-    private suspend fun shutdown() = withContext(Dispatchers.IO) {
+    private suspend fun shutdown() = withContext(dispatcher) {
         if (currentStatus == ConnectionStatus.DISCONNECTED) return@withContext
         synchronized(sendLock) {
             serverAddress = null
@@ -151,7 +139,7 @@ internal class Connection(
         scope.launch { send(keystrokePacket) }
     }
 
-    private suspend fun send(data: ByteBuffer) = withContext(Dispatchers.IO) {
+    private suspend fun send(data: ByteBuffer) = withContext(dispatcher) {
         synchronized(sendLock) {
             serverAddress?.let { address ->
                 sendChannel?.send(data, address)
@@ -258,6 +246,30 @@ internal class Connection(
 
     private fun processDisconnect() {
         scope.launch { shutdown() }
+    }
+
+    private fun createSendChannel(): DatagramChannel {
+        return DatagramChannel.open()
+    }
+
+    /**
+     * Creates a bound [DatagramChannel]
+     *
+     * @param  bindAddress Address to bind to
+     *
+     * @throws AlreadyBoundException
+     * @throws SecurityException
+     * @throws IOException
+     */
+    private fun createReceiveChannel(bindAddress: InetSocketAddress): DatagramChannel {
+        val channel = DatagramChannel.open()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            channel.setOption(StandardSocketOptions.SO_REUSEADDR, true)
+            channel.bind(bindAddress)
+        } else {
+            channel.socket()?.bind(bindAddress)
+        }
+        return channel
     }
 }
 
