@@ -5,7 +5,6 @@ import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.PacketProtocolType
 import com.fake.soundremote.util.SystemMessage
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -32,9 +31,8 @@ internal class Connection(
     private val uncompressedAudio: SendChannel<ByteArray>,
     private val opusAudio: SendChannel<ByteArray>,
     private val connectionMessages: SendChannel<SystemMessage>,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private var receiveJob: Job? = null
     private var keepAliveJob: Job? = null
     private var pendingRequests = mutableMapOf<Net.PacketCategory, Request>()
@@ -61,7 +59,7 @@ internal class Connection(
         serverPort: Int,
         localPort: Int,
         @Net.Compression compression: Int
-    ): Boolean = withContext(dispatcher) {
+    ): Boolean = withContext(scope.coroutineContext) {
         shutdown()
 
         updateStatus(ConnectionStatus.CONNECTING)
@@ -99,7 +97,7 @@ internal class Connection(
         shutdown()
     }
 
-    private suspend fun shutdown() = withContext(dispatcher) {
+    private suspend fun shutdown() = withContext(scope.coroutineContext) {
         if (currentStatus == ConnectionStatus.DISCONNECTED) return@withContext
         synchronized(sendLock) {
             serverAddress = null
@@ -118,12 +116,13 @@ internal class Connection(
         updateStatus(ConnectionStatus.DISCONNECTED)
     }
 
-    private fun sendConnect(@Net.Compression compression: Int) {
-        val request = Request()
-        val packet = Net.getConnectPacket(compression, request.id)
-        scope.launch { send(packet) }
-        pendingRequests[Net.PacketCategory.CONNECT] = request
-    }
+    private suspend fun sendConnect(@Net.Compression compression: Int) =
+        withContext(scope.coroutineContext) {
+            val request = Request()
+            val packet = Net.getConnectPacket(compression, request.id)
+            send(packet)
+            pendingRequests[Net.PacketCategory.CONNECT] = request
+        }
 
     fun sendSetFormat(@Net.Compression compression: Int) {
         val request = Request()
@@ -137,7 +136,7 @@ internal class Connection(
         scope.launch { send(keystrokePacket) }
     }
 
-    private suspend fun send(data: ByteBuffer) = withContext(dispatcher) {
+    private suspend fun send(data: ByteBuffer) = withContext(scope.coroutineContext) {
         synchronized(sendLock) {
             serverAddress?.let { address ->
                 sendChannel?.send(data, address)
@@ -149,7 +148,7 @@ internal class Connection(
         connectionMessages.send(message)
     }
 
-    private fun receive() = scope.launch(Dispatchers.IO) {
+    private fun receive() = scope.launch {
         val buf = Net.createPacketBuffer(Net.RECEIVE_BUFFER_CAPACITY)
         try {
             while (isActive) {
@@ -246,28 +245,30 @@ internal class Connection(
         scope.launch { shutdown() }
     }
 
-    fun createSendChannel(): DatagramChannel {
-        return DatagramChannel.open()
-    }
-
-    /**
-     * Creates a bound [DatagramChannel]
-     *
-     * @param  bindAddress Address to bind to
-     *
-     * @throws AlreadyBoundException
-     * @throws SecurityException
-     * @throws IOException
-     */
-    fun createReceiveChannel(bindAddress: InetSocketAddress): DatagramChannel {
-        val channel = DatagramChannel.open()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            channel.setOption(StandardSocketOptions.SO_REUSEADDR, true)
-            channel.bind(bindAddress)
-        } else {
-            channel.socket()?.bind(bindAddress)
+    companion object {
+        fun createSendChannel(): DatagramChannel {
+            return DatagramChannel.open()
         }
-        return channel
+
+        /**
+         * Creates a bound [DatagramChannel]
+         *
+         * @param  bindAddress Address to bind to
+         *
+         * @throws AlreadyBoundException
+         * @throws SecurityException
+         * @throws IOException
+         */
+        fun createReceiveChannel(bindAddress: InetSocketAddress): DatagramChannel {
+            val channel = DatagramChannel.open()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                channel.setOption(StandardSocketOptions.SO_REUSEADDR, true)
+                channel.bind(bindAddress)
+            } else {
+                channel.socket()?.bind(bindAddress)
+            }
+            return channel
+        }
     }
 }
 
