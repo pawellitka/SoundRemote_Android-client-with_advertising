@@ -21,9 +21,8 @@ navigation-compose = "2.7.3"
 preference-ktx = "1.2.1"
 room = "2.5.2"
 runner = "1.5.2"
-mockito-core = "5.7.0"
-mockito-kotlin = "5.1.0"
 kotlinx-coroutines-test = "1.7.3"
+mockk = "1.13.8"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-permissions" }
@@ -48,9 +47,9 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt"
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiter" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito-core" }
-mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+mockk-agent = { group = "io.mockk", name = "mockk-agent", version.ref = "mockk" }
 
 [bundles]
 androidx-lifeycle = [
@@ -60,8 +59,8 @@ androidx-lifeycle = [
 ]
 local-tests = [
     "junit-jupiter",
-    "mockito-core",
-    "mockito-kotlin",
+    "mockk-android",
+    "mockk-agent",
     "kotlinx-coroutines-test"
 ]
 
