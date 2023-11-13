@@ -94,11 +94,9 @@ internal class Connection(
     /**
      * Sends the disconnect packet and closes the connection.
      */
-    fun disconnect() {
-        scope.launch {
-            send(Net.getDisconnectPacket())
-            shutdown()
-        }
+    suspend fun disconnect() {
+        send(Net.getDisconnectPacket())
+        shutdown()
     }
 
     private suspend fun shutdown() = withContext(dispatcher) {

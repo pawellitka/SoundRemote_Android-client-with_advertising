@@ -240,7 +240,9 @@ internal class MainService : MediaBrowserServiceCompat() {
     }
 
     fun disconnect() {
-        connection.disconnect()
+        scope.launch {
+            connection.disconnect()
+        }
     }
 
     fun sendKeystroke(keystroke: Keystroke) {
