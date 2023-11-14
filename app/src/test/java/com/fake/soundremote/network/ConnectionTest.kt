@@ -4,17 +4,27 @@ import com.fake.soundremote.network.Connection.Companion.createReceiveChannel
 import com.fake.soundremote.network.Connection.Companion.createSendChannel
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Net
+import com.fake.soundremote.util.Net.PROTOCOL_VERSION
+import com.fake.soundremote.util.Net.getUShort
+import com.fake.soundremote.util.Net.putUByte
+import com.fake.soundremote.util.Net.putUShort
+import com.fake.soundremote.util.PacketRequestIdType
 import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
+import io.mockk.slot
 import io.mockk.unmockkObject
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -25,6 +35,7 @@ import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.DatagramChannel
 
+// TODO: Check unnecessary stubbing
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 @DisplayName("Connection")
@@ -103,6 +114,74 @@ class ConnectionTest {
         connection.connect(address, serverPort, localPort, compression)
 
         verify(exactly = 1) { sendChannel.send(any(ByteBuffer::class), serverAddress) }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @DisplayName("Changes status after receiving ACK connect datagram and disconnect datagram")
+    @Test
+    fun receives_AckConnectAndDisconnect() = runTest {
+        var requestId: PacketRequestIdType? = null
+        // Capture requestId from outgoing connect requests
+        val request = slot<ByteBuffer>()
+        every { sendChannel.send(capture(request), any()) } answers {
+            val result = request.captured.remaining()
+            requestId = getConnectRequestId(request.captured)
+            result
+        }
+        // Imitate server response with the captured requestId.
+        // After server response, respond with disconnect datagrams
+        val response = slot<ByteBuffer>()
+        var connectReceived = false
+        every { receiveChannel.receive(capture(response)) } answers {
+            requestId?.let {
+                if (connectReceived) {
+                    PacketHeader(Net.PacketCategory.DISCONNECT, PacketHeader.SIZE)
+                        .write(response.captured)
+                } else {
+                    writeConnectResponse(it, response.captured)
+                    connectReceived = true
+                }
+            }
+            serverAddress
+        }
+
+        val connection = Connection(Channel(), Channel(), Channel(), this)
+        val expectedStatuses = listOf(
+            ConnectionStatus.DISCONNECTED,
+            ConnectionStatus.CONNECTING,
+            ConnectionStatus.CONNECTED,
+            ConnectionStatus.DISCONNECTED
+        )
+        var currentExpectedStatus = 0
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            connection.connectionStatus.collect { actual ->
+                assertEquals(expectedStatuses[currentExpectedStatus], actual)
+                currentExpectedStatus++
+            }
+        }
+        connection.connect(address, serverPort, localPort, compression)
+        advanceUntilIdle()
+    }
+
+    // Utility
+    private fun getConnectRequestId(source: ByteBuffer): PacketRequestIdType? {
+        val header = PacketHeader.read(source)
+        if (header?.category != Net.PacketCategory.CONNECT.value ||
+            source.remaining() < ConnectData.SIZE
+        ) {
+            return null
+        }
+        source.get()
+        return source.getUShort()
+    }
+
+    private fun writeConnectResponse(requestId: PacketRequestIdType, dest: ByteBuffer) {
+        val packetSize = AckData.SIZE + PacketHeader.SIZE
+        PacketHeader(Net.PacketCategory.ACK, packetSize)
+            .write(dest)
+        dest.putUShort(requestId)
+        dest.putUByte(PROTOCOL_VERSION)
+        dest.position(packetSize)
     }
 
     companion object {
