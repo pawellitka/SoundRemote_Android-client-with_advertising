@@ -14,7 +14,7 @@ data class AckData(val requestId: PacketRequestIdType, val customData: ByteBuffe
         unsigned 16bit   request id
         4 byte           custom data
         */
-        private const val SIZE = 6
+        const val SIZE = 6
 
         /**
          * Read ACK packet data from the source [ByteBuffer].

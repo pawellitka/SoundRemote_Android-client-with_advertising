@@ -21,7 +21,7 @@ navigation-compose = "2.7.3"
 preference-ktx = "1.2.1"
 room = "2.5.2"
 runner = "1.5.2"
-kotlinx-coroutines-test = "1.7.3"
+kotlinx-coroutines = "1.7.3"
 mockk = "1.13.8"
 
 [libraries]
@@ -47,7 +47,7 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt"
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiter" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
 mockk-agent = { group = "io.mockk", name = "mockk-agent", version.ref = "mockk" }
 
@@ -61,7 +61,7 @@ local-tests = [
     "junit-jupiter",
     "mockk-android",
     "mockk-agent",
-    "kotlinx-coroutines-test"
+    "kotlinx-coroutines-test",
 ]
 
 [plugins]

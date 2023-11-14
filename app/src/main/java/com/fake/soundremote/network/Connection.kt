@@ -5,6 +5,7 @@ import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.PacketProtocolType
 import com.fake.soundremote.util.SystemMessage
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -116,13 +117,12 @@ internal class Connection(
         updateStatus(ConnectionStatus.DISCONNECTED)
     }
 
-    private suspend fun sendConnect(@Net.Compression compression: Int) =
-        withContext(scope.coroutineContext) {
-            val request = Request()
-            val packet = Net.getConnectPacket(compression, request.id)
-            send(packet)
-            pendingRequests[Net.PacketCategory.CONNECT] = request
-        }
+    private suspend fun sendConnect(@Net.Compression compression: Int) {
+        val request = Request()
+        val packet = Net.getConnectPacket(compression, request.id)
+        send(packet)
+        pendingRequests[Net.PacketCategory.CONNECT] = request
+    }
 
     fun sendSetFormat(@Net.Compression compression: Int) {
         val request = Request()
@@ -148,7 +148,7 @@ internal class Connection(
         connectionMessages.send(message)
     }
 
-    private fun receive() = scope.launch {
+    private fun receive() = scope.launch(CoroutineName("Receive")) {
         val buf = Net.createPacketBuffer(Net.RECEIVE_BUFFER_CAPACITY)
         try {
             while (isActive) {
@@ -169,7 +169,7 @@ internal class Connection(
         }
     }
 
-    private fun keepAlive() = scope.launch {
+    private fun keepAlive() = scope.launch(CoroutineName("KeepAlive")) {
         serverLastContact.set(System.nanoTime())
         while (isActive) {
             delay(1000L)
@@ -241,8 +241,8 @@ internal class Connection(
         }
     }
 
-    private fun processDisconnect() {
-        scope.launch { shutdown() }
+    private suspend fun processDisconnect() {
+        shutdown()
     }
 
     companion object {
