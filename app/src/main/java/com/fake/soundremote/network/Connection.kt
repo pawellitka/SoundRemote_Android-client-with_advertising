@@ -51,12 +51,13 @@ internal class Connection(
     private var _connectionStatus = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     val connectionStatus: StateFlow<ConnectionStatus>
         get() = _connectionStatus
-    private var currentStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED
+    private var currentStatus
+        get() = _connectionStatus.value
+        set(value) {
+            _connectionStatus.value = value
+        }
+
     var processAudio = AtomicBoolean(true)
-    private fun updateStatus(newStatus: ConnectionStatus) {
-        currentStatus = newStatus
-        _connectionStatus.value = newStatus
-    }
 
     suspend fun connect(
         address: String,
@@ -67,7 +68,7 @@ internal class Connection(
         shutdown()
 
         synchronized(connectLock) {
-            updateStatus(ConnectionStatus.CONNECTING)
+            currentStatus = ConnectionStatus.CONNECTING
             try {
                 synchronized(sendLock) {
                     serverAddress = InetSocketAddress(address, serverPort)
@@ -81,12 +82,12 @@ internal class Connection(
                     sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
                 }
                 releaseChannels()
-                updateStatus(ConnectionStatus.DISCONNECTED)
+                currentStatus = ConnectionStatus.DISCONNECTED
                 return@withContext false
             } catch (e: Exception) {
                 sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
                 releaseChannels()
-                updateStatus(ConnectionStatus.DISCONNECTED)
+                currentStatus = ConnectionStatus.DISCONNECTED
                 return@withContext false
             }
             receiveJob = receive()
@@ -127,7 +128,7 @@ internal class Connection(
             // Close channel after cancelling receiving job to avoid trying to invoke receive
             // from closed or null channel
             releaseChannels()
-            updateStatus(ConnectionStatus.DISCONNECTED)
+            currentStatus = ConnectionStatus.DISCONNECTED
         }
     }
 
@@ -248,7 +249,7 @@ internal class Connection(
     private fun processAckConnect(buffer: ByteBuffer) {
         synchronized(connectLock) {
             if (currentStatus == ConnectionStatus.CONNECTING) {
-                updateStatus(ConnectionStatus.CONNECTED)
+                currentStatus = ConnectionStatus.CONNECTED
             }
         }
         val ackConnectResponse = AckConnectData.read(buffer)
