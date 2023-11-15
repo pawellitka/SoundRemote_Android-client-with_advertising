@@ -41,6 +41,7 @@ internal class Connection(
     private var serverAddress: InetSocketAddress? = null
     private var dataChannel: DatagramChannel? = null
     private var sendChannel: DatagramChannel? = null
+    private val connectLock = Any()
     private val sendLock = Any()
     private val pendingRequestsLock = Any()
 
@@ -64,29 +65,33 @@ internal class Connection(
     ): Boolean = withContext(scope.coroutineContext) {
         shutdown()
 
-        updateStatus(ConnectionStatus.CONNECTING)
-        try {
-            synchronized(sendLock) {
-                serverAddress = InetSocketAddress(address, serverPort)
-                sendChannel = createSendChannel()
-            }
-            dataChannel = createReceiveChannel(InetSocketAddress(localPort))
-        } catch (e: IllegalStateException) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && e is AlreadyBoundException) {
-                sendMessage(SystemMessage.MESSAGE_ALREADY_BOUND)
-            } else {
+        synchronized(connectLock) {
+            updateStatus(ConnectionStatus.CONNECTING)
+            try {
+                synchronized(sendLock) {
+                    serverAddress = InetSocketAddress(address, serverPort)
+                    sendChannel = createSendChannel()
+                }
+                dataChannel = createReceiveChannel(InetSocketAddress(localPort))
+            } catch (e: IllegalStateException) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && e is AlreadyBoundException) {
+                    sendMessage(SystemMessage.MESSAGE_ALREADY_BOUND)
+                } else {
+                    sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
+                }
+                releaseChannels()
+                updateStatus(ConnectionStatus.DISCONNECTED)
+                return@withContext false
+            } catch (e: Exception) {
                 sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
+                releaseChannels()
+                updateStatus(ConnectionStatus.DISCONNECTED)
+                return@withContext false
             }
-            shutdown()
-            return@withContext false
-        } catch (e: Exception) {
-            sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
-            shutdown()
-            return@withContext false
+            receiveJob = receive()
+            keepAliveJob = keepAlive()
         }
 
-        receiveJob = receive()
-        keepAliveJob = keepAlive()
         sendConnect(compression)
         true
     }
@@ -114,22 +119,25 @@ internal class Connection(
     }
 
     private suspend fun shutdown() = withContext(scope.coroutineContext) {
-        if (currentStatus == ConnectionStatus.DISCONNECTED) return@withContext
+        synchronized(connectLock) {
+            if (currentStatus == ConnectionStatus.DISCONNECTED) return@withContext
+            receiveJob?.cancel()
+            keepAliveJob?.cancel()
+            // Close channel after cancelling receiving job to avoid trying to invoke receive
+            // from closed or null channel
+            releaseChannels()
+            updateStatus(ConnectionStatus.DISCONNECTED)
+        }
+    }
+
+    private fun releaseChannels() {
         synchronized(sendLock) {
             serverAddress = null
             sendChannel?.close()
             sendChannel = null
         }
-
-        receiveJob?.cancel()
-        keepAliveJob?.cancel()
-
-        // Close channel after cancelling receiving job to avoid trying to invoke receive
-        // from closed or null channel
         dataChannel?.close()
         dataChannel = null
-
-        updateStatus(ConnectionStatus.DISCONNECTED)
     }
 
     private fun receive() = scope.launch(CoroutineName("Receive")) {
@@ -181,7 +189,7 @@ internal class Connection(
         }
     }
 
-    private suspend fun sendMessage(message: SystemMessage) {
+    private fun sendMessage(message: SystemMessage) = scope.launch {
         connectionMessages.send(message)
     }
 
@@ -237,8 +245,10 @@ internal class Connection(
      * @param buffer [ByteBuffer] must be positioned on ACK packet custom data.
      */
     private fun processAckConnect(buffer: ByteBuffer) {
-        if (currentStatus == ConnectionStatus.CONNECTING) {
-            updateStatus(ConnectionStatus.CONNECTED)
+        synchronized(connectLock) {
+            if (currentStatus == ConnectionStatus.CONNECTING) {
+                updateStatus(ConnectionStatus.CONNECTED)
+            }
         }
         val ackConnectResponse = AckConnectData.read(buffer)
         if (ackConnectResponse != null) {
