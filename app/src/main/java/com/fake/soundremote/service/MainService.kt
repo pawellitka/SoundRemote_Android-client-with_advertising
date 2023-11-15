@@ -233,9 +233,7 @@ internal class MainService : MediaBrowserServiceCompat() {
             val serverPort = userPreferencesRepo.getServerPort()
             val clientPort = userPreferencesRepo.getClientPort()
             @Net.Compression val compression = userPreferencesRepo.getAudioCompression()
-            if (!connection.connect(serverAddress, serverPort, clientPort, compression)) {
-                return@launch
-            }
+            connection.connect(serverAddress, serverPort, clientPort, compression)
         }
     }
 

@@ -64,9 +64,8 @@ internal class Connection(
         serverPort: Int,
         localPort: Int,
         @Net.Compression compression: Int
-    ): Boolean = withContext(scope.coroutineContext) {
+    ) = withContext(scope.coroutineContext) {
         shutdown()
-
         synchronized(connectLock) {
             currentStatus = ConnectionStatus.CONNECTING
             try {
@@ -93,9 +92,7 @@ internal class Connection(
             receiveJob = receive()
             keepAliveJob = keepAlive()
         }
-
         sendConnect(compression)
-        true
     }
 
     /**
