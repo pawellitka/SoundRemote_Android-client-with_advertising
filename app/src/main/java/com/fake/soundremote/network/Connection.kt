@@ -178,8 +178,8 @@ internal class Connection(
         serverLastContact.set(System.nanoTime())
         while (isActive) {
             delay(1000L)
-
-            val elapsedNanos = System.nanoTime() - serverLastContact.get()
+            val now = System.nanoTime()
+            val elapsedNanos = now - serverLastContact.get()
             val elapsedSeconds = TimeUnit.SECONDS.convert(elapsedNanos, TimeUnit.NANOSECONDS)
             if (elapsedSeconds >= Net.SERVER_TIMEOUT_SECONDS) {
                 when (currentStatus) {
@@ -189,8 +189,8 @@ internal class Connection(
                 }
                 shutdown()
             }
-
             send(Net.getKeepAlivePacket())
+            maintainPendingRequests(now)
         }
     }
 
@@ -248,6 +248,21 @@ internal class Connection(
 
     private suspend fun processDisconnect() {
         shutdown()
+    }
+
+    /**
+     * Removes pending requests older than 1 second
+     */
+    private fun maintainPendingRequests(now: Long) = synchronized(pendingRequestsLock) {
+        val i = pendingRequests.iterator()
+        while (i.hasNext()) {
+            val (_, request) = i.next()
+            val elapsedNanos = now - request.sentAt
+            val elapsedSeconds = TimeUnit.SECONDS.convert(elapsedNanos, TimeUnit.NANOSECONDS)
+            if (elapsedSeconds > 1) {
+                i.remove()
+            }
+        }
     }
 
     companion object {
