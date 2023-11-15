@@ -25,6 +25,7 @@ import java.nio.channels.AlreadyBoundException
 import java.nio.channels.AsynchronousCloseException
 import java.nio.channels.DatagramChannel
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
@@ -51,7 +52,7 @@ internal class Connection(
     val connectionStatus: StateFlow<ConnectionStatus>
         get() = _connectionStatus
     private var currentStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED
-    var processAudio: Boolean = true
+    var processAudio = AtomicBoolean(true)
     private fun updateStatus(newStatus: ConnectionStatus) {
         currentStatus = newStatus
         _connectionStatus.value = newStatus
@@ -208,7 +209,7 @@ internal class Connection(
     }
 
     private suspend fun processAudioData(buffer: ByteBuffer, uncompressed: Boolean) {
-        if (currentStatus != ConnectionStatus.CONNECTED || !processAudio) return
+        if (currentStatus != ConnectionStatus.CONNECTED || !processAudio.get()) return
         val packetData = ByteArray(buffer.remaining())
         buffer.get(packetData)
         if (uncompressed) {

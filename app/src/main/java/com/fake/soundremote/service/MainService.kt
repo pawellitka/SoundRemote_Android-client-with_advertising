@@ -209,7 +209,7 @@ internal class MainService : MediaBrowserServiceCompat() {
                 audioPipe.start()
                 val noisyFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
                 registerReceiver(becomingNoisyReceiver, noisyFilter)
-                connection.processAudio = true
+                connection.processAudio.set(true)
             } else {
                 scope.launch {
                     _systemMessages.send(SystemMessage.MESSAGE_AUDIO_FOCUS_REQUEST_FAILED)
@@ -219,7 +219,7 @@ internal class MainService : MediaBrowserServiceCompat() {
         } else {
             if (audioPipe.state != PIPE_PLAYING) return
             Log.i(TAG, "Stopping playback")
-            connection.processAudio = false
+            connection.processAudio.set(false)
             unregisterReceiver(becomingNoisyReceiver)
             abandonAudioFocus()
             audioPipe.stop()
