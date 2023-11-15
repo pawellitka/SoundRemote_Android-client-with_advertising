@@ -35,6 +35,7 @@ internal class Connection(
     private val connectionMessages: SendChannel<SystemMessage>,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) {
+    private var connectJob: Job? = null
     private var receiveJob: Job? = null
     private var keepAliveJob: Job? = null
     private var pendingRequests = mutableMapOf<Net.PacketCategory, Request>()
@@ -90,9 +91,8 @@ internal class Connection(
                 return@withContext false
             }
             receiveJob = receive()
-            keepAliveJob = keepAlive()
         }
-        sendConnect(compression)
+        connectJob = repeatConnect(compression)
     }
 
     /**
@@ -106,7 +106,7 @@ internal class Connection(
     fun sendSetFormat(@Net.Compression compression: Int) {
         val request = Request()
         val packet = Net.getSetFormatPacket(compression, request.id)
-        scope.launch { send(packet) }
+        scope.launch(CoroutineName("Send SetFormat")) { send(packet) }
         synchronized(pendingRequestsLock) {
             pendingRequests[Net.PacketCategory.SET_FORMAT] = request
         }
@@ -114,12 +114,13 @@ internal class Connection(
 
     fun sendKeystroke(keyCode: Int, mods: Int) {
         val keystrokePacket = Net.getKeystrokePacket(keyCode.toUByte(), mods.toUByte())
-        scope.launch { send(keystrokePacket) }
+        scope.launch(CoroutineName("Send Keystroke")) { send(keystrokePacket) }
     }
 
     private suspend fun shutdown() = withContext(scope.coroutineContext) {
         synchronized(connectLock) {
             if (currentStatus == ConnectionStatus.DISCONNECTED) return@withContext
+            connectJob?.cancel()
             receiveJob?.cancel()
             keepAliveJob?.cancel()
             // Close channel after cancelling receiving job to avoid trying to invoke receive
@@ -139,7 +140,11 @@ internal class Connection(
         dataChannel = null
     }
 
-    private fun receive() = scope.launch(CoroutineName("Receive")) {
+    /**
+     * Always runs on Dispatchers.IO
+     */
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private fun receive() = scope.launch(CoroutineName("Receive") + Dispatchers.IO) {
         val buf = Net.createPacketBuffer(Net.RECEIVE_BUFFER_CAPACITY)
         try {
             while (isActive) {
@@ -149,14 +154,27 @@ internal class Connection(
                 val header: PacketHeader? = PacketHeader.read(buf)
                 when (header?.category) {
                     Net.PacketCategory.DISCONNECT.value -> processDisconnect()
-                    Net.PacketCategory.AUDIO_DATA_OPUS.value -> processAudioData(buf, false)
-                    Net.PacketCategory.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf, true)
+                    Net.PacketCategory.AUDIO_DATA_OPUS.value -> processAudioData(buf, true)
+                    Net.PacketCategory.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf, false)
                     Net.PacketCategory.SERVER_KEEP_ALIVE.value -> updateServerLastContact()
                     Net.PacketCategory.ACK.value -> processAck(buf)
                     else -> {}
                 }
             }
         } catch (_: AsynchronousCloseException) {
+        }
+    }
+
+    private fun repeatConnect(compression: Int) = scope.launch(CoroutineName("Repeat connect")) {
+        var attempts = 0
+        while (isActive && attempts < 3) {
+            sendConnect(compression)
+            attempts++
+            delay(1000L)
+        }
+        if (currentStatus != ConnectionStatus.CONNECTED) {
+            sendMessage(SystemMessage.MESSAGE_CONNECT_FAILED)
+            shutdown()
         }
     }
 
@@ -168,11 +186,7 @@ internal class Connection(
             val elapsedNanos = now - serverLastContact.get()
             val elapsedSeconds = TimeUnit.SECONDS.convert(elapsedNanos, TimeUnit.NANOSECONDS)
             if (elapsedSeconds >= Net.SERVER_TIMEOUT_SECONDS) {
-                when (currentStatus) {
-                    ConnectionStatus.CONNECTING -> sendMessage(SystemMessage.MESSAGE_CONNECT_FAILED)
-                    ConnectionStatus.CONNECTED -> sendMessage(SystemMessage.MESSAGE_DISCONNECTED)
-                    else -> Unit
-                }
+                sendMessage(SystemMessage.MESSAGE_DISCONNECTED)
                 shutdown()
             }
             send(Net.getKeepAlivePacket())
@@ -188,7 +202,7 @@ internal class Connection(
         }
     }
 
-    private fun sendMessage(message: SystemMessage) = scope.launch {
+    private fun sendMessage(message: SystemMessage) = scope.launch(CoroutineName("Send message")) {
         connectionMessages.send(message)
     }
 
@@ -206,14 +220,14 @@ internal class Connection(
         serverLastContact.set(System.nanoTime())
     }
 
-    private suspend fun processAudioData(buffer: ByteBuffer, uncompressed: Boolean) {
+    private suspend fun processAudioData(buffer: ByteBuffer, compressed: Boolean) {
         if (currentStatus != ConnectionStatus.CONNECTED || !processAudio.get()) return
         val packetData = ByteArray(buffer.remaining())
         buffer.get(packetData)
-        if (uncompressed) {
-            uncompressedAudio.send(packetData)
-        } else {
+        if (compressed) {
             opusAudio.send(packetData)
+        } else {
+            uncompressedAudio.send(packetData)
         }
         updateServerLastContact()
     }
@@ -247,6 +261,8 @@ internal class Connection(
         synchronized(connectLock) {
             if (currentStatus == ConnectionStatus.CONNECTING) {
                 currentStatus = ConnectionStatus.CONNECTED
+                connectJob?.cancel()
+                keepAliveJob = keepAlive()
             }
         }
         val ackConnectResponse = AckConnectData.read(buffer)
