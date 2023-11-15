@@ -9,15 +9,21 @@ import com.fake.soundremote.util.Net.getUShort
 import com.fake.soundremote.util.Net.putUByte
 import com.fake.soundremote.util.Net.putUShort
 import com.fake.soundremote.util.PacketRequestIdType
+import com.fake.soundremote.util.SystemMessage
+import io.mockk.Runs
+import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import io.mockk.mockkObject
 import io.mockk.slot
 import io.mockk.unmockkObject
 import io.mockk.verify
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -39,18 +45,26 @@ import java.nio.channels.DatagramChannel
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 @DisplayName("Connection")
-class ConnectionTest {
+internal class ConnectionTest {
     @RelaxedMockK
-    lateinit var sendChannel: DatagramChannel
+    private lateinit var sendChannel: DatagramChannel
 
     @RelaxedMockK
-    lateinit var receiveChannel: DatagramChannel
+    private lateinit var receiveChannel: DatagramChannel
+
+    @MockK
+    private lateinit var audioChannel: SendChannel<ByteArray>
+
+    @MockK
+    private lateinit var messageChannel: SendChannel<SystemMessage>
 
     @BeforeAll
     fun beforeTests() {
         mockkObject(Connection)
         every { createSendChannel() } returns sendChannel
         every { createReceiveChannel(bindAddress) } returns receiveChannel
+        coEvery { audioChannel.send(any()) } just Runs
+        coEvery { messageChannel.send(any()) } just Runs
     }
 
     @AfterAll
@@ -71,7 +85,7 @@ class ConnectionTest {
     fun constructor_CreatesWithDisconnectedStatus() = runTest {
         val expected = ConnectionStatus.DISCONNECTED
 
-        val connection = Connection(Channel(), Channel(), Channel(), this)
+        val connection = createConnection(this)
         val actual = connection.connectionStatus.value
 
         assertEquals(expected, actual)
@@ -80,7 +94,7 @@ class ConnectionTest {
     @DisplayName("Changes status to \"connecting\" on connection attempt")
     @Test
     fun connect_ChangesStatusToConnecting() = runTest {
-        val connection = Connection(Channel(), Channel(), Channel(), this.backgroundScope)
+        val connection = createConnection(this.backgroundScope)
 
         assertEquals(ConnectionStatus.DISCONNECTED, connection.connectionStatus.value)
         val expected = ConnectionStatus.CONNECTING
@@ -94,7 +108,7 @@ class ConnectionTest {
     @DisplayName("Changes status to \"disconnected\" on disconnect after connection attempt")
     @Test
     fun disconnect_ChangesStatusToDisconnected() = runTest {
-        val connection = Connection(Channel(), Channel(), Channel(), this.backgroundScope)
+        val connection = createConnection(this.backgroundScope)
         assertEquals(ConnectionStatus.DISCONNECTED, connection.connectionStatus.value)
         connection.connect(address, serverPort, localPort, compression)
         assertEquals(ConnectionStatus.CONNECTING, connection.connectionStatus.value)
@@ -106,14 +120,16 @@ class ConnectionTest {
         assertEquals(expected, actual)
     }
 
-    @DisplayName("connect() sends datagram to the server")
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @DisplayName("connect() sends datagrams to the server")
     @Test
     fun connect_SendsDatagram() = runTest {
-        val connection = Connection(Channel(), Channel(), Channel(), this.backgroundScope)
+        val connection = createConnection(this)
 
         connection.connect(address, serverPort, localPort, compression)
+        advanceUntilIdle()
 
-        verify(exactly = 1) { sendChannel.send(any(ByteBuffer::class), serverAddress) }
+        verify(exactly = 3) { sendChannel.send(any(ByteBuffer::class), serverAddress) }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -145,7 +161,7 @@ class ConnectionTest {
             serverAddress
         }
 
-        val connection = Connection(Channel(), Channel(), Channel(), this)
+        val connection = createConnection(this)
         val expectedStatuses = listOf(
             ConnectionStatus.DISCONNECTED,
             ConnectionStatus.CONNECTING,
@@ -164,6 +180,10 @@ class ConnectionTest {
     }
 
     // Utility
+    private fun createConnection(scope: CoroutineScope): Connection {
+        return Connection(audioChannel, audioChannel, messageChannel, scope)
+    }
+
     private fun getConnectRequestId(source: ByteBuffer): PacketRequestIdType? {
         val header = PacketHeader.read(source)
         if (header?.category != Net.PacketCategory.CONNECT.value ||
