@@ -99,6 +99,20 @@ internal class Connection(
         shutdown()
     }
 
+    fun sendSetFormat(@Net.Compression compression: Int) {
+        val request = Request()
+        val packet = Net.getSetFormatPacket(compression, request.id)
+        scope.launch { send(packet) }
+        synchronized(pendingRequestsLock) {
+            pendingRequests[Net.PacketCategory.SET_FORMAT] = request
+        }
+    }
+
+    fun sendKeystroke(keyCode: Int, mods: Int) {
+        val keystrokePacket = Net.getKeystrokePacket(keyCode.toUByte(), mods.toUByte())
+        scope.launch { send(keystrokePacket) }
+    }
+
     private suspend fun shutdown() = withContext(scope.coroutineContext) {
         if (currentStatus == ConnectionStatus.DISCONNECTED) return@withContext
         synchronized(sendLock) {
@@ -116,41 +130,6 @@ internal class Connection(
         dataChannel = null
 
         updateStatus(ConnectionStatus.DISCONNECTED)
-    }
-
-    private suspend fun sendConnect(@Net.Compression compression: Int) {
-        val request = Request()
-        val packet = Net.getConnectPacket(compression, request.id)
-        send(packet)
-        synchronized(pendingRequestsLock) {
-            pendingRequests[Net.PacketCategory.CONNECT] = request
-        }
-    }
-
-    fun sendSetFormat(@Net.Compression compression: Int) {
-        val request = Request()
-        val packet = Net.getSetFormatPacket(compression, request.id)
-        scope.launch { send(packet) }
-        synchronized(pendingRequestsLock) {
-            pendingRequests[Net.PacketCategory.SET_FORMAT] = request
-        }
-    }
-
-    fun sendKeystroke(keyCode: Int, mods: Int) {
-        val keystrokePacket = Net.getKeystrokePacket(keyCode.toUByte(), mods.toUByte())
-        scope.launch { send(keystrokePacket) }
-    }
-
-    private suspend fun send(data: ByteBuffer) = withContext(scope.coroutineContext) {
-        synchronized(sendLock) {
-            serverAddress?.let { address ->
-                sendChannel?.send(data, address)
-            }
-        }
-    }
-
-    private suspend fun sendMessage(message: SystemMessage) {
-        connectionMessages.send(message)
     }
 
     private fun receive() = scope.launch(CoroutineName("Receive")) {
@@ -191,6 +170,27 @@ internal class Connection(
             }
             send(Net.getKeepAlivePacket())
             maintainPendingRequests(now)
+        }
+    }
+
+    private suspend fun send(data: ByteBuffer) = withContext(scope.coroutineContext) {
+        synchronized(sendLock) {
+            serverAddress?.let { address ->
+                sendChannel?.send(data, address)
+            }
+        }
+    }
+
+    private suspend fun sendMessage(message: SystemMessage) {
+        connectionMessages.send(message)
+    }
+
+    private suspend fun sendConnect(@Net.Compression compression: Int) {
+        val request = Request()
+        val packet = Net.getConnectPacket(compression, request.id)
+        send(packet)
+        synchronized(pendingRequestsLock) {
+            pendingRequests[Net.PacketCategory.CONNECT] = request
         }
     }
 
