@@ -42,6 +42,7 @@ internal class Connection(
     private var dataChannel: DatagramChannel? = null
     private var sendChannel: DatagramChannel? = null
     private val sendLock = Any()
+    private val pendingRequestsLock = Any()
 
     private var serverProtocol: PacketProtocolType = 1u
     private var serverLastContact = AtomicLong(0)
@@ -121,14 +122,18 @@ internal class Connection(
         val request = Request()
         val packet = Net.getConnectPacket(compression, request.id)
         send(packet)
-        pendingRequests[Net.PacketCategory.CONNECT] = request
+        synchronized(pendingRequestsLock) {
+            pendingRequests[Net.PacketCategory.CONNECT] = request
+        }
     }
 
     fun sendSetFormat(@Net.Compression compression: Int) {
         val request = Request()
         val packet = Net.getSetFormatPacket(compression, request.id)
         scope.launch { send(packet) }
-        pendingRequests[Net.PacketCategory.SET_FORMAT] = request
+        synchronized(pendingRequestsLock) {
+            pendingRequests[Net.PacketCategory.SET_FORMAT] = request
+        }
     }
 
     fun sendKeystroke(keyCode: Int, mods: Int) {
@@ -206,7 +211,7 @@ internal class Connection(
         updateServerLastContact()
     }
 
-    private fun processAck(buffer: ByteBuffer) {
+    private fun processAck(buffer: ByteBuffer) = synchronized(pendingRequestsLock) {
         if (pendingRequests.isEmpty()) return
         val ackData = AckData.read(buffer) ?: return
         val i = pendingRequests.iterator()
