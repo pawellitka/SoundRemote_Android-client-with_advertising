@@ -26,11 +26,13 @@ object DatabaseModule {
     }
 
     @Provides
+    @Singleton
     fun provideKeystrokeDao(database: AppDatabase): KeystrokeDao {
         return database.keystrokeDao()
     }
 
     @Provides
+    @Singleton
     fun provideKeystrokeOrderDao(database: AppDatabase): KeystrokeOrderDao {
         return database.keystrokeOrderDao()
     }

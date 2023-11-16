@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.fake.soundremote.util.DEFAULT_AUDIO_COMPRESSION
 import com.fake.soundremote.util.DEFAULT_CLIENT_PORT
 import com.fake.soundremote.util.DEFAULT_SERVER_ADDRESS
 import com.fake.soundremote.util.DEFAULT_SERVER_PORT
@@ -22,12 +23,14 @@ import javax.inject.Singleton
 
 data class SettingsScreenPreferences(
     val serverPort: Int,
-    val clientPort: Int
+    val clientPort: Int,
+    val audioCompression: Int,
 )
 
 private const val KEY_SERVER_PORT = "server_port"
 private const val KEY_CLIENT_PORT = "client_port"
 private const val KEY_SERVER_ADDRESS = "server_address"
+private const val KEY_AUDIO_COMPRESSION = "audio_compression"
 
 @Singleton
 class UserPreferencesRepository(
@@ -41,6 +44,7 @@ class UserPreferencesRepository(
         val SERVER_ADDRESS = stringPreferencesKey(KEY_SERVER_ADDRESS)
         val SERVER_PORT = intPreferencesKey(KEY_SERVER_PORT)
         val CLIENT_PORT = intPreferencesKey(KEY_CLIENT_PORT)
+        val AUDIO_COMPRESSION = intPreferencesKey(KEY_AUDIO_COMPRESSION)
     }
 
     private val preferencesFlow = dataStore.data
@@ -56,12 +60,19 @@ class UserPreferencesRepository(
         .map { preferences ->
             val serverPort = preferences[PreferencesKeys.SERVER_PORT] ?: DEFAULT_SERVER_PORT
             val clientPort = preferences[PreferencesKeys.CLIENT_PORT] ?: DEFAULT_CLIENT_PORT
-            SettingsScreenPreferences(serverPort, clientPort)
+            val audioCompression =
+                preferences[PreferencesKeys.AUDIO_COMPRESSION] ?: DEFAULT_AUDIO_COMPRESSION
+            SettingsScreenPreferences(serverPort, clientPort, audioCompression)
         }
 
     val serverAddressFlow: Flow<String> = preferencesFlow
         .map { preferences ->
             preferences[PreferencesKeys.SERVER_ADDRESS] ?: DEFAULT_SERVER_ADDRESS
+        }
+
+    val audioCompressionFlow: Flow<Int> = preferencesFlow
+        .map { preferences ->
+            preferences[PreferencesKeys.AUDIO_COMPRESSION] ?: DEFAULT_AUDIO_COMPRESSION
         }
 
     suspend fun setServerAddress(serverAddress: String) = withContext(defaultDispatcher) {
@@ -94,5 +105,15 @@ class UserPreferencesRepository(
 
     suspend fun getClientPort(): Int = withContext(defaultDispatcher) {
         settingsScreenPreferencesFlow.first().clientPort
+    }
+
+    suspend fun setAudioCompression(value: Int) = withContext(defaultDispatcher) {
+        dataStore.edit { prefs ->
+            prefs[intPreferencesKey(KEY_AUDIO_COMPRESSION)] = value
+        }
+    }
+
+    suspend fun getAudioCompression(): Int = withContext(defaultDispatcher) {
+        audioCompressionFlow.first()
     }
 }

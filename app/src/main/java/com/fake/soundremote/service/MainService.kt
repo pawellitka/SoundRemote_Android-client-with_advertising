@@ -43,6 +43,7 @@ import com.fake.soundremote.network.Connection
 import com.fake.soundremote.util.ACTION_CLOSE
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Key
+import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.SystemMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -77,13 +78,17 @@ internal class MainService : MediaBrowserServiceCompat() {
     private val _systemMessages: Channel<SystemMessage> = Channel(5, BufferOverflow.DROP_OLDEST)
     val systemMessages: ReceiveChannel<SystemMessage>
         get() = _systemMessages
-    private var receivedAudio = Channel<ByteArray>(5, BufferOverflow.DROP_OLDEST)
-    private val connection = Connection(receivedAudio, _systemMessages)
-    private val audioPipe = AudioPipe(receivedAudio)
+    private var uncompressedAudio = Channel<ByteArray>(5, BufferOverflow.DROP_OLDEST)
+    private var opusAudio = Channel<ByteArray>(5, BufferOverflow.DROP_OLDEST)
+    private val connection = Connection(uncompressedAudio, opusAudio, _systemMessages)
+    private val audioPipe = AudioPipe(uncompressedAudio, opusAudio)
     val connectionStatus = connection.connectionStatus
     private var _isMuted = MutableStateFlow(false)
     val isMuted: StateFlow<Boolean>
         get() = _isMuted
+
+    // Flag to detect the initial collected compression value
+    private var initialCompressionValue = true
 
     // Call state
     @Suppress("DEPRECATION")
@@ -108,6 +113,18 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Update audio compression when changed by user
+        scope.launch {
+            userPreferencesRepo.audioCompressionFlow.collect {
+                if (initialCompressionValue) {
+                    initialCompressionValue = false
+                } else {
+                    Log.i(TAG, "Audio compression changed")
+                    connection.sendSetFormat(it)
+                }
+            }
+        }
 
         mediaSession = createMediaSession()
         sessionToken = mediaSession.sessionToken
@@ -146,7 +163,7 @@ internal class MainService : MediaBrowserServiceCompat() {
     }
 
     private fun stopProcessing() {
-        connection.close()
+        disconnect()
         unregisterCallStateListener()
         mediaSession.isActive = false
     }
@@ -192,7 +209,7 @@ internal class MainService : MediaBrowserServiceCompat() {
                 audioPipe.start()
                 val noisyFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
                 registerReceiver(becomingNoisyReceiver, noisyFilter)
-                connection.processAudio = true
+                connection.processAudio.set(true)
             } else {
                 scope.launch {
                     _systemMessages.send(SystemMessage.MESSAGE_AUDIO_FOCUS_REQUEST_FAILED)
@@ -202,7 +219,7 @@ internal class MainService : MediaBrowserServiceCompat() {
         } else {
             if (audioPipe.state != PIPE_PLAYING) return
             Log.i(TAG, "Stopping playback")
-            connection.processAudio = false
+            connection.processAudio.set(false)
             unregisterReceiver(becomingNoisyReceiver)
             abandonAudioFocus()
             audioPipe.stop()
@@ -215,14 +232,15 @@ internal class MainService : MediaBrowserServiceCompat() {
         scope.launch {
             val serverPort = userPreferencesRepo.getServerPort()
             val clientPort = userPreferencesRepo.getClientPort()
-            if (!connection.connect(serverAddress, serverPort, clientPort)) {
-                return@launch
-            }
+            @Net.Compression val compression = userPreferencesRepo.getAudioCompression()
+            connection.connect(serverAddress, serverPort, clientPort, compression)
         }
     }
 
     fun disconnect() {
-        connection.close()
+        scope.launch {
+            connection.disconnect()
+        }
     }
 
     fun sendKeystroke(keystroke: Keystroke) {

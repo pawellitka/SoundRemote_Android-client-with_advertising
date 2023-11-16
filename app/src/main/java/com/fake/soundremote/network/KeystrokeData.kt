@@ -1,21 +1,24 @@
 package com.fake.soundremote.network
 
+import com.fake.soundremote.util.Net.putUByte
+import com.fake.soundremote.util.PacketKeyType
+import com.fake.soundremote.util.PacketModsType
 import java.nio.ByteBuffer
 
-/*
-signed 32bit    Virtual-key code
-signed 32bit    Bit field of the mod keys.
-*/
-private const val SIZE = 8
+data class KeystrokeData(val keyCode: PacketKeyType, val mods: PacketModsType) : PacketData {
 
-data class KeystrokeData(val keyCode: Int, val mods: Int) : PacketData {
-
-    override fun writeToBuffer(dest: ByteBuffer) {
+    override fun write(dest: ByteBuffer) {
         require(dest.remaining() >= SIZE)
-        dest.putInt(keyCode)
-        dest.putInt(mods)
+        dest.putUByte(keyCode)
+        dest.putUByte(mods)
     }
 
-    override val size: Int
-        get() = SIZE
+    companion object {
+        /**
+         * unsigned 8bit    Virtual-key code
+         *
+         * unsigned 8bit    Bit field of the mod keys
+         */
+        const val SIZE = 2
+    }
 }

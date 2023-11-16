@@ -85,6 +85,7 @@
     <string name="settings_title">Settings</string>
     <string name="pref_server_port_title">Server port</string>
     <string name="pref_client_port_title">Client port</string>
+    <string name="pref_compression_title">Audio compression</string>
     <string name="pref_server_port_summary">Must match server port used by server.</string>
     <string name="pref_client_port_summary">Must match client port used by server.</string>
     <string name="pref_default_value_template">Default value: %1s.</string>
@@ -118,5 +119,13 @@
     <string name="key_desc_comma">Comma/Less-than sign</string>
     <string name="key_desc_period">Period/More-than sign</string>
     <string name="key_desc_slash">Slash/Question mark</string>
+
+    <!--Compression-->
+    <string name="compression_none">No compression</string>
+    <string name="compression_64">64 kbps</string>
+    <string name="compression_128">128 kbps</string>
+    <string name="compression_192">192 kbps</string>
+    <string name="compression_256">256 kbps</string>
+    <string name="compression_320">320 kbps</string>
 
 </resources>

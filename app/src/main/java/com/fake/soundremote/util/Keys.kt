@@ -2,6 +2,7 @@
 
 package com.fake.soundremote.util
 
+import androidx.annotation.StringRes
 import com.fake.soundremote.R
 import com.fake.soundremote.data.Keystroke
 
@@ -85,12 +86,13 @@ enum class KeyGroup(val nameStringId: Int, val label: String) {
  * @param keyCode Windows Virtual-Key code
  * @param label Key description
  * @param group [KeyGroup] this Key belongs to
- * @param descriptionStringId optional description
+ * @param descriptionStringId optional description resource string id
  */
 enum class Key(
     val keyCode: Int,
     val label: String,
     val group: KeyGroup,
+    @StringRes
     val descriptionStringId: Int? = null
 ) {
     // Media

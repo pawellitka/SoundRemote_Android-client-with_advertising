@@ -11,8 +11,12 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 
-class AudioPipe(private val receivedAudio: ReceiveChannel<ByteArray>) {
+class AudioPipe(
+    private val uncompressedAudio: ReceiveChannel<ByteArray>,
+    private val opusAudio: ReceiveChannel<ByteArray>
+) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val decoder = OpusAudioDecoder()
     private val playback = PlaybackSink()
@@ -27,7 +31,6 @@ class AudioPipe(private val receivedAudio: ReceiveChannel<ByteArray>) {
     var state: Int = PIPE_STOPPED
         private set
 
-
     fun start() {
         if (state == PIPE_RELEASED) {
             throw IllegalStateException("Can't start(): AudioPipe is released")
@@ -39,9 +42,15 @@ class AudioPipe(private val receivedAudio: ReceiveChannel<ByteArray>) {
                 state = PIPE_PLAYING
                 playback.start()
                 while (isActive) {
-                    val audio = receivedAudio.receive()
-                    val decodedBytes = decoder.decode(audio, decodedData)
-                    playback.play(decodedData, decodedBytes)
+                    select {
+                        uncompressedAudio.onReceive { audio ->
+                            playback.play(audio, audio.size)
+                        }
+                        opusAudio.onReceive { audio ->
+                            val decodedBytes = decoder.decode(audio, decodedData)
+                            playback.play(decodedData, decodedBytes)
+                        }
+                    }
                 }
             }
         }

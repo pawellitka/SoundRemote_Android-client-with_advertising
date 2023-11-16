@@ -1,10 +1,15 @@
 package com.fake.soundremote.network
 
 import com.fake.soundremote.util.Net
+import com.fake.soundremote.util.Net.getUByte
+import com.fake.soundremote.util.Net.getUShort
+import com.fake.soundremote.util.Net.putUByte
+import com.fake.soundremote.util.Net.putUShort
+import com.fake.soundremote.util.PacketCategoryType
 import java.nio.ByteBuffer
 
-data class PacketHeader(val type: Int, val packetSize: Int) {
-    constructor(type: Net.PacketType, packetSize: Int) : this(type.value, packetSize)
+data class PacketHeader(val category: PacketCategoryType, val packetSize: Int) {
+    constructor(category: Net.PacketCategory, packetSize: Int) : this(category.value, packetSize)
 
     /**
      * Writes this header to the given ByteBuffer and increments its position by [SIZE].
@@ -13,15 +18,15 @@ data class PacketHeader(val type: Int, val packetSize: Int) {
      */
     fun write(dest: ByteBuffer) {
         require(dest.remaining() >= SIZE)
-        dest.putChar(Net.PROTOCOL_SIGNATURE)
-        dest.put(type.toByte())
-        dest.putChar(packetSize.toChar())
+        dest.putUShort(Net.PROTOCOL_SIGNATURE)
+        dest.putUByte(category)
+        dest.putUShort(packetSize.toUShort())
     }
 
     companion object {
         /*
         unsigned 16bit    protocol signature
-        unsigned 8bit     packet type
+        unsigned 8bit     packet category
         unsigned 16bit    packet size including header
         */
         /**
@@ -39,11 +44,11 @@ data class PacketHeader(val type: Int, val packetSize: Int) {
          */
         fun read(buffer: ByteBuffer): PacketHeader? {
             if (buffer.remaining() < SIZE) return null
-            val signature = buffer.char
+            val signature = buffer.getUShort()
             if (signature != Net.PROTOCOL_SIGNATURE) return null
-            val type = Net.readUByte(buffer)
-            val packetSize = buffer.char
-            val header = PacketHeader(type, packetSize.code)
+            val category = buffer.getUByte()
+            val packetSize = buffer.getUShort().toInt()
+            val header = PacketHeader(category, packetSize)
             return if (buffer.limit() != header.packetSize) null else header
         }
     }

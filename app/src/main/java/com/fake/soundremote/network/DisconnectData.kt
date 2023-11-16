@@ -2,7 +2,7 @@ package com.fake.soundremote.network
 
 import java.nio.ByteBuffer
 
-class KeepAliveData : PacketData {
+class DisconnectData : PacketData {
     override fun write(dest: ByteBuffer) {}
 
     companion object {

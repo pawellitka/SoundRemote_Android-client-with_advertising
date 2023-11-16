@@ -14,7 +14,7 @@ class SettingsViewModel @Inject constructor(
     private val preferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
-    private val _settings = MutableStateFlow(SettingsUIState(0, 0))
+    private val _settings = MutableStateFlow(SettingsUIState(0, 0, 0))
     val settings: StateFlow<SettingsUIState>
         get() = _settings
 
@@ -23,7 +23,8 @@ class SettingsViewModel @Inject constructor(
             preferencesRepository.settingsScreenPreferencesFlow.collect { prefs ->
                 _settings.value = SettingsUIState(
                     serverPort = prefs.serverPort,
-                    clientPort = prefs.clientPort
+                    clientPort = prefs.clientPort,
+                    audioCompression = prefs.audioCompression,
                 )
             }
         }
@@ -36,9 +37,14 @@ class SettingsViewModel @Inject constructor(
     fun setClientPort(value: Int) {
         viewModelScope.launch { preferencesRepository.setClientPort(value) }
     }
+
+    fun setAudioCompression(value: Int) {
+        viewModelScope.launch { preferencesRepository.setAudioCompression(value) }
+    }
 }
 
 data class SettingsUIState(
     val serverPort: Int,
     val clientPort: Int,
+    val audioCompression: Int,
 )

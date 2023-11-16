@@ -3,7 +3,9 @@ package com.fake.soundremote.network
 import android.os.Build
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Net
+import com.fake.soundremote.util.PacketProtocolType
 import com.fake.soundremote.util.SystemMessage
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,130 +19,132 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.InetSocketAddress
-import java.net.SocketException
 import java.net.StandardSocketOptions
 import java.nio.ByteBuffer
 import java.nio.channels.AlreadyBoundException
 import java.nio.channels.AsynchronousCloseException
 import java.nio.channels.DatagramChannel
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
+import kotlin.random.Random
 
 internal class Connection(
-    private val audioDataSink: SendChannel<ByteArray>,
-    private val connectionMessages: SendChannel<SystemMessage>
+    private val uncompressedAudio: SendChannel<ByteArray>,
+    private val opusAudio: SendChannel<ByteArray>,
+    private val connectionMessages: SendChannel<SystemMessage>,
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var connectJob: Job? = null
     private var receiveJob: Job? = null
     private var keepAliveJob: Job? = null
-    private var closeJob: Job? = null
+    private var pendingRequests = mutableMapOf<Net.PacketCategory, Request>()
 
     private var serverAddress: InetSocketAddress? = null
     private var dataChannel: DatagramChannel? = null
     private var sendChannel: DatagramChannel? = null
+    private val connectLock = Any()
     private val sendLock = Any()
+    private val pendingRequestsLock = Any()
 
-    private var serverLastContact: Long = 0
+    private var serverProtocol: PacketProtocolType = 1u
+    private var serverLastContact = AtomicLong(0)
     private var _connectionStatus = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     val connectionStatus: StateFlow<ConnectionStatus>
         get() = _connectionStatus
-    private var currentStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED
-    var processAudio: Boolean = true
-    private fun updateStatus(newStatus: ConnectionStatus) {
-        currentStatus = newStatus
-        _connectionStatus.value = newStatus
-    }
+    private var currentStatus
+        get() = _connectionStatus.value
+        set(value) {
+            _connectionStatus.value = value
+        }
 
-    suspend fun connect(address: String, serverPort: Int, localPort: Int): Boolean =
-        withContext(Dispatchers.IO) {
-            shutdown()
+    var processAudio = AtomicBoolean(true)
 
-            updateStatus(ConnectionStatus.CONNECTING)
-            synchronized(sendLock) {
-                serverAddress = InetSocketAddress(address, serverPort)
-                sendChannel = DatagramChannel.open()
-            }
-            dataChannel = DatagramChannel.open().also {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    it.setOption(StandardSocketOptions.SO_REUSEADDR, true)
+    suspend fun connect(
+        address: String,
+        serverPort: Int,
+        localPort: Int,
+        @Net.Compression compression: Int
+    ) = withContext(scope.coroutineContext) {
+        shutdown()
+        synchronized(connectLock) {
+            currentStatus = ConnectionStatus.CONNECTING
+            try {
+                synchronized(sendLock) {
+                    serverAddress = InetSocketAddress(address, serverPort)
+                    sendChannel = createSendChannel()
                 }
-            }
-
-            val bindAddress = InetSocketAddress(localPort)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                try {
-                    dataChannel?.bind(bindAddress)
-                } catch (e: AlreadyBoundException) {
+                dataChannel = createReceiveChannel(InetSocketAddress(localPort))
+            } catch (e: IllegalStateException) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && e is AlreadyBoundException) {
                     sendMessage(SystemMessage.MESSAGE_ALREADY_BOUND)
-                    shutdown()
-                    return@withContext false
-                } catch (e: IOException) {
+                } else {
                     sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
-                    shutdown()
-                    return@withContext false
                 }
-            } else {
-                try {
-                    dataChannel?.socket()?.bind(bindAddress)
-                } catch (e: SocketException) {
-                    sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
-                    shutdown()
-                    return@withContext false
-                }
+                releaseChannels()
+                currentStatus = ConnectionStatus.DISCONNECTED
+                return@withContext false
+            } catch (e: Exception) {
+                sendMessage(SystemMessage.MESSAGE_BIND_ERROR)
+                releaseChannels()
+                currentStatus = ConnectionStatus.DISCONNECTED
+                return@withContext false
             }
             receiveJob = receive()
-            keepAliveJob = keepAlive()
-            true
         }
-
-    fun close() {
-        scope.launch { shutdown() }
+        connectJob = repeatConnect(compression)
     }
 
-    private suspend fun shutdown() {
-        if (currentStatus == ConnectionStatus.DISCONNECTED) return
-        if (closeJob == null) {
-            closeJob = scope.launch(Dispatchers.IO) {
-                synchronized(sendLock) {
-                    serverAddress = null
-                    sendChannel?.close()
-                    sendChannel = null
-                }
+    /**
+     * Sends the disconnect packet and closes the connection.
+     */
+    suspend fun disconnect() {
+        send(Net.getDisconnectPacket())
+        shutdown()
+    }
 
-                receiveJob?.cancel()
-                keepAliveJob?.cancel()
-
-                // Close channel after cancelling receiving job to avoid trying to invoke receive
-                // from closed or null channel
-                dataChannel?.close()
-                dataChannel = null
-
-                receiveJob?.join()
-                keepAliveJob?.join()
-            }
+    fun sendSetFormat(@Net.Compression compression: Int) {
+        val request = Request()
+        val packet = Net.getSetFormatPacket(compression, request.id)
+        scope.launch(CoroutineName("Send SetFormat")) { send(packet) }
+        synchronized(pendingRequestsLock) {
+            pendingRequests[Net.PacketCategory.SET_FORMAT] = request
         }
-        closeJob?.join()
-        closeJob = null
-        updateStatus(ConnectionStatus.DISCONNECTED)
     }
 
     fun sendKeystroke(keyCode: Int, mods: Int) {
-        val keystrokePacket = Net.getKeystrokePacket(keyCode, mods)
-        send(keystrokePacket)
+        val keystrokePacket = Net.getKeystrokePacket(keyCode.toUByte(), mods.toUByte())
+        scope.launch(CoroutineName("Send Keystroke")) { send(keystrokePacket) }
     }
 
-    private fun send(data: ByteBuffer) = scope.launch(Dispatchers.IO) {
-        synchronized(sendLock) {
-            serverAddress?.let { address ->
-                sendChannel?.send(data, address)
-            }
+    private suspend fun shutdown() = withContext(scope.coroutineContext) {
+        synchronized(connectLock) {
+            if (currentStatus == ConnectionStatus.DISCONNECTED) return@withContext
+            connectJob?.cancel()
+            receiveJob?.cancel()
+            keepAliveJob?.cancel()
+            // Close channel after cancelling receiving job to avoid trying to invoke receive
+            // from closed or null channel
+            releaseChannels()
+            currentStatus = ConnectionStatus.DISCONNECTED
         }
     }
 
-    private suspend fun sendMessage(message: SystemMessage) {
-        connectionMessages.send(message)
+    private fun releaseChannels() {
+        synchronized(sendLock) {
+            serverAddress = null
+            sendChannel?.close()
+            sendChannel = null
+        }
+        dataChannel?.close()
+        dataChannel = null
     }
 
-    private fun receive() = scope.launch(Dispatchers.IO) {
+    /**
+     * Always runs on Dispatchers.IO
+     */
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private fun receive() = scope.launch(CoroutineName("Receive") + Dispatchers.IO) {
         val buf = Net.createPacketBuffer(Net.RECEIVE_BUFFER_CAPACITY)
         try {
             while (isActive) {
@@ -148,18 +152,12 @@ internal class Connection(
                 dataChannel?.receive(buf)
                 buf.flip()
                 val header: PacketHeader? = PacketHeader.read(buf)
-                when (header?.type) {
-                    Net.PacketType.AUDIO_DATA_OPUS.value -> if (processAudio) {
-                        val packetData = ByteArray(buf.remaining())
-                        buf.get(packetData)
-                        audioDataSink.send(packetData)
-                        updateServerLastSeen()
-                    }
-
-                    Net.PacketType.SERVER_KEEP_ALIVE.value -> {
-                        updateServerLastSeen()
-                    }
-
+                when (header?.category) {
+                    Net.PacketCategory.DISCONNECT.value -> processDisconnect()
+                    Net.PacketCategory.AUDIO_DATA_OPUS.value -> processAudioData(buf, true)
+                    Net.PacketCategory.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf, false)
+                    Net.PacketCategory.SERVER_KEEP_ALIVE.value -> updateServerLastContact()
+                    Net.PacketCategory.ACK.value -> processAck(buf)
                     else -> {}
                 }
             }
@@ -167,31 +165,159 @@ internal class Connection(
         }
     }
 
-    private fun keepAlive() = scope.launch(Dispatchers.IO) {
-        serverLastContact = System.nanoTime()
-        while (isActive) {
-            send(Net.getKeepAlivePacket())
-
-            val elapsedNanos = System.nanoTime() - serverLastContact
-            if (TimeUnit.SECONDS.convert(elapsedNanos, TimeUnit.NANOSECONDS) >=
-                Net.SERVER_TIMEOUT_SECONDS
-            ) {
-                when (currentStatus) {
-                    ConnectionStatus.CONNECTING -> sendMessage(SystemMessage.MESSAGE_CONNECT_FAILED)
-                    ConnectionStatus.CONNECTED -> sendMessage(SystemMessage.MESSAGE_DISCONNECTED)
-                    else -> Unit
-                }
-                close()
-            }
+    private fun repeatConnect(compression: Int) = scope.launch(CoroutineName("Repeat connect")) {
+        var attempts = 0
+        while (isActive && attempts < 3) {
+            sendConnect(compression)
+            attempts++
             delay(1000L)
         }
+        if (currentStatus != ConnectionStatus.CONNECTED) {
+            sendMessage(SystemMessage.MESSAGE_CONNECT_FAILED)
+            shutdown()
+        }
     }
 
-    private fun updateServerLastSeen() {
-        val newContactTime = System.nanoTime()
-        if (currentStatus == ConnectionStatus.CONNECTING) {
-            updateStatus(ConnectionStatus.CONNECTED)
+    private fun keepAlive() = scope.launch(CoroutineName("KeepAlive")) {
+        serverLastContact.set(System.nanoTime())
+        while (isActive) {
+            delay(1000L)
+            val now = System.nanoTime()
+            val elapsedNanos = now - serverLastContact.get()
+            val elapsedSeconds = TimeUnit.SECONDS.convert(elapsedNanos, TimeUnit.NANOSECONDS)
+            if (elapsedSeconds >= Net.SERVER_TIMEOUT_SECONDS) {
+                sendMessage(SystemMessage.MESSAGE_DISCONNECTED)
+                shutdown()
+            }
+            send(Net.getKeepAlivePacket())
+            maintainPendingRequests(now)
         }
-        serverLastContact = newContactTime
+    }
+
+    private suspend fun send(data: ByteBuffer) = withContext(scope.coroutineContext) {
+        synchronized(sendLock) {
+            serverAddress?.let { address ->
+                sendChannel?.send(data, address)
+            }
+        }
+    }
+
+    private fun sendMessage(message: SystemMessage) = scope.launch(CoroutineName("Send message")) {
+        connectionMessages.send(message)
+    }
+
+    private suspend fun sendConnect(@Net.Compression compression: Int) {
+        val request = Request()
+        val packet = Net.getConnectPacket(compression, request.id)
+        send(packet)
+        synchronized(pendingRequestsLock) {
+            pendingRequests[Net.PacketCategory.CONNECT] = request
+        }
+    }
+
+    private fun updateServerLastContact() {
+        if (currentStatus != ConnectionStatus.CONNECTED) return
+        serverLastContact.set(System.nanoTime())
+    }
+
+    private suspend fun processAudioData(buffer: ByteBuffer, compressed: Boolean) {
+        if (currentStatus != ConnectionStatus.CONNECTED || !processAudio.get()) return
+        val packetData = ByteArray(buffer.remaining())
+        buffer.get(packetData)
+        if (compressed) {
+            opusAudio.send(packetData)
+        } else {
+            uncompressedAudio.send(packetData)
+        }
+        updateServerLastContact()
+    }
+
+    private fun processAck(buffer: ByteBuffer) = synchronized(pendingRequestsLock) {
+        if (pendingRequests.isEmpty()) return
+        val ackData = AckData.read(buffer) ?: return
+        val i = pendingRequests.iterator()
+        while (i.hasNext()) {
+            val (category, request) = i.next()
+            if (request.id == ackData.requestId) {
+                when (category) {
+                    Net.PacketCategory.CONNECT -> processAckConnect(ackData.customData)
+
+                    // TODO: Process format change acknowledgement
+                    Net.PacketCategory.SET_FORMAT -> {}
+
+                    else -> {}
+                }
+                i.remove()
+                return
+            }
+        }
+    }
+
+    /**
+     * Process ACK response on a Connect request.
+     * @param buffer [ByteBuffer] must be positioned on ACK packet custom data.
+     */
+    private fun processAckConnect(buffer: ByteBuffer) {
+        synchronized(connectLock) {
+            if (currentStatus == ConnectionStatus.CONNECTING) {
+                currentStatus = ConnectionStatus.CONNECTED
+                connectJob?.cancel()
+                keepAliveJob = keepAlive()
+            }
+        }
+        val ackConnectResponse = AckConnectData.read(buffer)
+        if (ackConnectResponse != null) {
+            serverProtocol = ackConnectResponse.protocol
+        }
+    }
+
+    private suspend fun processDisconnect() {
+        shutdown()
+    }
+
+    /**
+     * Removes pending requests older than 1 second
+     */
+    private fun maintainPendingRequests(now: Long) = synchronized(pendingRequestsLock) {
+        val i = pendingRequests.iterator()
+        while (i.hasNext()) {
+            val (_, request) = i.next()
+            val elapsedNanos = now - request.sentAt
+            val elapsedSeconds = TimeUnit.SECONDS.convert(elapsedNanos, TimeUnit.NANOSECONDS)
+            if (elapsedSeconds > 1) {
+                i.remove()
+            }
+        }
+    }
+
+    companion object {
+        fun createSendChannel(): DatagramChannel {
+            return DatagramChannel.open()
+        }
+
+        /**
+         * Creates a bound [DatagramChannel]
+         *
+         * @param  bindAddress Address to bind to
+         *
+         * @throws AlreadyBoundException
+         * @throws SecurityException
+         * @throws IOException
+         */
+        fun createReceiveChannel(bindAddress: InetSocketAddress): DatagramChannel {
+            val channel = DatagramChannel.open()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                channel.setOption(StandardSocketOptions.SO_REUSEADDR, true)
+                channel.bind(bindAddress)
+            } else {
+                channel.socket()?.bind(bindAddress)
+            }
+            return channel
+        }
     }
 }
+
+private data class Request(
+    val id: UShort = Random.nextInt(0, UShort.MAX_VALUE.toInt()).toUShort(),
+    val sentAt: Long = System.nanoTime()
+)
