@@ -40,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.DatagramChannel
+import java.util.concurrent.atomic.AtomicBoolean
 
 // TODO: Check unnecessary stubbing
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -145,17 +146,17 @@ internal class ConnectionTest {
             result
         }
         // Imitate server response with the captured requestId.
-        // After server response, respond with disconnect datagrams
+        // When `disconnect` flag is set, respond with disconnect datagram
+        val disconnect = AtomicBoolean(false)
         val response = slot<ByteBuffer>()
-        var connectReceived = false
         every { receiveChannel.receive(capture(response)) } answers {
-            requestId?.let {
-                if (connectReceived) {
-                    PacketHeader(Net.PacketCategory.DISCONNECT, PacketHeader.SIZE)
-                        .write(response.captured)
-                } else {
+            if (disconnect.get()) {
+                PacketHeader(Net.PacketCategory.DISCONNECT, PacketHeader.SIZE)
+                    .write(response.captured)
+            } else {
+                requestId?.let {
                     writeConnectResponse(it, response.captured)
-                    connectReceived = true
+                    requestId = null
                 }
             }
             serverAddress
@@ -173,6 +174,10 @@ internal class ConnectionTest {
             connection.connectionStatus.collect { actual ->
                 assertEquals(expectedStatuses[currentExpectedStatus], actual)
                 currentExpectedStatus++
+                // Disconnect after getting connected
+                if (actual == ConnectionStatus.CONNECTED) {
+                    disconnect.set(true)
+                }
             }
         }
         connection.connect(address, serverPort, localPort, compression)
