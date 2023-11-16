@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -29,6 +30,8 @@ import com.fake.soundremote.BuildConfig
 import com.fake.soundremote.R
 import com.fake.soundremote.ui.util.ListItemHeadline
 import com.fake.soundremote.ui.util.NavigateUpButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,10 +42,17 @@ internal fun AboutScreen(
 ) {
     var showLicense by rememberSaveable { mutableStateOf(false) }
     var licenseText by rememberSaveable { mutableStateOf("") }
+    var licenseFile by rememberSaveable { mutableStateOf("") }
 
     val context = LocalContext.current
     val appName = stringResource(R.string.app_name)
-    val apache2file = "apache_2.txt"
+    val opusFile = "opus_license.txt"
+    val apache2File = "apache_2.txt"
+
+    LaunchedEffect(licenseFile) {
+        if (licenseFile.isBlank()) return@LaunchedEffect
+        licenseText = getLicense(context, licenseFile)
+    }
 
     Column(modifier) {
         TopAppBar(
@@ -61,40 +71,35 @@ internal fun AboutScreen(
             style = MaterialTheme.typography.bodyLarge,
             modifier = paddingMod
         )
+        val loadLicense: (String) -> Unit = { fileName ->
+            if (fileName != licenseFile) {
+                licenseText = ""
+                licenseFile = fileName
+            }
+            showLicense = true
+        }
         Credit(
             name = "Opus",
             url = "https://opus-codec.org",
-            onShowLicense = {
-                licenseText = getLicense(context, "opus_license.txt")
-                showLicense = true
-            },
+            onShowLicense = { loadLicense(opusFile) },
             context = context,
         )
         Credit(
             name = "Hilt",
             url = "https://dagger.dev/hilt/",
-            onShowLicense = {
-                licenseText = getLicense(context, apache2file)
-                showLicense = true
-            },
+            onShowLicense = { loadLicense(apache2File) },
             context = context,
         )
         Credit(
             name = "Guava",
             url = "https://guava.dev",
-            onShowLicense = {
-                licenseText = getLicense(context, apache2file)
-                showLicense = true
-            },
+            onShowLicense = { loadLicense(apache2File) },
             context = context,
         )
         Credit(
             name = "Accompanist",
             url = "https://google.github.io/accompanist",
-            onShowLicense = {
-                licenseText = getLicense(context, apache2file)
-                showLicense = true
-            },
+            onShowLicense = { loadLicense(apache2File) },
             context = context,
         )
     }
@@ -119,13 +124,14 @@ internal fun AboutScreen(
     }
 }
 
-private fun getLicense(context: Context, fileName: String): String {
-    try {
-        return context.assets.open(fileName).bufferedReader().use { it.readText() }
-    } catch (e: IOException) {
-        throw IllegalArgumentException("Failed to open asset file: $fileName", e)
+private suspend fun getLicense(context: Context, fileName: String): String =
+    withContext(Dispatchers.IO) {
+        try {
+            return@withContext context.assets.open(fileName).bufferedReader().use { it.readText() }
+        } catch (e: IOException) {
+            throw IllegalArgumentException("Failed to open asset file: $fileName", e)
+        }
     }
-}
 
 private val paddingMod = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 24.dp)
 
