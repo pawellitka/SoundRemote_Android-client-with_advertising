@@ -70,6 +70,7 @@ dependencies {
 // Instrumented tests
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.core.ktx)
+    androidTestImplementation(libs.androidx.navigation.testing)
 // Local tests
     testImplementation(libs.bundles.local.tests)
 // Room
@@ -82,6 +83,8 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.android.compiler)
 // Navigation
     implementation(libs.androidx.navigation.compose)
 // Accompanist
