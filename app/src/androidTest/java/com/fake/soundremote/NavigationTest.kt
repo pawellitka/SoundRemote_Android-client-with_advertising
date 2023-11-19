@@ -31,20 +31,28 @@ class NavigationTest {
         ReadOnlyProperty<Any?, String> { _, _ -> activity.getString(resId) }
 
     private val appName by composeTestRule.stringResource(R.string.app_name)
-    private val home by composeTestRule.stringResource(R.string.home_title)
+
+    // Screen titles
+    private val homeTitle by composeTestRule.stringResource(R.string.home_title)
+    private val eventsTitle by composeTestRule.stringResource(R.string.event_list_title)
+    private val settingsTitle by composeTestRule.stringResource(R.string.settings_title)
+    private val aboutTitleTemplate by composeTestRule.stringResource(R.string.about_title_template)
+    private val keystrokesTitle by composeTestRule.stringResource(R.string.keystroke_list_title)
+    private val createKeystrokeTitle by composeTestRule.stringResource(R.string.keystroke_create_title)
+
     private val navigationMenu by composeTestRule.stringResource(R.string.navigation_menu)
     private val navigationMenuDropdown by composeTestRule.stringResource(R.string.navigation_menu_description)
     private val menuEvents by composeTestRule.stringResource(R.string.action_events)
     private val menuSettings by composeTestRule.stringResource(R.string.action_settings)
     private val menuAbout by composeTestRule.stringResource(R.string.action_about)
-    private val eventsTitle by composeTestRule.stringResource(R.string.event_list_title)
-    private val settingsTitle by composeTestRule.stringResource(R.string.settings_title)
-    private val aboutTitleTemplate by composeTestRule.stringResource(R.string.about_title_template)
+    private val editKeystrokes by composeTestRule.stringResource(R.string.action_edit_keystrokes)
+    private val createKeystroke by composeTestRule.stringResource(R.string.action_keystroke_create)
+
 
     // First screen is HomeScreen
     @Test
     fun firstScreen_isHomeScreen() {
-        composeTestRule.onNodeWithText(home).assertIsDisplayed()
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
     }
 
     // HomeScreen navigation menu button opens navigation menu
@@ -88,5 +96,22 @@ class NavigationTest {
             val screenTitle = aboutTitleTemplate.format(appName)
             onNodeWithText(screenTitle).assertIsDisplayed()
         }
+    }
+
+    // Edit keystrokes FAB navigates to keystrokes screen
+    @Test
+    fun editKeystrokesFab_click_navigatesToHomeScreen() {
+        composeTestRule.onNodeWithContentDescription(editKeystrokes).performClick()
+        composeTestRule.onNodeWithText(keystrokesTitle).assertIsDisplayed()
+    }
+
+    // Create keystroke button navigates to create keystroke screen
+    @Test
+    fun createKeystrokes_click_navigatesToCreateKeystrokeScreen() {
+        composeTestRule.apply {
+            onNodeWithContentDescription(editKeystrokes).performClick()
+            onNodeWithContentDescription(createKeystroke).performClick()
+        }
+        composeTestRule.onNodeWithText(createKeystrokeTitle).assertIsDisplayed()
     }
 }
