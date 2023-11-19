@@ -77,6 +77,20 @@ class NavigationTest {
         }
     }
 
+    // Back from events screen returns to home screen
+    @Test
+    fun eventsScreen_back_returnsToHomeScreen() {
+        composeTestRule.apply {
+            onNodeWithContentDescription(navigationMenu).performClick()
+            onNodeWithText(menuEvents).performClick()
+            onNodeWithText(eventsTitle).assertIsDisplayed()
+        }
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
+    }
+
     // Menu Settings navigates to settings screen
     @Test
     fun menuSettings_onClick_navigatesToSettingsScreen() {
@@ -85,6 +99,20 @@ class NavigationTest {
             onNodeWithText(menuSettings).performClick()
             onNodeWithText(settingsTitle).assertIsDisplayed()
         }
+    }
+
+    // Back from settings screen returns to home screen
+    @Test
+    fun settingsScreen_back_returnsToHomeScreen() {
+        composeTestRule.apply {
+            onNodeWithContentDescription(navigationMenu).performClick()
+            onNodeWithText(menuSettings).performClick()
+            onNodeWithText(settingsTitle).assertIsDisplayed()
+        }
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
     }
 
     // Menu About navigates to about screen
@@ -98,6 +126,21 @@ class NavigationTest {
         }
     }
 
+    // Back from about screen returns to home screen
+    @Test
+    fun aboutScreen_back_returnsToHomeScreen() {
+        composeTestRule.apply {
+            onNodeWithContentDescription(navigationMenu).performClick()
+            onNodeWithText(menuAbout).performClick()
+            val screenTitle = aboutTitleTemplate.format(appName)
+            onNodeWithText(screenTitle).assertIsDisplayed()
+        }
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
+    }
+
     // Edit keystrokes FAB navigates to keystrokes screen
     @Test
     fun editKeystrokesFab_click_navigatesToHomeScreen() {
@@ -105,13 +148,40 @@ class NavigationTest {
         composeTestRule.onNodeWithText(keystrokesTitle).assertIsDisplayed()
     }
 
+    // Back from keystrokes screen returns to home screen
+    @Test
+    fun keystrokesScreen_back_returnsToHomeScreen() {
+        composeTestRule.apply {
+            onNodeWithContentDescription(editKeystrokes).performClick()
+            onNodeWithText(keystrokesTitle).assertIsDisplayed()
+        }
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
+    }
+
     // Create keystroke button navigates to create keystroke screen
     @Test
-    fun createKeystrokes_click_navigatesToCreateKeystrokeScreen() {
+    fun createKeystroke_click_navigatesToCreateKeystrokeScreen() {
         composeTestRule.apply {
             onNodeWithContentDescription(editKeystrokes).performClick()
             onNodeWithContentDescription(createKeystroke).performClick()
         }
         composeTestRule.onNodeWithText(createKeystrokeTitle).assertIsDisplayed()
+    }
+
+    // Back from create keystroke screen returns to keystrokes screen
+    @Test
+    fun createKeystroke_back_returnsToKeystrokesScreen() {
+        composeTestRule.apply {
+            onNodeWithContentDescription(editKeystrokes).performClick()
+            onNodeWithContentDescription(createKeystroke).performClick()
+            onNodeWithText(createKeystrokeTitle).assertIsDisplayed()
+        }
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        composeTestRule.onNodeWithText(keystrokesTitle).assertIsDisplayed()
     }
 }
