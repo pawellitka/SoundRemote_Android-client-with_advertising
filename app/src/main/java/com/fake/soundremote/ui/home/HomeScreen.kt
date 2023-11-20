@@ -47,6 +47,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -110,12 +112,17 @@ internal fun HomeScreen(
                     IconButton(onClick = { showMenu = true }) {
                         Icon(
                             Icons.Default.MoreVert,
-                            contentDescription = stringResource(R.string.menu)
+                            contentDescription = stringResource(R.string.navigation_menu)
                         )
                     }
+                    val menuContentDescription =
+                        stringResource(R.string.navigation_menu_description)
                     DropdownMenu(
                         expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
+                        onDismissRequest = { showMenu = false },
+                        modifier = Modifier.semantics {
+                            contentDescription = menuContentDescription
+                        }
                     ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_events)) },

@@ -1,12 +1,10 @@
 package com.fake.soundremote.service
 
-import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import com.fake.soundremote.SoundRemoteApplication
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.SystemMessage
@@ -14,6 +12,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -33,15 +32,12 @@ data class ServiceState(
 
 @Singleton
 internal class ServiceManager(
-    private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
 ) {
     @Inject
-    constructor(application: Application) : this(
-        scope = (application as SoundRemoteApplication).applicationScope,
-        dispatcher = Dispatchers.Default,
-    )
+    constructor() : this(Dispatchers.Default)
 
+    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private lateinit var service: WeakReference<MainService>
     private var bound: Boolean = false
     private var stateCollect: Job? = null

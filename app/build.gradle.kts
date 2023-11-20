@@ -19,7 +19,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "0.2.1"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.fake.soundremote.CustomTestRunner"
     }
     buildTypes {
         release {
@@ -37,7 +37,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
     buildToolsVersion = "34.0.0"
 }
@@ -70,6 +70,7 @@ dependencies {
 // Instrumented tests
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.core.ktx)
+    androidTestImplementation(libs.androidx.navigation.testing)
 // Local tests
     testImplementation(libs.bundles.local.tests)
 // Room
@@ -82,6 +83,8 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.android.compiler)
 // Navigation
     implementation(libs.androidx.navigation.compose)
 // Accompanist
