@@ -34,7 +34,7 @@ data class HomeKeystrokeUIState(
 )
 
 @HiltViewModel
-internal class MainViewModel @Inject constructor(
+internal class HomeViewModel @Inject constructor(
     private val userPreferencesRepo: UserPreferencesRepository,
     private val keystrokeRepository: KeystrokeRepository,
     private val serviceManager: ServiceManager,
