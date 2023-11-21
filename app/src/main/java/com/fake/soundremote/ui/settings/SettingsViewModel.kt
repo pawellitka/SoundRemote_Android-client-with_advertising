@@ -2,7 +2,7 @@ package com.fake.soundremote.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fake.soundremote.data.preferences.UserPreferencesRepository
+import com.fake.soundremote.data.preferences.PreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val preferencesRepository: UserPreferencesRepository
+    private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
 
     private val _settings = MutableStateFlow(SettingsUIState(0, 0, 0))

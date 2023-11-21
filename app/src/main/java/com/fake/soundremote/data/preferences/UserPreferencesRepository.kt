@@ -36,7 +36,7 @@ private const val KEY_AUDIO_COMPRESSION = "audio_compression"
 class UserPreferencesRepository(
     private val dataStore: DataStore<Preferences>,
     private val defaultDispatcher: CoroutineDispatcher
-) {
+) : PreferencesRepository {
     @Inject
     constructor(dataStore: DataStore<Preferences>) : this(dataStore, Dispatchers.IO)
 
@@ -56,7 +56,7 @@ class UserPreferencesRepository(
             }
         }
 
-    val settingsScreenPreferencesFlow: Flow<SettingsScreenPreferences> = preferencesFlow
+    override val settingsScreenPreferencesFlow: Flow<SettingsScreenPreferences> = preferencesFlow
         .map { preferences ->
             val serverPort = preferences[PreferencesKeys.SERVER_PORT] ?: DEFAULT_SERVER_PORT
             val clientPort = preferences[PreferencesKeys.CLIENT_PORT] ?: DEFAULT_CLIENT_PORT
@@ -65,55 +65,55 @@ class UserPreferencesRepository(
             SettingsScreenPreferences(serverPort, clientPort, audioCompression)
         }
 
-    val serverAddressFlow: Flow<String> = preferencesFlow
+    override val serverAddressFlow: Flow<String> = preferencesFlow
         .map { preferences ->
             preferences[PreferencesKeys.SERVER_ADDRESS] ?: DEFAULT_SERVER_ADDRESS
         }
 
-    val audioCompressionFlow: Flow<Int> = preferencesFlow
+    override val audioCompressionFlow: Flow<Int> = preferencesFlow
         .map { preferences ->
             preferences[PreferencesKeys.AUDIO_COMPRESSION] ?: DEFAULT_AUDIO_COMPRESSION
         }
 
-    suspend fun setServerAddress(serverAddress: String) = withContext(defaultDispatcher) {
+    override suspend fun setServerAddress(serverAddress: String) {
         dataStore.edit { prefs ->
             prefs[PreferencesKeys.SERVER_ADDRESS] = serverAddress
         }
     }
 
-    suspend fun getServerAddress(): String = withContext(defaultDispatcher) {
+    override suspend fun getServerAddress(): String = withContext(defaultDispatcher) {
         preferencesFlow.map { preferences ->
             preferences[PreferencesKeys.SERVER_ADDRESS] ?: DEFAULT_SERVER_ADDRESS
         }.first()
     }
 
-    suspend fun setServerPort(value: Int) = withContext(defaultDispatcher) {
+    override suspend fun setServerPort(value: Int) {
         dataStore.edit { prefs ->
             prefs[intPreferencesKey(KEY_SERVER_PORT)] = value
         }
     }
 
-    suspend fun getServerPort(): Int = withContext(defaultDispatcher) {
+    override suspend fun getServerPort(): Int = withContext(defaultDispatcher) {
         settingsScreenPreferencesFlow.first().serverPort
     }
 
-    suspend fun setClientPort(value: Int) = withContext(defaultDispatcher) {
+    override suspend fun setClientPort(value: Int) {
         dataStore.edit { prefs ->
             prefs[intPreferencesKey(KEY_CLIENT_PORT)] = value
         }
     }
 
-    suspend fun getClientPort(): Int = withContext(defaultDispatcher) {
+    override suspend fun getClientPort(): Int = withContext(defaultDispatcher) {
         settingsScreenPreferencesFlow.first().clientPort
     }
 
-    suspend fun setAudioCompression(value: Int) = withContext(defaultDispatcher) {
+    override suspend fun setAudioCompression(value: Int) {
         dataStore.edit { prefs ->
             prefs[intPreferencesKey(KEY_AUDIO_COMPRESSION)] = value
         }
     }
 
-    suspend fun getAudioCompression(): Int = withContext(defaultDispatcher) {
+    override suspend fun getAudioCompression(): Int = withContext(defaultDispatcher) {
         audioCompressionFlow.first()
     }
 }

@@ -38,7 +38,7 @@ import com.fake.soundremote.audio.AudioPipe.Companion.PIPE_PLAYING
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.data.EventActionRepository
 import com.fake.soundremote.data.Keystroke
-import com.fake.soundremote.data.preferences.UserPreferencesRepository
+import com.fake.soundremote.data.preferences.PreferencesRepository
 import com.fake.soundremote.network.Connection
 import com.fake.soundremote.util.ACTION_CLOSE
 import com.fake.soundremote.util.ConnectionStatus
@@ -63,7 +63,7 @@ import javax.inject.Inject
 internal class MainService : MediaBrowserServiceCompat() {
 
     @Inject
-    lateinit var userPreferencesRepo: UserPreferencesRepository
+    lateinit var userPreferencesRepo: PreferencesRepository
 
     @Inject
     lateinit var eventActionRepository: EventActionRepository
