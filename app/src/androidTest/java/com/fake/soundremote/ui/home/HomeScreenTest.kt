@@ -15,6 +15,8 @@ import androidx.compose.ui.test.performClick
 import com.fake.soundremote.R
 import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
+import com.fake.soundremote.util.ConnectionStatus
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -27,6 +29,8 @@ internal class HomeScreenTest {
     private val navigateUp by composeTestRule.stringResource(R.string.navigate_up)
     private val mute by composeTestRule.stringResource(R.string.mute)
     private val unmute by composeTestRule.stringResource(R.string.unmute)
+    private val connect by composeTestRule.stringResource(R.string.connect_caption)
+    private val disconnect by composeTestRule.stringResource(R.string.disconnect_caption)
 
     // Home screen should not contain navigate up arrow
     @Test
@@ -88,6 +92,82 @@ internal class HomeScreenTest {
         composeTestRule.onNodeWithContentDescription(unmute).performClick()
 
         assertFalse(actual)
+    }
+
+    // Connect button is displayed when disconnected
+    @Test
+    fun connectButton_whenDisconnected_isDisplayed() {
+        composeTestRule.setContent {
+            val uiState = HomeUIState(
+                connectionStatus = ConnectionStatus.DISCONNECTED,
+            )
+            CreateHomeScreen(uiState = uiState)
+        }
+
+        composeTestRule.onNodeWithContentDescription(connect).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(disconnect).assertDoesNotExist()
+    }
+
+    // Disconnect button is displayed when connected
+    @Test
+    fun disconnectButton_whenConnected_isDisplayed() {
+        composeTestRule.setContent {
+            val uiState = HomeUIState(
+                connectionStatus = ConnectionStatus.CONNECTED,
+            )
+            CreateHomeScreen(uiState = uiState)
+        }
+
+        composeTestRule.onNodeWithContentDescription(disconnect).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(connect).assertDoesNotExist()
+    }
+
+    // Disconnect button is displayed when connecting
+    @Test
+    fun disconnectButton_whenConnecting_isDisplayed() {
+        composeTestRule.setContent {
+            val uiState = HomeUIState(
+                connectionStatus = ConnectionStatus.CONNECTING,
+            )
+            CreateHomeScreen(uiState = uiState)
+        }
+
+        composeTestRule.onNodeWithContentDescription(disconnect).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(connect).assertDoesNotExist()
+    }
+
+    // Click on connect button connects
+    @Test
+    fun connectButton_click_connects() {
+        val expected = "123.45.67.89"
+        var actual = ""
+        composeTestRule.setContent {
+            val uiState = HomeUIState(
+                connectionStatus = ConnectionStatus.DISCONNECTED,
+                serverAddress = expected,
+            )
+            CreateHomeScreen(uiState = uiState, onConnect = { actual = it })
+        }
+
+        composeTestRule.onNodeWithContentDescription(connect).performClick()
+
+        assertEquals(expected, actual)
+    }
+
+    // Click on disconnect button disconnects
+    @Test
+    fun disconnectButton_click_disconnects() {
+        var actualPerformed = false
+        composeTestRule.setContent {
+            val uiState = HomeUIState(
+                connectionStatus = ConnectionStatus.CONNECTED,
+            )
+            CreateHomeScreen(uiState = uiState, onDisconnect = { actualPerformed = true })
+        }
+
+        composeTestRule.onNodeWithContentDescription(disconnect).performClick()
+
+        assertTrue(actualPerformed)
     }
 
     @Composable
