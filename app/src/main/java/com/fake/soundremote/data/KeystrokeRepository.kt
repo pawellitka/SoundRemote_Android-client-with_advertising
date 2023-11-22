@@ -1,6 +1,7 @@
 package com.fake.soundremote.data
 
 import com.fake.soundremote.data.room.KeystrokeDao
+import com.fake.soundremote.data.room.KeystrokeOrderDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -11,10 +12,12 @@ import javax.inject.Singleton
 @Singleton
 class KeystrokeRepository(
     private val keystrokeDao: KeystrokeDao,
+    private val keystrokeOrderDao: KeystrokeOrderDao,
     private val dispatcher: CoroutineDispatcher,
 ) {
     @Inject
-    constructor(keystrokeDao: KeystrokeDao) : this(keystrokeDao, Dispatchers.IO)
+    constructor(keystrokeDao: KeystrokeDao, keystrokeOrderDao: KeystrokeOrderDao) :
+            this(keystrokeDao, keystrokeOrderDao, Dispatchers.IO)
 
     suspend fun getById(id: Int): Keystroke? = withContext(dispatcher) {
         keystrokeDao.getById(id)
@@ -49,4 +52,20 @@ class KeystrokeRepository(
 
     fun getAllOrdered(): Flow<List<Keystroke>> =
         keystrokeDao.getAllOrdered()
+
+    suspend fun getOrderByKeystrokeId(keystrokeId: Int): KeystrokeOrder? = withContext(dispatcher) {
+        keystrokeOrderDao.getByKeystrokeId(keystrokeId)
+    }
+
+    suspend fun getAllOrdersOneshot(): List<KeystrokeOrder> = withContext(dispatcher) {
+        keystrokeOrderDao.getAllOneshot()
+    }
+
+    suspend fun updateOrders(keystrokeOrders: List<KeystrokeOrder>) = withContext(dispatcher) {
+        keystrokeOrderDao.updateAll(keystrokeOrders)
+    }
+
+    suspend fun ordersCount() = withContext(dispatcher) {
+        keystrokeOrderDao.count()
+    }
 }
