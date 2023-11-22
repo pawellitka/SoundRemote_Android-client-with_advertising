@@ -1,6 +1,5 @@
 package com.fake.soundremote.data
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.equalTo
@@ -15,8 +14,6 @@ import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 
-// https://developer.android.com/kotlin/coroutines/test
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(Enclosed::class)
 internal class AppDatabaseTest {
     @Ignore
@@ -36,11 +33,11 @@ internal class AppDatabaseTest {
         val database = DatabaseResource(dispatcher)
 
         @Test
-        fun createKeystroke_CreatesKeystrokeOrder() = runTest(dispatcher) {
-            val orderCountBefore = database.keystrokeOrderRepository.count()
+        fun createKeystroke_createsKeystrokeOrder() = runTest(dispatcher) {
+            val orderCountBefore = database.keystrokeRepository.getAllOrdersOneshot().size
 
             database.keystrokeRepository.insert(Keystroke(1, "Test"))
-            val orderCountAfter = database.keystrokeOrderRepository.count()
+            val orderCountAfter = database.keystrokeRepository.getAllOrdersOneshot().size
 
             assertThat(
                 "Creating Keystroke must create KeystrokeOrder",
@@ -49,22 +46,22 @@ internal class AppDatabaseTest {
         }
 
         @Test
-        fun createKeystroke_CreatesKeystrokeOrder_WithCorrectKeystrokeId() = runTest(dispatcher) {
+        fun createKeystroke_createsKeystrokeOrder_withCorrectKeystrokeId() = runTest(dispatcher) {
             val keystrokeId = database.keystrokeRepository
                 .insert(Keystroke(1, "Test"))
 
-            val order = database.keystrokeOrderRepository.getByKeystrokeId(keystrokeId.toInt())
+            val order = getKeystrokeOrder(keystrokeId.toInt())
             assertThat(
-                "Creating Keystroke must create correct KeystrokeOrder",
+                "Creating Keystroke must create a correct KeystrokeOrder",
                 order, notNullValue()
             )
         }
 
         @Test
-        fun createKeystroke_CreatesKeystrokeOrder_WithDefaultOrder() = runTest(dispatcher) {
+        fun createKeystroke_createsKeystrokeOrder_withDefaultOrder() = runTest(dispatcher) {
             val keystrokeId = database.keystrokeRepository.insert(Keystroke(1, "Test"))
 
-            val order = database.keystrokeOrderRepository.getByKeystrokeId(keystrokeId.toInt())
+            val order = getKeystrokeOrder(keystrokeId.toInt())
             assertThat(
                 "Creating Keystroke must create KeystrokeOrder with default value for Order",
                 order!!.order, equalTo(KeystrokeOrder.ORDER_DEFAULT_VALUE)
@@ -72,13 +69,13 @@ internal class AppDatabaseTest {
         }
 
         @Test
-        fun deleteKeystroke_DeletesKeystrokeOrder() = runTest(dispatcher) {
+        fun deleteKeystroke_deletesKeystrokeOrder() = runTest(dispatcher) {
             val keystrokeId = database.keystrokeRepository
                 .insert(Keystroke(1, "Test")).toInt()
 
             database.keystrokeRepository.deleteById(keystrokeId)
 
-            val order = database.keystrokeOrderRepository.getByKeystrokeId(keystrokeId)
+            val order = getKeystrokeOrder(keystrokeId)
             assertThat(
                 "Deleting Keystroke must delete its KeystrokeOrder",
                 order, nullValue()
@@ -86,7 +83,7 @@ internal class AppDatabaseTest {
         }
 
         @Test
-        fun deleteEventBoundKeystroke_UnbindsEvent() = runTest(dispatcher) {
+        fun deleteEventBoundKeystroke_unbindsEvent() = runTest(dispatcher) {
             val eventId = Event.CALL_BEGIN.id
             val keystrokeId = database.keystrokeRepository
                 .insert(Keystroke(1, "Test")).toInt()
@@ -99,6 +96,13 @@ internal class AppDatabaseTest {
                 "Deleting Event bound Keystroke must delete the Event",
                 actual, nullValue()
             )
+        }
+
+        private suspend fun getKeystrokeOrder(keystrokeId: Int): KeystrokeOrder? {
+            database.keystrokeRepository.getAllOrdersOneshot().forEach {
+                if (it.keystrokeId == keystrokeId) return it
+            }
+            return null
         }
     }
 }
