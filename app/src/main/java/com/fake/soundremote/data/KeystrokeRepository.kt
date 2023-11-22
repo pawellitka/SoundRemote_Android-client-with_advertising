@@ -53,19 +53,11 @@ class KeystrokeRepository(
     fun getAllOrdered(): Flow<List<Keystroke>> =
         keystrokeDao.getAllOrdered()
 
-    suspend fun getOrderByKeystrokeId(keystrokeId: Int): KeystrokeOrder? = withContext(dispatcher) {
-        keystrokeOrderDao.getByKeystrokeId(keystrokeId)
-    }
-
     suspend fun getAllOrdersOneshot(): List<KeystrokeOrder> = withContext(dispatcher) {
         keystrokeOrderDao.getAllOneshot()
     }
 
     suspend fun updateOrders(keystrokeOrders: List<KeystrokeOrder>) = withContext(dispatcher) {
         keystrokeOrderDao.updateAll(keystrokeOrders)
-    }
-
-    suspend fun ordersCount() = withContext(dispatcher) {
-        keystrokeOrderDao.count()
     }
 }
