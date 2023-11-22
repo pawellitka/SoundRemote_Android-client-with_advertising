@@ -3,7 +3,6 @@ package com.fake.soundremote.ui.keystrokelist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fake.soundremote.data.Keystroke
-import com.fake.soundremote.data.KeystrokeOrderRepository
 import com.fake.soundremote.data.KeystrokeRepository
 import com.fake.soundremote.util.generateDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +25,6 @@ data class KeystrokeListUIState(
 @HiltViewModel
 class KeystrokeListViewModel @Inject constructor(
     private val keystrokeRepository: KeystrokeRepository,
-    private val keystrokeOrderRepository: KeystrokeOrderRepository
 ) : ViewModel() {
 
     private val _keystrokeListState = MutableStateFlow(KeystrokeListUIState())
@@ -52,9 +50,8 @@ class KeystrokeListViewModel @Inject constructor(
     fun moveKeystroke(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
             val keystrokes = keystrokeRepository.getOrderedOneshot().toMutableList()
-            val validIndices = 0..keystrokes.lastIndex
-            require(fromIndex in validIndices && toIndex in validIndices) { "Invalid indices" }
-            val keystrokeOrders = keystrokeOrderRepository.getAllOneshot().toMutableList()
+            require(fromIndex in keystrokes.indices && toIndex in keystrokes.indices) { "Invalid indices" }
+            val keystrokeOrders = keystrokeRepository.getAllOrdersOneshot().toMutableList()
             check(keystrokeOrders.size == keystrokes.size) {
                 "Keystroke and KeystrokeOrder lists must be of the same size"
             }
@@ -66,7 +63,7 @@ class KeystrokeListViewModel @Inject constructor(
                 checkNotNull(order) { "A Keystroke without a corresponding KeystrokeOrder" }
                     .order = keystrokes.size - index
             }
-            keystrokeOrderRepository.update(keystrokeOrders)
+            keystrokeRepository.updateOrders(keystrokeOrders)
         }
     }
 
