@@ -26,6 +26,11 @@ typealias PacketModsType = UByte
 object Net {
     const val PROTOCOL_VERSION: PacketProtocolType = 1u
     const val PROTOCOL_SIGNATURE: PacketSignatureType = 0xA571u
+
+    /**
+     *  Audio is send in 10 milliseconds intervals of 48khz, 2 byte per sample, 2 channels signal,
+     *  which is 1920 bytes if uncompressed.
+     */
     const val RECEIVE_BUFFER_CAPACITY = 2048
     const val SERVER_TIMEOUT_SECONDS = 5
 

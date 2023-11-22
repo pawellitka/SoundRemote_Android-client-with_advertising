@@ -27,7 +27,7 @@ fun NavGraphBuilder.homeScreen(
     setFab: ((@Composable () -> Unit)?) -> Unit,
 ) {
     composable(homeRoute) {
-        val viewModel: MainViewModel = hiltViewModel()
+        val viewModel: HomeViewModel = hiltViewModel()
         val homeUIState by viewModel.homeUIState.collectAsStateWithLifecycle()
         HomeScreen(
             uiState = homeUIState,
