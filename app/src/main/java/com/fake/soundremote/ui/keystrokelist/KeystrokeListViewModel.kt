@@ -3,6 +3,7 @@ package com.fake.soundremote.ui.keystrokelist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fake.soundremote.data.KeystrokeRepository
+import com.fake.soundremote.data.Order
 import com.fake.soundremote.util.generateDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,14 +49,10 @@ class KeystrokeListViewModel @Inject constructor(
 
     fun moveKeystroke(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
-            val orders = keystrokeRepository.getAllOrdersOneshot().toMutableList()
-            require(fromIndex in orders.indices && toIndex in orders.indices) { "Invalid indices" }
-
-            val moved = orders.removeAt(fromIndex)
-            orders.add(toIndex, moved)
-            orders.forEachIndexed { index, keystrokeOrder ->
-                keystrokeOrder.order = orders.size - index
-            }
+            val orderedIds = keystrokeListState.value.keystrokes.map { it.id }.toMutableList()
+            require(fromIndex in orderedIds.indices && toIndex in orderedIds.indices) { "Invalid indices" }
+            orderedIds.add(toIndex, orderedIds.removeAt(fromIndex))
+            val orders = orderedIds.mapIndexed { index, id -> Order(id, orderedIds.size - index) }
             keystrokeRepository.updateOrders(orders)
         }
     }
