@@ -5,7 +5,6 @@ import androidx.room.Query
 import androidx.room.Update
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.KeystrokeInfo
-import com.fake.soundremote.data.KeystrokeOrder
 import com.fake.soundremote.data.Order
 import kotlinx.coroutines.flow.Flow
 
@@ -28,10 +27,8 @@ interface KeystrokeDao : BaseDao<Keystroke> {
 
     @Query(
         """
-        SELECT k.* FROM ${Keystroke.TABLE_NAME} AS k
-        JOIN ${KeystrokeOrder.TABLE_NAME} AS o
-        ON o.${KeystrokeOrder.COLUMN_KEYSTROKE_ID} = k.${Keystroke.COLUMN_ID}
-        ORDER BY o.'${KeystrokeOrder.COLUMN_ORDER}' DESC;
+        SELECT * FROM ${Keystroke.TABLE_NAME}
+        ORDER BY ${Keystroke.COLUMN_ORDER} DESC;
         """
     )
     suspend fun getAllOrderedOneshot(): List<Keystroke>
@@ -43,21 +40,17 @@ interface KeystrokeDao : BaseDao<Keystroke> {
         ${Keystroke.COLUMN_KEY_CODE},
         ${Keystroke.COLUMN_MODS},
         ${Keystroke.COLUMN_NAME}
-        FROM ${Keystroke.TABLE_NAME} AS k
-        JOIN ${KeystrokeOrder.TABLE_NAME} AS o
-        ON o.${KeystrokeOrder.COLUMN_KEYSTROKE_ID} = k.${Keystroke.COLUMN_ID}
+        FROM ${Keystroke.TABLE_NAME}
         WHERE ${Keystroke.COLUMN_FAVOURED} = :favoured
-        ORDER BY o.'${KeystrokeOrder.COLUMN_ORDER}' DESC; 
+        ORDER BY ${Keystroke.COLUMN_ORDER} DESC; 
         """
     )
     fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>>
 
     @Query(
         """
-        SELECT k.* FROM ${Keystroke.TABLE_NAME} AS k
-        JOIN ${KeystrokeOrder.TABLE_NAME} AS o
-        ON o.${KeystrokeOrder.COLUMN_KEYSTROKE_ID} = k.${Keystroke.COLUMN_ID}
-        ORDER BY o.'${KeystrokeOrder.COLUMN_ORDER}' DESC;
+        SELECT * FROM ${Keystroke.TABLE_NAME}
+        ORDER BY ${Keystroke.COLUMN_ORDER} DESC;
         """
     )
     fun getAllOrdered(): Flow<List<Keystroke>>
