@@ -100,9 +100,9 @@ data class KeystrokeInfo(
     var name: String,
 )
 
-data class Order(
+data class KeystrokeOrder(
     @ColumnInfo(name = Keystroke.COLUMN_ID)
-    var keystrokeId: Int,
+    var id: Int,
     @ColumnInfo(name = Keystroke.COLUMN_ORDER)
     var order: Int,
 )

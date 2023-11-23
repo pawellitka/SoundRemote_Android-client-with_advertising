@@ -5,7 +5,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.KeystrokeInfo
-import com.fake.soundremote.data.Order
+import com.fake.soundremote.data.KeystrokeOrder
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -56,5 +56,5 @@ interface KeystrokeDao : BaseDao<Keystroke> {
     fun getAllOrdered(): Flow<List<Keystroke>>
 
     @Update(entity = Keystroke::class)
-    suspend fun updateOrders(vararg keystrokeOrders: Order)
+    suspend fun updateOrders(vararg keystrokeOrders: KeystrokeOrder)
 }
