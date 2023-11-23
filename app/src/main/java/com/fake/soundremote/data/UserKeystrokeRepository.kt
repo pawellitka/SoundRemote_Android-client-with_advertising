@@ -43,8 +43,8 @@ class UserKeystrokeRepository(
         keystrokeDao.changeFavoured(id, favoured)
     }
 
-    override suspend fun getOrderedOneshot(): List<Keystroke> = withContext(dispatcher) {
-        keystrokeDao.getOrderedOneshot()
+    override suspend fun getAllOrderedOneshot(): List<Keystroke> = withContext(dispatcher) {
+        keystrokeDao.getAllOrderedOneshot()
     }
 
     override fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>> =

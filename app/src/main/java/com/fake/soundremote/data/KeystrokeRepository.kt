@@ -15,7 +15,7 @@ interface KeystrokeRepository {
 
     suspend fun changeFavoured(id: Int, favoured: Boolean)
 
-    suspend fun getOrderedOneshot(): List<Keystroke>
+    suspend fun getAllOrderedOneshot(): List<Keystroke>
 
     fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>>
 

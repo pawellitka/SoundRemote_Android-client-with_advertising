@@ -49,7 +49,7 @@ class KeystrokeListViewModel @Inject constructor(
 
     fun moveKeystroke(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
-            val keystrokes = keystrokeRepository.getOrderedOneshot().toMutableList()
+            val keystrokes = keystrokeRepository.getAllOrderedOneshot().toMutableList()
             require(fromIndex in keystrokes.indices && toIndex in keystrokes.indices) { "Invalid indices" }
             val keystrokeOrders = keystrokeRepository.getAllOrdersOneshot().toMutableList()
             check(keystrokeOrders.size == keystrokes.size) {

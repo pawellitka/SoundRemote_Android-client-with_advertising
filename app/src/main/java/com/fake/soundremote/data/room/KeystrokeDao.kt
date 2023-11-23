@@ -32,7 +32,7 @@ interface KeystrokeDao : BaseDao<Keystroke> {
         ORDER BY o.'${KeystrokeOrder.COLUMN_ORDER}' DESC;
         """
     )
-    suspend fun getOrderedOneshot(): List<Keystroke>
+    suspend fun getAllOrderedOneshot(): List<Keystroke>
 
     @Query(
         """
