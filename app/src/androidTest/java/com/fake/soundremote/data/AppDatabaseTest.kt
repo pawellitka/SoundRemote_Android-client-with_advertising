@@ -3,8 +3,6 @@ package com.fake.soundremote.data
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.BeforeClass
@@ -33,52 +31,14 @@ internal class AppDatabaseTest {
         val database = DatabaseResource(dispatcher)
 
         @Test
-        fun createKeystroke_createsKeystrokeOrder() = runTest(dispatcher) {
-            val orderCountBefore = database.keystrokeRepository.getAllOrdersOneshot().size
-
-            database.keystrokeRepository.insert(Keystroke(1, "Test"))
-            val orderCountAfter = database.keystrokeRepository.getAllOrdersOneshot().size
-
-            assertThat(
-                "Creating Keystroke must create KeystrokeOrder",
-                orderCountAfter, `is`(orderCountBefore + 1)
-            )
-        }
-
-        @Test
-        fun createKeystroke_createsKeystrokeOrder_withCorrectKeystrokeId() = runTest(dispatcher) {
-            val keystrokeId = database.keystrokeRepository
-                .insert(Keystroke(1, "Test"))
-
-            val order = getKeystrokeOrder(keystrokeId.toInt())
-            assertThat(
-                "Creating Keystroke must create a correct KeystrokeOrder",
-                order, notNullValue()
-            )
-        }
-
-        @Test
-        fun createKeystroke_createsKeystrokeOrder_withDefaultOrder() = runTest(dispatcher) {
+        fun createKeystroke_setsOrderToDefaultValue() = runTest(dispatcher) {
+            val expected = Keystroke.ORDER_DEFAULT_VALUE
             val keystrokeId = database.keystrokeRepository.insert(Keystroke(1, "Test"))
+            val actual = database.keystrokeRepository.getById(keystrokeId.toInt())?.order
 
-            val order = getKeystrokeOrder(keystrokeId.toInt())
             assertThat(
-                "Creating Keystroke must create KeystrokeOrder with default value for Order",
-                order!!.order, equalTo(KeystrokeOrder.ORDER_DEFAULT_VALUE)
-            )
-        }
-
-        @Test
-        fun deleteKeystroke_deletesKeystrokeOrder() = runTest(dispatcher) {
-            val keystrokeId = database.keystrokeRepository
-                .insert(Keystroke(1, "Test")).toInt()
-
-            database.keystrokeRepository.deleteById(keystrokeId)
-
-            val order = getKeystrokeOrder(keystrokeId)
-            assertThat(
-                "Deleting Keystroke must delete its KeystrokeOrder",
-                order, nullValue()
+                "Creating a Keystroke must init the order field with the default value",
+                actual, equalTo(expected)
             )
         }
 
@@ -96,13 +56,6 @@ internal class AppDatabaseTest {
                 "Deleting Event bound Keystroke must delete the Event",
                 actual, nullValue()
             )
-        }
-
-        private suspend fun getKeystrokeOrder(keystrokeId: Int): KeystrokeOrder? {
-            database.keystrokeRepository.getAllOrdersOneshot().forEach {
-                if (it.keystrokeId == keystrokeId) return it
-            }
-            return null
         }
     }
 }
