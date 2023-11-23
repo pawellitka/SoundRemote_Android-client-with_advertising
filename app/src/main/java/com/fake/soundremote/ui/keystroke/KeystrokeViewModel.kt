@@ -111,7 +111,8 @@ internal class KeystrokeViewModel @Inject constructor(
             } else {
                 val id = keystrokeToUpdate.id
                 val favoured = keystrokeToUpdate.isFavoured
-                val keystroke = Keystroke(id, currentKeyCode, mods, name, favoured)
+                val order = keystrokeToUpdate.order
+                val keystroke = Keystroke(id, currentKeyCode, mods, name, favoured, order)
                 viewModelScope.launch {
                     keystrokeRepository.update(keystroke)
                 }

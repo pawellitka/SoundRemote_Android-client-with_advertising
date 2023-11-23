@@ -53,12 +53,11 @@ class UserKeystrokeRepository(
     override fun getAllOrdered(): Flow<List<Keystroke>> =
         keystrokeDao.getAllOrdered()
 
-    override suspend fun getAllOrdersOneshot(): List<KeystrokeOrder> = withContext(dispatcher) {
-        keystrokeOrderDao.getAllOneshot()
+    override suspend fun getAllOrdersOneshot(): List<Order> = withContext(dispatcher) {
+        keystrokeDao.getAllOrdersOneshot()
     }
 
-    override suspend fun updateOrders(keystrokeOrders: List<KeystrokeOrder>) =
-        withContext(dispatcher) {
-            keystrokeOrderDao.updateAll(keystrokeOrders)
-        }
+    override suspend fun updateOrders(keystrokeOrders: List<Order>) = withContext(dispatcher) {
+        keystrokeDao.updateOrders(*keystrokeOrders.toTypedArray())
+    }
 }
