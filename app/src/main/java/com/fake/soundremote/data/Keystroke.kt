@@ -80,3 +80,14 @@ data class Keystroke(
         const val COLUMN_FAVOURED = "favoured"
     }
 }
+
+data class KeystrokeInfo(
+    @ColumnInfo(name = Keystroke.COLUMN_ID)
+    var id: Int,
+    @ColumnInfo(name = Keystroke.COLUMN_KEY_CODE)
+    var keyCode: Int,
+    @ColumnInfo(name = Keystroke.COLUMN_MODS)
+    var mods: Int,
+    @ColumnInfo(name = Keystroke.COLUMN_NAME)
+    var name: String,
+)
