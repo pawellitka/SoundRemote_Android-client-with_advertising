@@ -84,7 +84,7 @@ data class Keystroke(
         const val COLUMN_MODS = "mods"
         const val COLUMN_NAME = "name"
         const val COLUMN_FAVOURED = "favoured"
-        const val COLUMN_ORDER = "order"
+        const val COLUMN_ORDER = "display_order"
         const val ORDER_DEFAULT_VALUE = 0
     }
 }
@@ -98,4 +98,11 @@ data class KeystrokeInfo(
     var mods: Int,
     @ColumnInfo(name = Keystroke.COLUMN_NAME)
     var name: String,
+)
+
+data class Order(
+    @ColumnInfo(name = Keystroke.COLUMN_ID)
+    var keystrokeId: Int,
+    @ColumnInfo(name = Keystroke.COLUMN_ORDER)
+    var order: Int,
 )
