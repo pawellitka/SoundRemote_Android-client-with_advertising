@@ -47,7 +47,7 @@ class UserKeystrokeRepository(
         keystrokeDao.getOrderedOneshot()
     }
 
-    override fun getFavouredOrdered(favoured: Boolean): Flow<List<Keystroke>> =
+    override fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>> =
         keystrokeDao.getFavouredOrdered(favoured)
 
     override fun getAllOrdered(): Flow<List<Keystroke>> =

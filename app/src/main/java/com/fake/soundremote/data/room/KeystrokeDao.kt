@@ -3,6 +3,7 @@ package com.fake.soundremote.data.room
 import androidx.room.Dao
 import androidx.room.Query
 import com.fake.soundremote.data.Keystroke
+import com.fake.soundremote.data.KeystrokeInfo
 import com.fake.soundremote.data.KeystrokeOrder
 import kotlinx.coroutines.flow.Flow
 
@@ -35,14 +36,19 @@ interface KeystrokeDao : BaseDao<Keystroke> {
 
     @Query(
         """
-        SELECT k.* FROM ${Keystroke.TABLE_NAME} AS k
+        SELECT 
+        ${Keystroke.COLUMN_ID},
+        ${Keystroke.COLUMN_KEY_CODE},
+        ${Keystroke.COLUMN_MODS},
+        ${Keystroke.COLUMN_NAME}
+        FROM ${Keystroke.TABLE_NAME} AS k
         JOIN ${KeystrokeOrder.TABLE_NAME} AS o
         ON o.${KeystrokeOrder.COLUMN_KEYSTROKE_ID} = k.${Keystroke.COLUMN_ID}
         WHERE ${Keystroke.COLUMN_FAVOURED} = :favoured
         ORDER BY o.'${KeystrokeOrder.COLUMN_ORDER}' DESC; 
         """
     )
-    fun getFavouredOrdered(favoured: Boolean): Flow<List<Keystroke>>
+    fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>>
 
     @Query(
         """
