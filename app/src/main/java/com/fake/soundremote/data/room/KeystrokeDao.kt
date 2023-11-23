@@ -28,7 +28,7 @@ interface KeystrokeDao : BaseDao<Keystroke> {
     @Query(
         """
         SELECT * FROM ${Keystroke.TABLE_NAME}
-        ORDER BY ${Keystroke.COLUMN_ORDER} DESC;
+        ORDER BY ${Keystroke.COLUMN_ORDER} DESC, ${Keystroke.COLUMN_ID};
         """
     )
     suspend fun getAllOrderedOneshot(): List<Keystroke>
@@ -42,7 +42,7 @@ interface KeystrokeDao : BaseDao<Keystroke> {
         ${Keystroke.COLUMN_NAME}
         FROM ${Keystroke.TABLE_NAME}
         WHERE ${Keystroke.COLUMN_FAVOURED} = :favoured
-        ORDER BY ${Keystroke.COLUMN_ORDER} DESC; 
+        ORDER BY ${Keystroke.COLUMN_ORDER} DESC, ${Keystroke.COLUMN_ID};
         """
     )
     fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>>
@@ -50,7 +50,7 @@ interface KeystrokeDao : BaseDao<Keystroke> {
     @Query(
         """
         SELECT * FROM ${Keystroke.TABLE_NAME}
-        ORDER BY ${Keystroke.COLUMN_ORDER} DESC;
+        ORDER BY ${Keystroke.COLUMN_ORDER} DESC, ${Keystroke.COLUMN_ID};
         """
     )
     fun getAllOrdered(): Flow<List<Keystroke>>
