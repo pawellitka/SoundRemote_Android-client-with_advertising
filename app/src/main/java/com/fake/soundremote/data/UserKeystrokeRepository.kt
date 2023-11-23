@@ -1,7 +1,6 @@
 package com.fake.soundremote.data
 
 import com.fake.soundremote.data.room.KeystrokeDao
-import com.fake.soundremote.data.room.KeystrokeOrderDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -12,12 +11,11 @@ import javax.inject.Singleton
 @Singleton
 class UserKeystrokeRepository(
     private val keystrokeDao: KeystrokeDao,
-    private val keystrokeOrderDao: KeystrokeOrderDao,
     private val dispatcher: CoroutineDispatcher,
 ) : KeystrokeRepository {
     @Inject
-    constructor(keystrokeDao: KeystrokeDao, keystrokeOrderDao: KeystrokeOrderDao) :
-            this(keystrokeDao, keystrokeOrderDao, Dispatchers.IO)
+    constructor(keystrokeDao: KeystrokeDao) :
+            this(keystrokeDao, Dispatchers.IO)
 
     override suspend fun getById(id: Int): Keystroke? = withContext(dispatcher) {
         keystrokeDao.getById(id)
