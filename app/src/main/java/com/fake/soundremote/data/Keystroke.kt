@@ -44,20 +44,14 @@ data class Keystroke(
             )
 
     override fun toString(): String {
-        val result = StringBuilder()
-        result.append(generateDescription(this))
-        val title = name
         val isFav = if (isFavoured) "Yes" else "No"
-        result.append(String.format(" (Title: \"%1\$s\", favoured: %2\$s)", title, isFav))
-        return result.toString()
+        return "${generateDescription(this)} (Title: $name, favoured: $isFav)"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as Keystroke
-
         if (id != other.id) return false
         if (keyCode != other.keyCode) return false
         if (mods != other.mods) return false
