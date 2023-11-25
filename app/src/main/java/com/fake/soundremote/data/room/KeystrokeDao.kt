@@ -27,14 +27,6 @@ interface KeystrokeDao : BaseDao<Keystroke> {
 
     @Query(
         """
-        SELECT * FROM ${Keystroke.TABLE_NAME}
-        ORDER BY ${Keystroke.COLUMN_ORDER} DESC, ${Keystroke.COLUMN_ID};
-        """
-    )
-    suspend fun getAllOrderedOneshot(): List<Keystroke>
-
-    @Query(
-        """
         SELECT 
         ${Keystroke.COLUMN_ID},
         ${Keystroke.COLUMN_KEY_CODE},
