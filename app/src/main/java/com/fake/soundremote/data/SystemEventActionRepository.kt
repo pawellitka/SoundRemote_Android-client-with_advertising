@@ -12,29 +12,29 @@ import javax.inject.Singleton
 class SystemEventActionRepository(
     private val eventActionDao: EventActionDao,
     private val dispatcher: CoroutineDispatcher,
-) {
+) : EventActionRepository {
     @Inject
     constructor(eventActionDao: EventActionDao) : this(eventActionDao, Dispatchers.IO)
 
-    suspend fun getById(id: Int): EventAction? = withContext(dispatcher) {
+    override suspend fun getById(id: Int): EventAction? = withContext(dispatcher) {
         eventActionDao.getById(id)
     }
 
-    suspend fun insert(eventAction: EventAction) = withContext(dispatcher) {
+    override suspend fun insert(eventAction: EventAction) = withContext(dispatcher) {
         eventActionDao.insert(eventAction)
     }
 
-    suspend fun update(eventAction: EventAction) = withContext(dispatcher) {
+    override suspend fun update(eventAction: EventAction) = withContext(dispatcher) {
         eventActionDao.update(eventAction)
     }
 
-    suspend fun deleteById(id: Int) = withContext(dispatcher) {
+    override suspend fun deleteById(id: Int) = withContext(dispatcher) {
         eventActionDao.deleteById(id)
     }
 
-    suspend fun getKeystrokeByEventId(id: Int): Keystroke? =
+    override suspend fun getKeystrokeByEventId(id: Int): Keystroke? =
         eventActionDao.getKeystrokeByEventId(id)
 
-    fun getAll(): Flow<List<EventAction>> =
+    override fun getAll(): Flow<List<EventAction>> =
         eventActionDao.getAll()
 }
