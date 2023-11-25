@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class EventActionRepository(
+class SystemEventActionRepository(
     private val eventActionDao: EventActionDao,
     private val dispatcher: CoroutineDispatcher,
 ) {
@@ -37,5 +37,4 @@ class EventActionRepository(
 
     fun getAll(): Flow<List<EventAction>> =
         eventActionDao.getAll()
-
 }
