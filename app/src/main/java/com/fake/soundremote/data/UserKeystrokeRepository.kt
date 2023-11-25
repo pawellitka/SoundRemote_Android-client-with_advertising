@@ -29,20 +29,12 @@ class UserKeystrokeRepository(
         keystrokeDao.update(keystroke)
     }
 
-    override suspend fun delete(keystroke: Keystroke) = withContext(dispatcher) {
-        keystrokeDao.delete(keystroke)
-    }
-
     override suspend fun deleteById(id: Int) = withContext(dispatcher) {
         keystrokeDao.deleteById(id)
     }
 
     override suspend fun changeFavoured(id: Int, favoured: Boolean) = withContext(dispatcher) {
         keystrokeDao.changeFavoured(id, favoured)
-    }
-
-    override suspend fun getAllOrderedOneshot(): List<Keystroke> = withContext(dispatcher) {
-        keystrokeDao.getAllOrderedOneshot()
     }
 
     override fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>> =

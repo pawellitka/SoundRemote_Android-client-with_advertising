@@ -22,10 +22,6 @@ class TestKeystrokeRepository : KeystrokeRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun delete(keystroke: Keystroke): Int {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun deleteById(id: Int) {
         val newList = currentKeystrokes.toMutableList()
         newList.removeIf { it.id == id }
@@ -46,10 +42,6 @@ class TestKeystrokeRepository : KeystrokeRepository {
         return _keystrokesFlow.map { keystrokes ->
             keystrokes.sortedByDescending { it.order }
         }
-    }
-
-    override suspend fun getAllOrderedOneshot(): List<Keystroke> {
-        TODO("Not yet implemented")
     }
 
     override suspend fun updateOrders(keystrokeOrders: List<KeystrokeOrder>) {

@@ -9,13 +9,9 @@ interface KeystrokeRepository {
 
     suspend fun update(keystroke: Keystroke): Int
 
-    suspend fun delete(keystroke: Keystroke): Int
-
     suspend fun deleteById(id: Int)
 
     suspend fun changeFavoured(id: Int, favoured: Boolean)
-
-    suspend fun getAllOrderedOneshot(): List<Keystroke>
 
     fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>>
 
