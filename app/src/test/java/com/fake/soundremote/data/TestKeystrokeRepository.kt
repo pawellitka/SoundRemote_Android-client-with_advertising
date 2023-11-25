@@ -23,15 +23,15 @@ class TestKeystrokeRepository : KeystrokeRepository {
     }
 
     override suspend fun deleteById(id: Int) {
-        val newList = currentKeystrokes.toMutableList()
-        newList.removeIf { it.id == id }
-        _keystrokesFlow.tryEmit(newList)
+        val keystrokes = currentKeystrokes.toMutableList()
+        keystrokes.removeIf { it.id == id }
+        _keystrokesFlow.tryEmit(keystrokes)
     }
 
     override suspend fun changeFavoured(id: Int, favoured: Boolean) {
-        val newList = currentKeystrokes
-        newList.find { it.id == id }!!.isFavoured = favoured
-        _keystrokesFlow.tryEmit(newList)
+        val keystrokes = currentKeystrokes
+        keystrokes.find { it.id == id }!!.isFavoured = favoured
+        _keystrokesFlow.tryEmit(keystrokes)
     }
 
     override fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>> {
