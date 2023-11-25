@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 interface EventActionRepository {
     suspend fun getById(id: Int): EventAction?
 
-    suspend fun insert(eventAction: EventAction): Long
+    suspend fun insert(eventAction: EventAction)
 
     suspend fun update(eventAction: EventAction): Int
 

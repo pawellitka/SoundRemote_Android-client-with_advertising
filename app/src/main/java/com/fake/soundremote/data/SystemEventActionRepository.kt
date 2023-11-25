@@ -20,7 +20,7 @@ class SystemEventActionRepository(
         eventActionDao.getById(id)
     }
 
-    override suspend fun insert(eventAction: EventAction) = withContext(dispatcher) {
+    override suspend fun insert(eventAction: EventAction): Unit = withContext(dispatcher) {
         eventActionDao.insert(eventAction)
     }
 
