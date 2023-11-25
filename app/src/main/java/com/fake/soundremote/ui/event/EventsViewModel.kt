@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.data.EventAction
-import com.fake.soundremote.data.SystemEventActionRepository
+import com.fake.soundremote.data.EventActionRepository
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.KeystrokeRepository
 import com.fake.soundremote.util.AppPermission
@@ -33,7 +33,7 @@ internal data class EventListUIState(
 
 @HiltViewModel
 internal class EventsViewModel @Inject constructor(
-    private val eventActionRepository: SystemEventActionRepository,
+    private val eventActionRepository: EventActionRepository,
     private val keystrokeRepository: KeystrokeRepository,
 ) : ViewModel() {
     private val _eventsUIState = MutableStateFlow(EventListUIState())

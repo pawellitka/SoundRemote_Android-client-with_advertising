@@ -36,7 +36,7 @@ import com.fake.soundremote.R
 import com.fake.soundremote.audio.AudioPipe
 import com.fake.soundremote.audio.AudioPipe.Companion.PIPE_PLAYING
 import com.fake.soundremote.data.Event
-import com.fake.soundremote.data.SystemEventActionRepository
+import com.fake.soundremote.data.EventActionRepository
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.preferences.PreferencesRepository
 import com.fake.soundremote.network.Connection
@@ -66,7 +66,7 @@ internal class MainService : MediaBrowserServiceCompat() {
     lateinit var userPreferencesRepo: PreferencesRepository
 
     @Inject
-    lateinit var eventActionRepository: SystemEventActionRepository
+    lateinit var eventActionRepository: EventActionRepository
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val binder = LocalBinder()
