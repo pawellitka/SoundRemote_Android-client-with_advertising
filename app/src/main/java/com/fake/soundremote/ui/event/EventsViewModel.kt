@@ -11,10 +11,11 @@ import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.KeystrokeRepository
 import com.fake.soundremote.util.AppPermission
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,42 +37,39 @@ internal class EventsViewModel @Inject constructor(
     private val eventActionRepository: EventActionRepository,
     private val keystrokeRepository: KeystrokeRepository,
 ) : ViewModel() {
-    private val _eventsUIState = MutableStateFlow(EventListUIState())
-    val uiState: StateFlow<EventListUIState>
-        get() = _eventsUIState
-
-    init {
-        viewModelScope.launch {
-            val eventFlow = flowOf(Event.values())
-            val eventActionsFlow = eventActionRepository.getAll()
-            combine(eventFlow, eventActionsFlow) { eventList, eventActions ->
-                val eventUIStates = mutableListOf<EventUIState>()
-                for (event in eventList) {
-                    // Only use repository for events that have a bound keystroke
-                    val keystroke: Keystroke? = eventActions.find { it.eventId == event.id }
-                        ?.keystrokeId?.let { keystrokeRepository.getById(it) }
-                    val permission = if (
-                        (event.permissionMinSdk == null) ||
-                        (event.permissionMinSdk <= Build.VERSION.SDK_INT)
-                    ) {
-                        event.requiredPermission
-                    } else {
-                        null
-                    }
-                    eventUIStates.add(
-                        EventUIState(
-                            id = event.id,
-                            nameStringId = event.nameStringId,
-                            permission = permission,
-                            keystrokeId = keystroke?.id,
-                            keystrokeName = keystroke?.name
-                        )
-                    )
-                }
-                EventListUIState(eventUIStates)
-            }.collect { _eventsUIState.value = it }
+    val uiState: StateFlow<EventListUIState> = combine(
+        flowOf(Event.values()),
+        eventActionRepository.getAll(),
+    ) { events, eventActions ->
+        val eventUIStates = mutableListOf<EventUIState>()
+        for (event in events) {
+            // Only use repository for events that have a bound keystroke
+            val keystroke: Keystroke? = eventActions.find { it.eventId == event.id }
+                ?.keystrokeId?.let { keystrokeRepository.getById(it) }
+            val permission = if (
+                (event.permissionMinSdk == null) ||
+                (event.permissionMinSdk <= Build.VERSION.SDK_INT)
+            ) {
+                event.requiredPermission
+            } else {
+                null
+            }
+            eventUIStates.add(
+                EventUIState(
+                    id = event.id,
+                    nameStringId = event.nameStringId,
+                    permission = permission,
+                    keystrokeId = keystroke?.id,
+                    keystrokeName = keystroke?.name
+                )
+            )
         }
-    }
+        EventListUIState(eventUIStates)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = EventListUIState()
+    )
 
     fun setKeystrokeForEvent(eventId: Int, keystrokeId: Int?) {
         viewModelScope.launch {
