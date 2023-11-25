@@ -50,7 +50,10 @@ internal class HomeViewModel @Inject constructor(
             HomeKeystrokeUIState(
                 id = keystroke.id,
                 name = keystroke.name,
-                description = generateDescription(keystroke),
+                description = generateDescription(
+                    keyCode = keystroke.keyCode,
+                    mods = keystroke.mods
+                ),
             )
         }
         HomeUIState(

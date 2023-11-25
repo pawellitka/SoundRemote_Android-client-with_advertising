@@ -12,6 +12,11 @@ import dagger.hilt.components.SingletonComponent
 interface RepositoryModule {
     @Binds
     fun bindsPreferencesRepository(
-        userDataRepository: UserPreferencesRepository,
+        preferencesRepository: UserPreferencesRepository,
     ): PreferencesRepository
+
+    @Binds
+    fun bindsKeystrokeRepository(
+        keystrokeRepository: UserKeystrokeRepository,
+    ): KeystrokeRepository
 }

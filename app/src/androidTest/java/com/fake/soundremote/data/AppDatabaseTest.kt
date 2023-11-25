@@ -1,11 +1,8 @@
 package com.fake.soundremote.data
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.BeforeClass
@@ -15,8 +12,6 @@ import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 
-// https://developer.android.com/kotlin/coroutines/test
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(Enclosed::class)
 internal class AppDatabaseTest {
     @Ignore
@@ -36,57 +31,19 @@ internal class AppDatabaseTest {
         val database = DatabaseResource(dispatcher)
 
         @Test
-        fun createKeystroke_CreatesKeystrokeOrder() = runTest(dispatcher) {
-            val orderCountBefore = database.keystrokeOrderRepository.count()
-
-            database.keystrokeRepository.insert(Keystroke(1, "Test"))
-            val orderCountAfter = database.keystrokeOrderRepository.count()
-
-            assertThat(
-                "Creating Keystroke must create KeystrokeOrder",
-                orderCountAfter, `is`(orderCountBefore + 1)
-            )
-        }
-
-        @Test
-        fun createKeystroke_CreatesKeystrokeOrder_WithCorrectKeystrokeId() = runTest(dispatcher) {
-            val keystrokeId = database.keystrokeRepository
-                .insert(Keystroke(1, "Test"))
-
-            val order = database.keystrokeOrderRepository.getByKeystrokeId(keystrokeId.toInt())
-            assertThat(
-                "Creating Keystroke must create correct KeystrokeOrder",
-                order, notNullValue()
-            )
-        }
-
-        @Test
-        fun createKeystroke_CreatesKeystrokeOrder_WithDefaultOrder() = runTest(dispatcher) {
+        fun createKeystroke_setsOrderToDefaultValue() = runTest(dispatcher) {
+            val expected = Keystroke.ORDER_DEFAULT_VALUE
             val keystrokeId = database.keystrokeRepository.insert(Keystroke(1, "Test"))
+            val actual = database.keystrokeRepository.getById(keystrokeId.toInt())?.order
 
-            val order = database.keystrokeOrderRepository.getByKeystrokeId(keystrokeId.toInt())
             assertThat(
-                "Creating Keystroke must create KeystrokeOrder with default value for Order",
-                order!!.order, equalTo(KeystrokeOrder.ORDER_DEFAULT_VALUE)
+                "Creating a Keystroke must init the order field with the default value",
+                actual, equalTo(expected)
             )
         }
 
         @Test
-        fun deleteKeystroke_DeletesKeystrokeOrder() = runTest(dispatcher) {
-            val keystrokeId = database.keystrokeRepository
-                .insert(Keystroke(1, "Test")).toInt()
-
-            database.keystrokeRepository.deleteById(keystrokeId)
-
-            val order = database.keystrokeOrderRepository.getByKeystrokeId(keystrokeId)
-            assertThat(
-                "Deleting Keystroke must delete its KeystrokeOrder",
-                order, nullValue()
-            )
-        }
-
-        @Test
-        fun deleteEventBoundKeystroke_UnbindsEvent() = runTest(dispatcher) {
+        fun deleteEventBoundKeystroke_unbindsEvent() = runTest(dispatcher) {
             val eventId = Event.CALL_BEGIN.id
             val keystrokeId = database.keystrokeRepository
                 .insert(Keystroke(1, "Test")).toInt()

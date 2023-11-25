@@ -18,9 +18,6 @@ import javax.inject.Singleton
 object TestDataStoreModule {
     @Singleton
     @Provides
-    fun providePreferencesDatastore(
-        tmpFolder: TemporaryFolder,
-    ): DataStore<Preferences> = PreferenceDataStoreFactory.create {
-        tmpFolder.newFile("test.preferences_pb")
-    }
+    fun providePreferencesDatastore(tmpFolder: TemporaryFolder): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create { tmpFolder.newFile("test.preferences_pb") }
 }

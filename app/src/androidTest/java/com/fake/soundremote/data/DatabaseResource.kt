@@ -11,19 +11,14 @@ internal class DatabaseResource(private val dispatcher: CoroutineDispatcher) : E
     private lateinit var db: AppDatabase
     lateinit var eventActionRepository: EventActionRepository
         private set
-    lateinit var keystrokeRepository: KeystrokeRepository
-        private set
-    lateinit var keystrokeOrderRepository: KeystrokeOrderRepository
+    lateinit var keystrokeRepository: UserKeystrokeRepository
         private set
 
     override fun before() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-            .addCallback(AppDatabase.Callback())
-            .build()
+        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
         eventActionRepository = EventActionRepository(db.eventActionDao(), dispatcher)
-        keystrokeRepository = KeystrokeRepository(db.keystrokeDao(), dispatcher)
-        keystrokeOrderRepository = KeystrokeOrderRepository(db.keystrokeOrderDao(), dispatcher)
+        keystrokeRepository = UserKeystrokeRepository(db.keystrokeDao(), dispatcher)
     }
 
     override fun after() {

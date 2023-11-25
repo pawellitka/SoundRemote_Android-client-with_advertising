@@ -2,7 +2,9 @@ package com.fake.soundremote.data.room
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Update
 import com.fake.soundremote.data.Keystroke
+import com.fake.soundremote.data.KeystrokeInfo
 import com.fake.soundremote.data.KeystrokeOrder
 import kotlinx.coroutines.flow.Flow
 
@@ -25,32 +27,26 @@ interface KeystrokeDao : BaseDao<Keystroke> {
 
     @Query(
         """
-        SELECT k.* FROM ${Keystroke.TABLE_NAME} AS k
-        JOIN ${KeystrokeOrder.TABLE_NAME} AS o
-        ON o.${KeystrokeOrder.COLUMN_KEYSTROKE_ID} = k.${Keystroke.COLUMN_ID}
-        ORDER BY o.'${KeystrokeOrder.COLUMN_ORDER}' DESC;
-        """
-    )
-    suspend fun getOrderedOneshot(): List<Keystroke>
-
-    @Query(
-        """
-        SELECT k.* FROM ${Keystroke.TABLE_NAME} AS k
-        JOIN ${KeystrokeOrder.TABLE_NAME} AS o
-        ON o.${KeystrokeOrder.COLUMN_KEYSTROKE_ID} = k.${Keystroke.COLUMN_ID}
+        SELECT 
+        ${Keystroke.COLUMN_ID},
+        ${Keystroke.COLUMN_KEY_CODE},
+        ${Keystroke.COLUMN_MODS},
+        ${Keystroke.COLUMN_NAME}
+        FROM ${Keystroke.TABLE_NAME}
         WHERE ${Keystroke.COLUMN_FAVOURED} = :favoured
-        ORDER BY o.'${KeystrokeOrder.COLUMN_ORDER}' DESC; 
+        ORDER BY ${Keystroke.COLUMN_ORDER} DESC, ${Keystroke.COLUMN_ID};
         """
     )
-    fun getFavouredOrdered(favoured: Boolean): Flow<List<Keystroke>>
+    fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>>
 
     @Query(
         """
-        SELECT k.* FROM ${Keystroke.TABLE_NAME} AS k
-        JOIN ${KeystrokeOrder.TABLE_NAME} AS o
-        ON o.${KeystrokeOrder.COLUMN_KEYSTROKE_ID} = k.${Keystroke.COLUMN_ID}
-        ORDER BY o.'${KeystrokeOrder.COLUMN_ORDER}' DESC;
+        SELECT * FROM ${Keystroke.TABLE_NAME}
+        ORDER BY ${Keystroke.COLUMN_ORDER} DESC, ${Keystroke.COLUMN_ID};
         """
     )
     fun getAllOrdered(): Flow<List<Keystroke>>
+
+    @Update(entity = Keystroke::class)
+    suspend fun updateOrders(vararg keystrokeOrders: KeystrokeOrder)
 }

@@ -5,7 +5,6 @@ import androidx.room.Room.databaseBuilder
 import com.fake.soundremote.data.room.AppDatabase
 import com.fake.soundremote.data.room.EventActionDao
 import com.fake.soundremote.data.room.KeystrokeDao
-import com.fake.soundremote.data.room.KeystrokeOrderDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,7 +20,6 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext appContext: Context): AppDatabase {
         return databaseBuilder(appContext, AppDatabase::class.java, "sound_remote")
-            .addCallback(AppDatabase.Callback())
             .build()
     }
 
@@ -29,12 +27,6 @@ object DatabaseModule {
     @Singleton
     fun provideKeystrokeDao(database: AppDatabase): KeystrokeDao {
         return database.keystrokeDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideKeystrokeOrderDao(database: AppDatabase): KeystrokeOrderDao {
-        return database.keystrokeOrderDao()
     }
 
     @Provides

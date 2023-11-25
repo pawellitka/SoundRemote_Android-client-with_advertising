@@ -2,13 +2,14 @@ package com.fake.soundremote.ui.keystrokelist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fake.soundremote.data.Keystroke
-import com.fake.soundremote.data.KeystrokeOrderRepository
+import com.fake.soundremote.data.KeystrokeOrder
 import com.fake.soundremote.data.KeystrokeRepository
 import com.fake.soundremote.util.generateDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,47 +27,32 @@ data class KeystrokeListUIState(
 @HiltViewModel
 class KeystrokeListViewModel @Inject constructor(
     private val keystrokeRepository: KeystrokeRepository,
-    private val keystrokeOrderRepository: KeystrokeOrderRepository
 ) : ViewModel() {
-
-    private val _keystrokeListState = MutableStateFlow(KeystrokeListUIState())
-    val keystrokeListState: StateFlow<KeystrokeListUIState>
-        get() = _keystrokeListState
-
-    init {
-        viewModelScope.launch {
-            keystrokeRepository.getAllOrdered().collect { keystrokeList ->
-                val keystrokes = keystrokeList.map { keystroke ->
-                    KeystrokeUIState(
-                        keystroke.id,
-                        keystroke.name,
-                        description = generateDescription(keystroke),
-                        favoured = keystroke.isFavoured
-                    )
-                }
-                _keystrokeListState.value = KeystrokeListUIState(keystrokes)
+    val keystrokeListState: StateFlow<KeystrokeListUIState> = keystrokeRepository.getAllOrdered()
+        .map { keystrokes ->
+            val keystrokeUIStates = keystrokes.map { keystroke ->
+                KeystrokeUIState(
+                    keystroke.id,
+                    keystroke.name,
+                    description = generateDescription(keystroke),
+                    favoured = keystroke.isFavoured
+                )
             }
-        }
-    }
+            KeystrokeListUIState(keystrokeUIStates)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = KeystrokeListUIState()
+        )
 
     fun moveKeystroke(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
-            val keystrokes = keystrokeRepository.getOrderedOneshot().toMutableList()
-            val validIndices = 0..keystrokes.lastIndex
-            require(fromIndex in validIndices && toIndex in validIndices) { "Invalid indices" }
-            val keystrokeOrders = keystrokeOrderRepository.getAllOneshot().toMutableList()
-            check(keystrokeOrders.size == keystrokes.size) {
-                "Keystroke and KeystrokeOrder lists must be of the same size"
-            }
-
-            val moved: Keystroke = keystrokes.removeAt(fromIndex)
-            keystrokes.add(toIndex, moved)
-            keystrokes.forEachIndexed { index, keystroke ->
-                val order = keystrokeOrders.find { it.keystrokeId == keystroke.id }
-                checkNotNull(order) { "A Keystroke without a corresponding KeystrokeOrder" }
-                    .order = keystrokes.size - index
-            }
-            keystrokeOrderRepository.update(keystrokeOrders)
+            val orderedIds = keystrokeListState.value.keystrokes.map { it.id }.toMutableList()
+            require(fromIndex in orderedIds.indices && toIndex in orderedIds.indices) { "Invalid indices" }
+            orderedIds.add(toIndex, orderedIds.removeAt(fromIndex))
+            val orders =
+                orderedIds.mapIndexed { index, id -> KeystrokeOrder(id, orderedIds.size - index) }
+            keystrokeRepository.updateOrders(orders)
         }
     }
 

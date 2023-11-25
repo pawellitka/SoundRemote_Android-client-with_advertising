@@ -19,7 +19,11 @@ data class Keystroke(
     @ColumnInfo(name = COLUMN_NAME)
     var name: String,
     @ColumnInfo(name = COLUMN_FAVOURED)
-    var isFavoured: Boolean
+    var isFavoured: Boolean,
+    // Keystrokes are ordered by this number descending, so new items with order value of 0 will
+    // appear below.
+    @ColumnInfo(name = COLUMN_ORDER, defaultValue = "$ORDER_DEFAULT_VALUE")
+    var order: Int,
 ) {
     /**
      * Creates Keystroke
@@ -35,24 +39,19 @@ data class Keystroke(
                 keyCode = keyCode,
                 name = name,
                 mods = mods ?: 0,
-                isFavoured = favoured
+                isFavoured = favoured,
+                order = ORDER_DEFAULT_VALUE,
             )
 
     override fun toString(): String {
-        val result = StringBuilder()
-        result.append(generateDescription(this))
-        val title = name
         val isFav = if (isFavoured) "Yes" else "No"
-        result.append(String.format(" (Title: \"%1\$s\", favoured: %2\$s)", title, isFav))
-        return result.toString()
+        return "${generateDescription(this)} (Title: $name, favoured: $isFav)"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as Keystroke
-
         if (id != other.id) return false
         if (keyCode != other.keyCode) return false
         if (mods != other.mods) return false
@@ -68,6 +67,7 @@ data class Keystroke(
         result = 31 * result + mods
         result = 31 * result + name.hashCode()
         result = 31 * result + isFavoured.hashCode()
+        result = 31 * result + order
         return result
     }
 
@@ -78,5 +78,25 @@ data class Keystroke(
         const val COLUMN_MODS = "mods"
         const val COLUMN_NAME = "name"
         const val COLUMN_FAVOURED = "favoured"
+        const val COLUMN_ORDER = "display_order"
+        const val ORDER_DEFAULT_VALUE = 0
     }
 }
+
+data class KeystrokeInfo(
+    @ColumnInfo(name = Keystroke.COLUMN_ID)
+    var id: Int,
+    @ColumnInfo(name = Keystroke.COLUMN_KEY_CODE)
+    var keyCode: Int,
+    @ColumnInfo(name = Keystroke.COLUMN_MODS)
+    var mods: Int,
+    @ColumnInfo(name = Keystroke.COLUMN_NAME)
+    var name: String,
+)
+
+data class KeystrokeOrder(
+    @ColumnInfo(name = Keystroke.COLUMN_ID)
+    var id: Int,
+    @ColumnInfo(name = Keystroke.COLUMN_ORDER)
+    var order: Int,
+)
