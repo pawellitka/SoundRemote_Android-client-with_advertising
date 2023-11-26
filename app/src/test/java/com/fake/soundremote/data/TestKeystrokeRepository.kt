@@ -11,7 +11,7 @@ class TestKeystrokeRepository : KeystrokeRepository {
     private val currentKeystrokes get() = _keystrokesFlow.replayCache.firstOrNull() ?: emptyList()
 
     override suspend fun getById(id: Int): Keystroke? {
-        TODO("Not yet implemented")
+        return currentKeystrokes.find { it.id == id }?.copy()
     }
 
     override suspend fun insert(keystroke: Keystroke): Long {
