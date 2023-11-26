@@ -50,9 +50,10 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 internal fun EventListScreen(
-    eventListState: EventListUIState,
+    eventListState: EventsUIState,
     onSetKeystrokeForEvent: (eventId: Int, keystrokeId: Int?) -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,

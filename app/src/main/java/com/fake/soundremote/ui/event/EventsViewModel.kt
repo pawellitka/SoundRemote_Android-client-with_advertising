@@ -28,7 +28,7 @@ internal data class EventUIState(
     val keystrokeName: String? = null,
 )
 
-internal data class EventListUIState(
+internal data class EventsUIState(
     val events: List<EventUIState> = emptyList()
 )
 
@@ -37,7 +37,7 @@ internal class EventsViewModel @Inject constructor(
     private val eventActionRepository: EventActionRepository,
     private val keystrokeRepository: KeystrokeRepository,
 ) : ViewModel() {
-    val uiState: StateFlow<EventListUIState> = combine(
+    val uiState: StateFlow<EventsUIState> = combine(
         flowOf(Event.values()),
         eventActionRepository.getAll(),
     ) { events, eventActions ->
@@ -64,11 +64,11 @@ internal class EventsViewModel @Inject constructor(
                 )
             )
         }
-        EventListUIState(eventUIStates)
+        EventsUIState(eventUIStates)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = EventListUIState()
+        initialValue = EventsUIState()
     )
 
     fun setKeystrokeForEvent(eventId: Int, keystrokeId: Int?) {
