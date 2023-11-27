@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 internal fun EventsScreen(
-    eventListState: EventsUIState,
+    eventsUIState: EventsUIState,
     onSetKeystrokeForEvent: (eventId: Int, keystrokeId: Int?) -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
@@ -63,7 +63,7 @@ internal fun EventsScreen(
     var selectedKeystrokeId: Int? by rememberSaveable { mutableStateOf(null) }
 
     val permissionStates = mutableMapOf<String, PermissionState>()
-    for (event in eventListState.events) {
+    for (event in eventsUIState.events) {
         event.permission?.also { permission ->
             if (!permissionStates.containsKey(permission.id)) {
                 permissionStates[permission.id] = rememberPermissionState(permission.id)
@@ -72,7 +72,7 @@ internal fun EventsScreen(
     }
 
     fun checkAndRequestPermission(eventId: Int, keystrokeId: Int?) {
-        val permission = eventListState.events.find { it.id == eventId }?.permission
+        val permission = eventsUIState.events.find { it.id == eventId }?.permission
         if (keystrokeId == null || permission == null) return
         val permissionState = permissionStates[permission.id]!!
         if (!permissionState.status.isGranted) {
@@ -86,8 +86,8 @@ internal fun EventsScreen(
         onSetKeystrokeForEvent(eventId, keystrokeId)
     }
 
-    EventList(
-        events = eventListState.events,
+    Events(
+        events = eventsUIState.events,
         permissionStates = permissionStates,
         onEventClick = { eventId, keystrokeId ->
             selectedEventId = eventId
@@ -114,7 +114,7 @@ internal fun EventsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EventList(
+private fun Events(
     events: List<EventUIState>,
     permissionStates: Map<String, PermissionState>,
     onEventClick: (Int, Int?) -> Unit,
@@ -259,8 +259,8 @@ private fun EventItemPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun EventListPreview() {
-    EventList(
+private fun EventsPreview() {
+    Events(
         events = Event.values().map { event ->
             EventUIState(
                 id = event.id,
