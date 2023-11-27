@@ -173,7 +173,9 @@ private fun EventItem(
                 ListItemHeadline(text = eventName)
                 ListItemSupport(text = keystrokeName ?: stringResource(R.string.event_no_keystroke))
             }
-            PermissionInfo(permissionState, permissionNameId)
+            if (permissionState != null && permissionNameId != null) {
+                PermissionInfo(permissionState, permissionNameId)
+            }
         }
         Divider()
     }
@@ -182,10 +184,9 @@ private fun EventItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PermissionInfo(
-    permissionState: PermissionState?,
-    permissionNameStringId: Int?,
+    permissionState: PermissionState,
+    permissionNameStringId: Int,
 ) {
-    if (permissionState == null || permissionNameStringId == null) return
     val scope = rememberCoroutineScope()
     val tooltipState = remember { RichTooltipState() }
 
