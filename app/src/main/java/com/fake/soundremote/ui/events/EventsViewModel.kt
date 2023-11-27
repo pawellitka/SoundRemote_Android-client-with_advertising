@@ -1,4 +1,4 @@
-package com.fake.soundremote.ui.event
+package com.fake.soundremote.ui.events
 
 import android.os.Build
 import androidx.annotation.StringRes

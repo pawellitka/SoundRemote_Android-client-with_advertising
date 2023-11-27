@@ -6,7 +6,7 @@ import com.fake.soundremote.data.EventAction
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.TestEventActionRepository
 import com.fake.soundremote.data.TestKeystrokeRepository
-import com.fake.soundremote.ui.event.EventsViewModel
+import com.fake.soundremote.ui.events.EventsViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalPermissionsApi::class)
 
-package com.fake.soundremote.ui.event
+package com.fake.soundremote.ui.events
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

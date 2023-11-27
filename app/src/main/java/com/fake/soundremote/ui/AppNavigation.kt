@@ -11,8 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.fake.soundremote.ui.about.aboutScreen
 import com.fake.soundremote.ui.about.navigateToAbout
-import com.fake.soundremote.ui.event.eventsScreen
-import com.fake.soundremote.ui.event.navigateToEvents
+import com.fake.soundremote.ui.events.eventsScreen
+import com.fake.soundremote.ui.events.navigateToEvents
 import com.fake.soundremote.ui.home.homeRoute
 import com.fake.soundremote.ui.home.homeScreen
 import com.fake.soundremote.ui.keystroke.keystrokeCreateScreen
