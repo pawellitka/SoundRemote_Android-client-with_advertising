@@ -22,7 +22,7 @@ fun NavGraphBuilder.eventListScreen(
     composable(EVENT_LIST_ROUTE) {
         val viewModel: EventsViewModel = hiltViewModel()
         val eventListState by viewModel.uiState.collectAsStateWithLifecycle()
-        EventListScreen(
+        EventsScreen(
             eventListState = eventListState,
             onSetKeystrokeForEvent = { eventId, keystrokeId ->
                 viewModel.setKeystrokeForEvent(eventId = eventId, keystrokeId = keystrokeId)

@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-internal fun EventListScreen(
+internal fun EventsScreen(
     eventListState: EventsUIState,
     onSetKeystrokeForEvent: (eventId: Int, keystrokeId: Int?) -> Unit,
     onNavigateUp: () -> Unit,
