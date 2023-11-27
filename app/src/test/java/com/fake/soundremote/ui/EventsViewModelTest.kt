@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -32,76 +33,81 @@ internal class EventsViewModelTest {
         viewModel = EventsViewModel(eventActionRepository, keystrokeRepository)
     }
 
-    @Test
-    @DisplayName("setKeystrokeForEvent() adds event action if it doesn't exist yet")
-    fun setKeystrokeForEvent_notExistingEventAction_addsEventAction() = runTest {
-        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.uiState.collect {}
+    @DisplayName("setKeystrokeForEvent")
+    @Nested
+    inner class SetKeystrokeForEventTests {
+        @Test
+        @DisplayName("sets action for an event without action")
+        fun eventWithoutAction_existingAction_setsAction() = runTest {
+            val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiState.collect {}
+            }
+
+            val keystrokeId = 10
+            val keystrokes = listOf(Keystroke(keystrokeId, 100, 0, "TestK", false, 0))
+            keystrokeRepository.setKeystrokes(keystrokes)
+            val eventId = Event.CALL_END.id
+            assertNull(viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId)
+
+            viewModel.setKeystrokeForEvent(eventId, keystrokeId)
+
+            val actual = viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
+            assertEquals(keystrokeId, actual)
+
+            collectJob.cancel()
         }
 
-        val keystrokeId = 10
-        val keystrokes = listOf(Keystroke(keystrokeId, 100, 0, "TestK", false, 0))
-        keystrokeRepository.setKeystrokes(keystrokes)
+        @Test
+        @DisplayName("removes action from an event with action")
+        fun eventWithAction_nullAction_removesAction() = runTest {
+            val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiState.collect {}
+            }
 
-        val eventId = Event.CALL_END.id
-        viewModel.setKeystrokeForEvent(eventId, keystrokeId)
+            val keystrokeId = 1
+            val keystrokes = listOf(Keystroke(keystrokeId, 100, 0, "TestK", false, 0))
+            keystrokeRepository.setKeystrokes(keystrokes)
+            val eventId = Event.CALL_BEGIN.id
+            val eventActions = listOf(EventAction(eventId, keystrokeId))
+            eventActionRepository.setEventActions(eventActions)
+            assertTrue(viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId == keystrokeId)
 
-        val actual = viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
-        assertEquals(keystrokeId, actual)
+            viewModel.setKeystrokeForEvent(eventId, null)
 
-        collectJob.cancel()
-    }
+            val actual = viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
+            assertNull(actual)
 
-    @Test
-    @DisplayName("setKeystrokeForEvent() with null keystrokeId removes event action")
-    fun setKeystrokeForEvent_nullKeystrokeId_removesEventAction() = runTest {
-        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.uiState.collect {}
+            collectJob.cancel()
         }
 
-        val keystrokeId = 1
-        val keystrokes = listOf(Keystroke(keystrokeId, 100, 0, "TestK", false, 0))
-        keystrokeRepository.setKeystrokes(keystrokes)
-        val eventId = Event.CALL_BEGIN.id
-        val eventActions = listOf(EventAction(eventId, keystrokeId))
-        eventActionRepository.setEventActions(eventActions)
-        assertTrue(viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId == keystrokeId)
+        @Test
+        @DisplayName("updates action of an event with other action")
+        fun eventWithAction_existingAction_updatesAction() = runTest {
+            val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiState.collect {}
+            }
 
-        viewModel.setKeystrokeForEvent(eventId, null)
+            val oldKeystrokeId = 1
+            val newKeystrokeId = 2
+            val keystrokes = listOf(
+                Keystroke(oldKeystrokeId, 100, 0, "TestK", false, 0),
+                Keystroke(newKeystrokeId, 100, 0, "TestK", false, 0),
+            )
+            keystrokeRepository.setKeystrokes(keystrokes)
+            val eventId = Event.CALL_BEGIN.id
+            val eventActions = listOf(EventAction(eventId, oldKeystrokeId))
+            eventActionRepository.setEventActions(eventActions)
+            assertEquals(
+                oldKeystrokeId,
+                viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
+            )
 
-        val actual = viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
-        assertNull(actual)
+            viewModel.setKeystrokeForEvent(eventId, newKeystrokeId)
 
-        collectJob.cancel()
-    }
+            val actual = viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
+            assertEquals(newKeystrokeId, actual)
 
-    @Test
-    @DisplayName("setKeystrokeForEvent() updates event action if it exists")
-    fun setKeystrokeForEvent_existingEventAction_updatesKeystrokeId() = runTest {
-        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.uiState.collect {}
+            collectJob.cancel()
         }
-
-        val oldKeystrokeId = 1
-        val newKeystrokeId = 2
-        val keystrokes = listOf(
-            Keystroke(oldKeystrokeId, 100, 0, "TestK", false, 0),
-            Keystroke(newKeystrokeId, 100, 0, "TestK", false, 0),
-        )
-        keystrokeRepository.setKeystrokes(keystrokes)
-        val eventId = Event.CALL_BEGIN.id
-        val eventActions = listOf(EventAction(eventId, oldKeystrokeId))
-        eventActionRepository.setEventActions(eventActions)
-        assertEquals(
-            oldKeystrokeId,
-            viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
-        )
-
-        viewModel.setKeystrokeForEvent(eventId, newKeystrokeId)
-
-        val actual = viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
-        assertEquals(newKeystrokeId, actual)
-
-        collectJob.cancel()
     }
 }
