@@ -6,7 +6,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import com.fake.soundremote.R
+import com.fake.soundremote.data.Event
 import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import org.junit.Rule
@@ -26,6 +28,35 @@ internal class EventsScreenTest {
         }
 
         composeTestRule.onNodeWithContentDescription(navigateUp).assertIsDisplayed()
+    }
+
+    // Event name is displayed
+    @Test
+    fun eventName_isDisplayed() {
+        val eventNameStringId = Event.CALL_BEGIN.nameStringId
+        composeTestRule.setContent {
+            val events = listOf(
+                EventUIState(1, eventNameStringId),
+            )
+            CreateEventsScreen(eventsUIState = EventsUIState(events))
+        }
+
+        val eventName by composeTestRule.stringResource(eventNameStringId)
+        composeTestRule.onNodeWithText(eventName).assertIsDisplayed()
+    }
+
+    // Keystroke name is displayed
+    @Test
+    fun keystrokeName_isDisplayed() {
+        val keystrokeName = "Test name"
+        composeTestRule.setContent {
+            val events = listOf(
+                EventUIState(1, Event.CALL_BEGIN.nameStringId, null, 1, keystrokeName),
+            )
+            CreateEventsScreen(eventsUIState = EventsUIState(events))
+        }
+
+        composeTestRule.onNodeWithText(keystrokeName).assertIsDisplayed()
     }
 
     @Composable
