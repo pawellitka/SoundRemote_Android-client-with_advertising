@@ -1,4 +1,4 @@
-package com.fake.soundremote.ui.event
+package com.fake.soundremote.ui.events
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,21 +9,21 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 
-private const val EVENT_LIST_ROUTE = "event_list"
+private const val EVENTS_ROUTE = "events"
 
-fun NavController.navigateToEventList() {
-    navigate(EVENT_LIST_ROUTE)
+fun NavController.navigateToEvents() {
+    navigate(EVENTS_ROUTE)
 }
 
-fun NavGraphBuilder.eventListScreen(
+fun NavGraphBuilder.eventsScreen(
     onNavigateUp: () -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
 ) {
-    composable(EVENT_LIST_ROUTE) {
+    composable(EVENTS_ROUTE) {
         val viewModel: EventsViewModel = hiltViewModel()
-        val eventListState by viewModel.uiState.collectAsStateWithLifecycle()
-        EventListScreen(
-            eventListState = eventListState,
+        val eventsUIState by viewModel.uiState.collectAsStateWithLifecycle()
+        EventsScreen(
+            eventsUIState = eventsUIState,
             onSetKeystrokeForEvent = { eventId, keystrokeId ->
                 viewModel.setKeystrokeForEvent(eventId = eventId, keystrokeId = keystrokeId)
             },

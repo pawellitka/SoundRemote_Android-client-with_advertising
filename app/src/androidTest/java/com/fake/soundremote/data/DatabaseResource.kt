@@ -9,7 +9,7 @@ import org.junit.rules.ExternalResource
 
 internal class DatabaseResource(private val dispatcher: CoroutineDispatcher) : ExternalResource() {
     private lateinit var db: AppDatabase
-    lateinit var eventActionRepository: EventActionRepository
+    lateinit var eventActionRepository: SystemEventActionRepository
         private set
     lateinit var keystrokeRepository: UserKeystrokeRepository
         private set
@@ -17,7 +17,7 @@ internal class DatabaseResource(private val dispatcher: CoroutineDispatcher) : E
     override fun before() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
-        eventActionRepository = EventActionRepository(db.eventActionDao(), dispatcher)
+        eventActionRepository = SystemEventActionRepository(db.eventActionDao(), dispatcher)
         keystrokeRepository = UserKeystrokeRepository(db.keystrokeDao(), dispatcher)
     }
 

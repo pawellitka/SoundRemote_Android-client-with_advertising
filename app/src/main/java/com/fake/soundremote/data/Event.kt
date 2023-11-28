@@ -11,5 +11,6 @@ internal enum class Event(
     // If == null permission will always be requested.
     val permissionMinSdk: Int?,
 ) {
-    CALL_BEGIN(1, R.string.event_name_call_start, AppPermission.Phone, 31);
+    CALL_BEGIN(1, R.string.event_name_call_start, AppPermission.Phone, 31),
+    CALL_END(2, R.string.event_name_call_end, AppPermission.Phone, 31);
 }

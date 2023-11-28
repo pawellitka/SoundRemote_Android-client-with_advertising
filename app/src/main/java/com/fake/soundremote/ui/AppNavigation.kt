@@ -11,8 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.fake.soundremote.ui.about.aboutScreen
 import com.fake.soundremote.ui.about.navigateToAbout
-import com.fake.soundremote.ui.event.eventListScreen
-import com.fake.soundremote.ui.event.navigateToEventList
+import com.fake.soundremote.ui.events.eventsScreen
+import com.fake.soundremote.ui.events.navigateToEvents
 import com.fake.soundremote.ui.home.homeRoute
 import com.fake.soundremote.ui.home.homeScreen
 import com.fake.soundremote.ui.keystroke.keystrokeCreateScreen
@@ -41,7 +41,7 @@ fun AppNavigation(
     ) {
         homeScreen(
             onNavigateToKeystrokeList = navController::navigateToKeystrokeList,
-            onNavigateToEvents = navController::navigateToEventList,
+            onNavigateToEvents = navController::navigateToEvents,
             onNavigateToSettings = navController::navigateToSettings,
             onNavigateToAbout = navController::navigateToAbout,
             onEditKeystroke = { navController.navigateToKeystrokeEdit(it) },
@@ -64,7 +64,7 @@ fun AppNavigation(
             showSnackbar = showSnackbar,
             setFab = setFab,
         )
-        eventListScreen(
+        eventsScreen(
             onNavigateUp = navController::navigateUp,
             setFab = setFab,
         )

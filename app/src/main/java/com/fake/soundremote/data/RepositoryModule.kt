@@ -19,4 +19,9 @@ interface RepositoryModule {
     fun bindsKeystrokeRepository(
         keystrokeRepository: UserKeystrokeRepository,
     ): KeystrokeRepository
+
+    @Binds
+    fun bindsEventActionRepository(
+        eventActionRepository: SystemEventActionRepository,
+    ): EventActionRepository
 }

@@ -555,7 +555,14 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     private fun onCallStateEvent(state: Int) {
         when (state) {
-            TelephonyManager.CALL_STATE_IDLE -> Log.i(TAG, "Call state: IDLE")
+            TelephonyManager.CALL_STATE_IDLE -> {
+                Log.i(TAG, "Call state: IDLE")
+                scope.launch {
+                    eventActionRepository.getKeystrokeByEventId(Event.CALL_END.id)
+                        ?.also { sendKeystroke(it) }
+                }
+            }
+
             TelephonyManager.CALL_STATE_RINGING -> {
                 Log.i(TAG, "Call state: RINGING")
                 scope.launch {

@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalPermissionsApi::class)
 
-package com.fake.soundremote.ui.event
+package com.fake.soundremote.ui.events
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,9 +50,10 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-internal fun EventListScreen(
-    eventListState: EventListUIState,
+internal fun EventsScreen(
+    eventsUIState: EventsUIState,
     onSetKeystrokeForEvent: (eventId: Int, keystrokeId: Int?) -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
@@ -62,7 +63,7 @@ internal fun EventListScreen(
     var selectedKeystrokeId: Int? by rememberSaveable { mutableStateOf(null) }
 
     val permissionStates = mutableMapOf<String, PermissionState>()
-    for (event in eventListState.events) {
+    for (event in eventsUIState.events) {
         event.permission?.also { permission ->
             if (!permissionStates.containsKey(permission.id)) {
                 permissionStates[permission.id] = rememberPermissionState(permission.id)
@@ -71,7 +72,7 @@ internal fun EventListScreen(
     }
 
     fun checkAndRequestPermission(eventId: Int, keystrokeId: Int?) {
-        val permission = eventListState.events.find { it.id == eventId }?.permission
+        val permission = eventsUIState.events.find { it.id == eventId }?.permission
         if (keystrokeId == null || permission == null) return
         val permissionState = permissionStates[permission.id]!!
         if (!permissionState.status.isGranted) {
@@ -85,8 +86,8 @@ internal fun EventListScreen(
         onSetKeystrokeForEvent(eventId, keystrokeId)
     }
 
-    EventList(
-        events = eventListState.events,
+    Events(
+        events = eventsUIState.events,
         permissionStates = permissionStates,
         onEventClick = { eventId, keystrokeId ->
             selectedEventId = eventId
@@ -113,7 +114,7 @@ internal fun EventListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EventList(
+private fun Events(
     events: List<EventUIState>,
     permissionStates: Map<String, PermissionState>,
     onEventClick: (Int, Int?) -> Unit,
@@ -172,7 +173,9 @@ private fun EventItem(
                 ListItemHeadline(text = eventName)
                 ListItemSupport(text = keystrokeName ?: stringResource(R.string.event_no_keystroke))
             }
-            PermissionInfo(permissionState, permissionNameId)
+            if (permissionState != null && permissionNameId != null) {
+                PermissionInfo(permissionState, permissionNameId)
+            }
         }
         Divider()
     }
@@ -181,10 +184,9 @@ private fun EventItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PermissionInfo(
-    permissionState: PermissionState?,
-    permissionNameStringId: Int?,
+    permissionState: PermissionState,
+    permissionNameStringId: Int,
 ) {
-    if (permissionState == null || permissionNameStringId == null) return
     val scope = rememberCoroutineScope()
     val tooltipState = remember { RichTooltipState() }
 
@@ -258,8 +260,8 @@ private fun EventItemPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun EventListPreview() {
-    EventList(
+private fun EventsPreview() {
+    Events(
         events = Event.values().map { event ->
             EventUIState(
                 id = event.id,
