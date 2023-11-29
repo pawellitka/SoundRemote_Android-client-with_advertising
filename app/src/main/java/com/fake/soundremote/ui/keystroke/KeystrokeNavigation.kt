@@ -14,8 +14,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.fake.soundremote.util.ModKey
 
+const val KEYSTROKE_ID_ARG = "keystrokeId"
 private const val KEYSTROKE_CREATE_ROUTE = "keystroke_create"
-private const val KEYSTROKE_ID_ARG = "keystrokeId"
 private const val KEYSTROKE_EDIT_PREFIX = "keystroke_edit/"
 private const val KEYSTROKE_EDIT_ROUTE = "$KEYSTROKE_EDIT_PREFIX{$KEYSTROKE_ID_ARG}"
 
