@@ -12,6 +12,10 @@ import com.fake.soundremote.util.ModKey
 import com.fake.soundremote.util.createMods
 import com.fake.soundremote.util.isModActive
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -20,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.arguments
+import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 
@@ -43,8 +48,61 @@ class KeystrokeViewModelTest {
         @DisplayName("Sets screen mode correctly")
         fun screenMode_isCorrect() {
             val actual = viewModel.keystrokeScreenState.value.mode
-
             assertEquals(KeystrokeScreenMode.CREATE, actual)
+        }
+
+        @Test
+        @DisplayName("updateKeyCode() updates keyCode")
+        fun updateKeyCode_updates() {
+            val expected = 0x60
+            assertNotEquals(expected, viewModel.keystrokeScreenState.value.keyCode)
+
+            viewModel.updateKeyCode(expected)
+
+            val actual = viewModel.keystrokeScreenState.value.keyCode
+            assertEquals(expected, actual)
+        }
+
+        @Test
+        @DisplayName("updateName() updates keystroke name")
+        fun updateName_updates() {
+            val expected = "KeystrokeName"
+            assertNotEquals(expected, viewModel.keystrokeScreenState.value.name)
+
+            viewModel.updateName(expected)
+
+            val actual = viewModel.keystrokeScreenState.value.name
+            assertEquals(expected, actual)
+        }
+
+        @ParameterizedTest
+        @EnumSource(ModKey::class)
+        @DisplayName("updateMod() updates keystroke mod")
+        fun updateMod_updates(mod: ModKey) {
+            val modState = when (mod) {
+                ModKey.WIN -> viewModel.keystrokeScreenState.value.win
+                ModKey.CTRL -> viewModel.keystrokeScreenState.value.ctrl
+                ModKey.SHIFT -> viewModel.keystrokeScreenState.value.shift
+                ModKey.ALT -> viewModel.keystrokeScreenState.value.alt
+            }
+            assertFalse(modState)
+
+            viewModel.updateMod(mod, true)
+
+            val actual = when (mod) {
+                ModKey.WIN -> viewModel.keystrokeScreenState.value.win
+                ModKey.CTRL -> viewModel.keystrokeScreenState.value.ctrl
+                ModKey.SHIFT -> viewModel.keystrokeScreenState.value.shift
+                ModKey.ALT -> viewModel.keystrokeScreenState.value.alt
+            }
+            assertTrue(actual)
+        }
+
+        @Test
+        @DisplayName("canSave() returns false if keyCode is null")
+        fun canSave_keyCodeIsNull_returnsFalse() {
+            assertNull(viewModel.keystrokeScreenState.value.keyCode)
+            assertFalse(viewModel.canSave())
         }
     }
 
