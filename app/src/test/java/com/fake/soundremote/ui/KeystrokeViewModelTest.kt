@@ -11,9 +11,12 @@ import com.fake.soundremote.util.KeyGroup
 import com.fake.soundremote.util.ModKey
 import com.fake.soundremote.util.createMods
 import com.fake.soundremote.util.isModActive
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -104,6 +107,30 @@ class KeystrokeViewModelTest {
             assertNull(viewModel.keystrokeScreenState.value.keyCode)
             assertFalse(viewModel.canSave())
         }
+
+        @Test
+        @DisplayName("saveKeystroke() saves new Keystroke")
+        fun saveKeystroke_createsNewKeystroke() = runTest {
+            val expectedName = "TestName12"
+            val expectedKeyCode = 0x42
+            viewModel.updateName(expectedName)
+            viewModel.updateKeyCode(expectedKeyCode)
+            viewModel.updateMod(ModKey.SHIFT, true)
+            viewModel.updateMod(ModKey.CTRL, true)
+            keystrokeRepository.setKeystrokes(emptyList())
+
+            viewModel.saveKeystroke()
+
+            val savedKeystroke = keystrokeRepository.getAllOrdered().firstOrNull()?.firstOrNull()
+            assertNotNull(savedKeystroke)
+            savedKeystroke!!
+            assertEquals(expectedName, savedKeystroke.name)
+            assertEquals(expectedKeyCode, savedKeystroke.keyCode)
+            assertTrue(savedKeystroke.isModActive(ModKey.CTRL))
+            assertTrue(savedKeystroke.isModActive(ModKey.SHIFT))
+            assertFalse(savedKeystroke.isModActive(ModKey.ALT))
+            assertFalse(savedKeystroke.isModActive(ModKey.WIN))
+        }
     }
 
     @Nested
@@ -156,6 +183,36 @@ class KeystrokeViewModelTest {
             val actual = viewModel.keystrokeScreenState.value.keyGroupIndex
 
             assertEquals(expectedKeyGroup.index, actual)
+        }
+
+        @Test
+        @DisplayName("saveKeystroke() updates Keystroke")
+        fun saveKeystroke_updatesKeystroke() = runTest {
+            // Create a Keystroke to edit
+            val id = 10
+            val keystroke = Keystroke(id, 0x100, 0, "Original name", true, 0)
+            keystrokeRepository.setKeystrokes(listOf(keystroke))
+            val savedState = SavedStateHandle(mapOf(KEYSTROKE_ID_ARG to id))
+            viewModel = KeystrokeViewModel(savedState, keystrokeRepository)
+            // Edit the Keystroke
+            val expectedName = "New name"
+            val expectedKeyCode = 0x42
+            viewModel.updateName(expectedName)
+            viewModel.updateKeyCode(expectedKeyCode)
+            viewModel.updateMod(ModKey.SHIFT, true)
+            viewModel.updateMod(ModKey.CTRL, true)
+
+            viewModel.saveKeystroke()
+
+            val updatedKeystroke = keystrokeRepository.getById(id)
+            assertNotNull(updatedKeystroke)
+            updatedKeystroke!!
+            assertEquals(expectedName, updatedKeystroke.name)
+            assertEquals(expectedKeyCode, updatedKeystroke.keyCode)
+            assertTrue(updatedKeystroke.isModActive(ModKey.CTRL))
+            assertTrue(updatedKeystroke.isModActive(ModKey.SHIFT))
+            assertFalse(updatedKeystroke.isModActive(ModKey.ALT))
+            assertFalse(updatedKeystroke.isModActive(ModKey.WIN))
         }
     }
 
