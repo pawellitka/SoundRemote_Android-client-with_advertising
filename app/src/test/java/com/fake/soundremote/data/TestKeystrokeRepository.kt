@@ -4,22 +4,32 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
+import java.util.concurrent.atomic.AtomicLong
 
 class TestKeystrokeRepository : KeystrokeRepository {
     private val _keystrokesFlow: MutableSharedFlow<List<Keystroke>> =
         MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val currentKeystrokes get() = _keystrokesFlow.replayCache.firstOrNull() ?: emptyList()
+    private val id = AtomicLong(1)
 
     override suspend fun getById(id: Int): Keystroke? {
         return currentKeystrokes.find { it.id == id }?.copy()
     }
 
     override suspend fun insert(keystroke: Keystroke): Long {
-        TODO("Not yet implemented")
+        val newId = id.getAndIncrement()
+        val newKeystroke = keystroke.copy(id = newId.toInt())
+        _keystrokesFlow.emit(currentKeystrokes + newKeystroke)
+        return newId
     }
 
     override suspend fun update(keystroke: Keystroke): Int {
-        TODO("Not yet implemented")
+        val indexToUpdate = currentKeystrokes.indexOfFirst { it.id == keystroke.id }
+        if (indexToUpdate == -1) return 0
+        val updatedList = currentKeystrokes.toMutableList()
+        updatedList[indexToUpdate] = keystroke
+        _keystrokesFlow.tryEmit(updatedList)
+        return 1
     }
 
     override suspend fun deleteById(id: Int) {
