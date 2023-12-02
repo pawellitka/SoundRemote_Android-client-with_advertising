@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.fake.soundremote.ui.util.ListItemHeadline
-import com.fake.soundremote.ui.util.ListItemSupport
+import com.fake.soundremote.ui.components.ListItemHeadline
+import com.fake.soundremote.ui.components.ListItemSupport
 
 @Composable
 internal fun PreferenceItem(

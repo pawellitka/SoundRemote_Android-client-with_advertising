@@ -56,8 +56,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fake.soundremote.R
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
-import com.fake.soundremote.ui.util.ListItemHeadline
-import com.fake.soundremote.ui.util.ListItemSupport
+import com.fake.soundremote.ui.components.ListItemHeadline
+import com.fake.soundremote.ui.components.ListItemSupport
 import com.fake.soundremote.util.ConnectionStatus
 
 private val paddingMod = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp)

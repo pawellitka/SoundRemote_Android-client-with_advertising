@@ -50,9 +50,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.fake.soundremote.R
-import com.fake.soundremote.ui.util.ListItemHeadline
-import com.fake.soundremote.ui.util.ListItemSupport
-import com.fake.soundremote.ui.util.NavigateUpButton
+import com.fake.soundremote.ui.components.ListItemHeadline
+import com.fake.soundremote.ui.components.ListItemSupport
+import com.fake.soundremote.ui.components.NavigateUpButton
 import java.io.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)

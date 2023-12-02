@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.fake.soundremote.R
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
-import com.fake.soundremote.ui.util.NavigateUpButton
+import com.fake.soundremote.ui.components.NavigateUpButton
 import com.fake.soundremote.util.DEFAULT_CLIENT_PORT
 import com.fake.soundremote.util.DEFAULT_SERVER_PORT
 import com.fake.soundremote.util.Net

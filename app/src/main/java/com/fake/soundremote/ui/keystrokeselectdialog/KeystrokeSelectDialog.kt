@@ -35,8 +35,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fake.soundremote.R
 import com.fake.soundremote.ui.keystrokelist.KeystrokeListViewModel
 import com.fake.soundremote.ui.keystrokelist.KeystrokeUIState
-import com.fake.soundremote.ui.util.ListItemHeadline
-import com.fake.soundremote.ui.util.ListItemSupport
+import com.fake.soundremote.ui.components.ListItemHeadline
+import com.fake.soundremote.ui.components.ListItemSupport
 
 @Composable
 internal fun KeystrokeSelectDialog(

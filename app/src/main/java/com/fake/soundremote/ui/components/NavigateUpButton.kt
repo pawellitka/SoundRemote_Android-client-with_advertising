@@ -1,4 +1,4 @@
-package com.fake.soundremote.ui.util
+package com.fake.soundremote.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack

@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.fake.soundremote.ui.util.ListItemHeadline
+import com.fake.soundremote.ui.components.ListItemHeadline
 
 internal data class SelectableOption<T>(val value: T, @StringRes val textStringId: Int)
 
