@@ -1,5 +1,6 @@
 package com.fake.soundremote.ui.components
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -46,7 +47,7 @@ internal fun KeystrokeSelectDialog(
 ) {
     val state by viewModel.keystrokeListState.collectAsStateWithLifecycle()
 
-    KeystrokeSelect(
+    KeystrokeSelectDialog(
         title = title,
         items = state.keystrokes,
         initialKeystrokeId = initialKeystrokeId,
@@ -55,8 +56,9 @@ internal fun KeystrokeSelectDialog(
     )
 }
 
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 @Composable
-private fun KeystrokeSelect(
+internal fun KeystrokeSelectDialog(
     title: String,
     items: List<KeystrokeUIState>,
     initialKeystrokeId: Int?,
@@ -202,7 +204,7 @@ private fun KeystrokeItemNoDescriptionPreview() {
 @Preview(showBackground = true, device = "id:Nexus S")
 @Composable
 private fun KeystrokeDialogPreview() {
-    KeystrokeSelect(
+    KeystrokeSelectDialog(
         title = "Select keystroke",
         items = List(10) {
             KeystrokeUIState(it, "Keystroke $it", "Ctrl + Shift + $it", false)
