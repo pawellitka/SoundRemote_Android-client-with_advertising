@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fake.soundremote.R
 import com.fake.soundremote.data.Event
-import com.fake.soundremote.ui.keystrokeselectdialog.KeystrokeSelectDialog
+import com.fake.soundremote.ui.components.KeystrokeSelectDialog
 import com.fake.soundremote.ui.components.ListItemHeadline
 import com.fake.soundremote.ui.components.ListItemSupport
 import com.fake.soundremote.ui.components.NavigateUpButton
