@@ -12,6 +12,7 @@ import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.keystrokelist.KeystrokeUIState
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -119,6 +120,17 @@ class KeystrokeSelectDialogTest {
         }
 
         assertEquals(count, actual)
+    }
+
+    // Should throw if initial keystroke id is not in the items or null
+    @Test
+    fun invalidInitialKeystrokeId_throws() {
+        val items = listOf(KeystrokeUIState(1, "Key 1", "Desc 1", false))
+        assertThrows(IllegalArgumentException::class.java) {
+            composeTestRule.setContent {
+                CreateKeystrokeSelectDialog(items = items, initialKeystrokeId = 100)
+            }
+        }
     }
 
     @Suppress("TestFunctionName")
