@@ -93,6 +93,7 @@ internal class EventsScreenTest {
         composeTestRule.onNodeWithContentDescription(permissionInfo).assertIsDisplayed()
     }
 
+    @Suppress("TestFunctionName")
     @Composable
     private fun CreateEventsScreen(
         modifier: Modifier = Modifier,
