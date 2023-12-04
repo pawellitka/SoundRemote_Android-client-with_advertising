@@ -65,6 +65,7 @@ internal fun KeystrokeSelectDialog(
     onConfirm: (Int?) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    require(initialKeystrokeId == null || items.find { it.id == initialKeystrokeId } != null)
     var selectedKeystrokeId by rememberSaveable { mutableStateOf(initialKeystrokeId) }
 
     AlertDialog(
