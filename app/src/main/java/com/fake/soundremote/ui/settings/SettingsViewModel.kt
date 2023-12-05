@@ -25,7 +25,7 @@ class SettingsViewModel @Inject constructor(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = SettingsUIState(0, 0, 0),
+            initialValue = SettingsUIState(),
         )
 
     fun setServerPort(value: Int) {
@@ -42,7 +42,7 @@ class SettingsViewModel @Inject constructor(
 }
 
 data class SettingsUIState(
-    val serverPort: Int,
-    val clientPort: Int,
-    val audioCompression: Int,
+    val serverPort: Int = 0,
+    val clientPort: Int = 0,
+    val audioCompression: Int = 0,
 )
