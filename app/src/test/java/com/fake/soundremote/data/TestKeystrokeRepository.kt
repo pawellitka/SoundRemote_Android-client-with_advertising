@@ -45,7 +45,12 @@ class TestKeystrokeRepository : KeystrokeRepository {
     }
 
     override fun getFavouredOrdered(favoured: Boolean): Flow<List<KeystrokeInfo>> {
-        TODO("Not yet implemented")
+        return _keystrokesFlow.map { keystrokes ->
+            keystrokes
+                .filter { it.isFavoured == favoured }
+                .sortedByDescending { it.order }
+                .map { KeystrokeInfo(it.id, it.keyCode, it.mods, it.name) }
+        }
     }
 
     override fun getAllOrdered(): Flow<List<Keystroke>> {
