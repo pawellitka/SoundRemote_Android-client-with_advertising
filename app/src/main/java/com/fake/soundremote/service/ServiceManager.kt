@@ -19,6 +19,6 @@ internal interface ServiceManager {
 }
 
 data class ServiceState(
-    val connectionStatus: ConnectionStatus,
-    val isMuted: Boolean
+    val connectionStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED,
+    val isMuted: Boolean = false,
 )
