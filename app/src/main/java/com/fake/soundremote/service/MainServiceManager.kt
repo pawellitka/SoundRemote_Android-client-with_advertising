@@ -25,15 +25,10 @@ import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
 
-data class ServiceState(
-    val connectionStatus: ConnectionStatus,
-    val isMuted: Boolean
-)
-
 @Singleton
 internal class MainServiceManager(
     private val dispatcher: CoroutineDispatcher,
-) {
+) : ServiceManager {
     @Inject
     constructor() : this(Dispatchers.Default)
 
@@ -43,40 +38,40 @@ internal class MainServiceManager(
     private var stateCollect: Job? = null
     private var messageCollect: Job? = null
     private var _serviceState = MutableStateFlow(ServiceState(ConnectionStatus.DISCONNECTED, false))
-    val serviceState: StateFlow<ServiceState>
+    override val serviceState: StateFlow<ServiceState>
         get() = _serviceState
 
     private val _systemMessages: Channel<SystemMessage> = Channel(5, BufferOverflow.DROP_OLDEST)
-    val systemMessages: ReceiveChannel<SystemMessage>
+    override val systemMessages: ReceiveChannel<SystemMessage>
         get() = _systemMessages
 
-    fun bind(context: Context) {
+    override fun bind(context: Context) {
         Intent(context, MainService::class.java).also { intent ->
             context.bindService(intent, serviceConnection, 0)
         }
     }
 
-    fun unbind(context: Context) {
+    override fun unbind(context: Context) {
         stopCollect()
         context.unbindService(serviceConnection)
     }
 
-    fun connect(address: String) {
+    override fun connect(address: String) {
         if (!bound) return
         service.get()?.connect(address)
     }
 
-    fun disconnect() {
+    override fun disconnect() {
         if (!bound) return
         service.get()?.disconnect()
     }
 
-    fun sendKeystroke(keystroke: Keystroke) {
+    override fun sendKeystroke(keystroke: Keystroke) {
         if (!bound) return
         service.get()?.sendKeystroke(keystroke)
     }
 
-    fun setMuted(value: Boolean) {
+    override fun setMuted(value: Boolean) {
         if (!bound) return
         service.get()?.setMuted(value)
     }
