@@ -31,7 +31,7 @@ data class ServiceState(
 )
 
 @Singleton
-internal class ServiceManager(
+internal class MainServiceManager(
     private val dispatcher: CoroutineDispatcher,
 ) {
     @Inject

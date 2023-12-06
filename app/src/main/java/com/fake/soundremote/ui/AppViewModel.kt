@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fake.soundremote.service.ServiceManager
+import com.fake.soundremote.service.MainServiceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-internal class AppViewModel @Inject constructor(private val serviceManager: ServiceManager) :
+internal class AppViewModel @Inject constructor(private val serviceManager: MainServiceManager) :
     ViewModel() {
 
     private val _systemMessage = MutableStateFlow<Int?>(null)

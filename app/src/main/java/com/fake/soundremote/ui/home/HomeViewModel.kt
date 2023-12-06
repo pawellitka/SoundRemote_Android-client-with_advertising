@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.fake.soundremote.R
 import com.fake.soundremote.data.KeystrokeRepository
 import com.fake.soundremote.data.preferences.PreferencesRepository
-import com.fake.soundremote.service.ServiceManager
+import com.fake.soundremote.service.MainServiceManager
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.generateDescription
 import com.google.common.net.InetAddresses
@@ -38,7 +38,7 @@ data class HomeKeystrokeUIState(
 internal class HomeViewModel @Inject constructor(
     private val userPreferencesRepo: PreferencesRepository,
     private val keystrokeRepository: KeystrokeRepository,
-    private val serviceManager: ServiceManager,
+    private val serviceManager: MainServiceManager,
 ) : ViewModel() {
 
     val homeUIState: StateFlow<HomeUIState> = combine(
