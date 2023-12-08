@@ -39,10 +39,12 @@ class HomeViewModelTest {
             viewModel.homeUIState.collect {}
         }
 
+        keystrokeRepository.setKeystrokes(emptyList())
+
         val address = "123.45.67.89"
         viewModel.connect(address)
 
-        val actualStatus = serviceManager.serviceState.value.connectionStatus
+        val actualStatus = viewModel.homeUIState.value.connectionStatus
         assertEquals(ConnectionStatus.CONNECTED, actualStatus)
 
         collectJob.cancel()
@@ -54,12 +56,14 @@ class HomeViewModelTest {
         val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.homeUIState.collect {}
         }
+
+        keystrokeRepository.setKeystrokes(emptyList())
         assertNull(viewModel.messageState)
 
         val address = "Invalid address"
         viewModel.connect(address)
 
-        val actualStatus = serviceManager.serviceState.value.connectionStatus
+        val actualStatus = viewModel.homeUIState.value.connectionStatus
         assertEquals(ConnectionStatus.DISCONNECTED, actualStatus)
         val actualMessage = viewModel.messageState
         assertNotNull(actualMessage)
