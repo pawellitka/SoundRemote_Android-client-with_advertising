@@ -37,7 +37,7 @@ internal class TestServiceManager : ServiceManager {
     }
 
     override fun sendKeystroke(keystroke: Keystroke) {
-        TODO("Not yet implemented")
+        sentKeystroke = keystroke
     }
 
     override fun setMuted(value: Boolean) {
@@ -45,4 +45,11 @@ internal class TestServiceManager : ServiceManager {
             it.copy(isMuted = value)
         }
     }
+
+    // Test only
+    fun setServiceState(state: ServiceState) {
+        _serviceState.value = state
+    }
+
+    var sentKeystroke: Keystroke? = null
 }
