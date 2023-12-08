@@ -49,7 +49,7 @@ fun generateDescription(keystroke: Keystroke): String =
  * @param mods mods bitfield
  * @return description
  */
-fun generateDescription(keyCode: Int, mods: Int): String = ModKey.values()
+fun generateDescription(keyCode: Int, mods: Int): String = ModKey.entries
     .filter { mods.isModActive(it) }
     .fold("") { result, mod -> result + "${mod.label} + " } + keyLabel(keyCode)
 
@@ -61,7 +61,7 @@ fun generateDescription(keyCode: Int, mods: Int): String = ModKey.values()
  */
 private fun keyLabel(code: Int): String {
     return code.toLetterOrDigitChar()?.toString()?.uppercase()
-        ?: Key.values().find { it.keyCode == code }?.label
+        ?: Key.entries.find { it.keyCode == code }?.label
         ?: "<?>"
 }
 

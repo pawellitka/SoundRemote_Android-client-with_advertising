@@ -143,10 +143,10 @@ internal fun KeystrokeScreen(
  */
 private fun keyOptions(): Map<Int, List<Key>> {
     val result = mutableMapOf<Int, MutableList<Key>>()
-    for (keyGroup in KeyGroup.values()) {
+    for (keyGroup in KeyGroup.entries) {
         result[keyGroup.index] = mutableListOf()
     }
-    for (key in Key.values()) {
+    for (key in Key.entries) {
         result[key.group.index]?.add(key)
     }
     return result
@@ -181,7 +181,7 @@ private fun KeySelect(
         ScrollableTabRow(
             selectedTabIndex = tabIndex,
         ) {
-            for (keyGroup in KeyGroup.values()) {
+            for (keyGroup in KeyGroup.entries) {
                 val onTabClick = if (keyGroup.index == KeyGroup.LETTER_DIGIT.index) {
                     { onKeyCodeChange(selectedChar?.toKeyCode()) }
                 } else {
