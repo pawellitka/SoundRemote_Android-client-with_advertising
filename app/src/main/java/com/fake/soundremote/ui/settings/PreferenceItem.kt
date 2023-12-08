@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.fake.soundremote.ui.util.ListItemHeadline
-import com.fake.soundremote.ui.util.ListItemSupport
+import com.fake.soundremote.ui.components.ListItemHeadline
+import com.fake.soundremote.ui.components.ListItemSupport
 
 @Composable
 internal fun PreferenceItem(
@@ -22,6 +24,7 @@ internal fun PreferenceItem(
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 24.dp)
+            .semantics { contentDescription = title }
     ) {
         ListItemHeadline(title)
         ListItemSupport(summary)

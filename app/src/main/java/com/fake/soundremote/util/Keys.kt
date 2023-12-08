@@ -105,17 +105,17 @@ enum class Key(
     MEDIA_VOLUME_UP(0xAF, "Volume Up", KeyGroup.MEDIA),
 
     // Typing
-    TILDE(0xc0, "`", KeyGroup.TYPING, R.string.key_desc_tilde),
-    MINUS(0xbd, "−", KeyGroup.TYPING, R.string.key_desc_minus),
-    PLUS(0xbb, "=", KeyGroup.TYPING, R.string.key_desc_plus),
-    SQUARE_BRACKET_LEFT(0xdb, "[", KeyGroup.TYPING, R.string.key_desc_bracket_open),
-    SQUARE_BRACKET_RIGHT(0xdd, "]", KeyGroup.TYPING, R.string.key_desc_bracket_close),
-    SEMICOLON(0xba, ";", KeyGroup.TYPING, R.string.key_desc_semicolon),
-    QUOTE(0xde, "'", KeyGroup.TYPING, R.string.key_desc_quote),
-    BACKSLASH(0xdc, "\\", KeyGroup.TYPING, R.string.key_desc_backslash),
-    COMMA(0xbc, ",", KeyGroup.TYPING, R.string.key_desc_comma),
-    PERIOD(0xbe, ".", KeyGroup.TYPING, R.string.key_desc_period),
-    SLASH(0xbf, "/", KeyGroup.TYPING, R.string.key_desc_slash),
+    TILDE(0xC0, "`", KeyGroup.TYPING, R.string.key_desc_tilde),
+    MINUS(0xBD, "−", KeyGroup.TYPING, R.string.key_desc_minus),
+    PLUS(0xBB, "=", KeyGroup.TYPING, R.string.key_desc_plus),
+    SQUARE_BRACKET_LEFT(0xDB, "[", KeyGroup.TYPING, R.string.key_desc_bracket_open),
+    SQUARE_BRACKET_RIGHT(0xDD, "]", KeyGroup.TYPING, R.string.key_desc_bracket_close),
+    SEMICOLON(0xBA, ";", KeyGroup.TYPING, R.string.key_desc_semicolon),
+    QUOTE(0xDE, "'", KeyGroup.TYPING, R.string.key_desc_quote),
+    BACKSLASH(0xDC, "\\", KeyGroup.TYPING, R.string.key_desc_backslash),
+    COMMA(0xBC, ",", KeyGroup.TYPING, R.string.key_desc_comma),
+    PERIOD(0xBE, ".", KeyGroup.TYPING, R.string.key_desc_period),
+    SLASH(0xBF, "/", KeyGroup.TYPING, R.string.key_desc_slash),
 
     // Control
     TAB(0x9, "Tab", KeyGroup.CONTROL),

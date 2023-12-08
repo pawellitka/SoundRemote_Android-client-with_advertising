@@ -170,6 +170,7 @@ internal class HomeScreenTest {
         assertTrue(actualPerformed)
     }
 
+    @Suppress("TestFunctionName")
     @Composable
     private fun CreateHomeScreen(
         modifier: Modifier = Modifier,

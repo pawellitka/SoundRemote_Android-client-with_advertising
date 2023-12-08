@@ -1,4 +1,4 @@
-package com.fake.soundremote.ui.util
+package com.fake.soundremote.ui.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

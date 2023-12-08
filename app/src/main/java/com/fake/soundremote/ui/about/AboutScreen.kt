@@ -28,8 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fake.soundremote.BuildConfig
 import com.fake.soundremote.R
-import com.fake.soundremote.ui.util.ListItemHeadline
-import com.fake.soundremote.ui.util.NavigateUpButton
+import com.fake.soundremote.ui.components.ListItemHeadline
+import com.fake.soundremote.ui.components.NavigateUpButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException

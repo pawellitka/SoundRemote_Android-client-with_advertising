@@ -49,7 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fake.soundremote.R
-import com.fake.soundremote.ui.util.NavigateUpButton
+import com.fake.soundremote.ui.components.NavigateUpButton
 import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.KeyGroup
 import com.fake.soundremote.util.toKeyCode

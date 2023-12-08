@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fake.soundremote.data.preferences.PreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -13,22 +15,18 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
-
-    private val _settings = MutableStateFlow(SettingsUIState(0, 0, 0))
-    val settings: StateFlow<SettingsUIState>
-        get() = _settings
-
-    init {
-        viewModelScope.launch {
-            preferencesRepository.settingsScreenPreferencesFlow.collect { prefs ->
-                _settings.value = SettingsUIState(
-                    serverPort = prefs.serverPort,
-                    clientPort = prefs.clientPort,
-                    audioCompression = prefs.audioCompression,
-                )
-            }
-        }
-    }
+    val settings: StateFlow<SettingsUIState> =
+        preferencesRepository.settingsScreenPreferencesFlow.map { prefs ->
+            SettingsUIState(
+                serverPort = prefs.serverPort,
+                clientPort = prefs.clientPort,
+                audioCompression = prefs.audioCompression,
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = SettingsUIState(),
+        )
 
     fun setServerPort(value: Int) {
         viewModelScope.launch { preferencesRepository.setServerPort(value) }
@@ -44,7 +42,7 @@ class SettingsViewModel @Inject constructor(
 }
 
 data class SettingsUIState(
-    val serverPort: Int,
-    val clientPort: Int,
-    val audioCompression: Int,
+    val serverPort: Int = 0,
+    val clientPort: Int = 0,
+    val audioCompression: Int = 0,
 )

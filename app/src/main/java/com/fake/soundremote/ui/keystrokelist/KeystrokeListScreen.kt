@@ -44,13 +44,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.fake.soundremote.R
-import com.fake.soundremote.ui.util.ListItemHeadline
-import com.fake.soundremote.ui.util.ListItemSupport
-import com.fake.soundremote.ui.util.NavigateUpButton
+import com.fake.soundremote.ui.components.ListItemHeadline
+import com.fake.soundremote.ui.components.ListItemSupport
+import com.fake.soundremote.ui.components.NavigateUpButton
 import java.io.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -215,17 +217,20 @@ private fun KeystrokeItem(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val switchDescription = stringResource(R.string.keystroke_favourite_toggle_description)
             Switch(
                 checked = favoured,
                 onCheckedChange = onChangeFavoured,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .semantics { contentDescription = switchDescription }
             )
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.weight(1f)
             ) {
-                ListItemHeadline(text = name)
-                ListItemSupport(text = description)
+                ListItemHeadline(name)
+                ListItemSupport(description)
             }
             Icon(
                 Icons.Default.Menu,
