@@ -409,7 +409,10 @@ internal class MainService : MediaBrowserServiceCompat() {
             Log.i(TAG, "MediaSession $action")
             when (action) {
                 NOTIFICATION_ACTION_CLOSE -> {
-                    sendBroadcast(Intent(ACTION_CLOSE))
+                    Intent(ACTION_CLOSE).also { intent ->
+                        intent.setPackage(packageName)
+                        sendBroadcast(intent)
+                    }
                 }
             }
             super.onCustomAction(action, extras)
