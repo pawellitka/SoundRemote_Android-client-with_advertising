@@ -262,7 +262,7 @@ private fun EventItemPreview() {
 @Composable
 private fun EventsPreview() {
     Events(
-        events = Event.values().map { event ->
+        events = Event.entries.map { event ->
             EventUIState(
                 id = event.id,
                 nameStringId = event.nameStringId,

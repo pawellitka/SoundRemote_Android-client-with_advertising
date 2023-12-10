@@ -143,7 +143,6 @@ internal class Connection(
     /**
      * Always runs on Dispatchers.IO
      */
-    @Suppress("BlockingMethodInNonBlockingContext")
     private fun receive() = scope.launch(CoroutineName("Receive") + Dispatchers.IO) {
         val buf = Net.createPacketBuffer(Net.RECEIVE_BUFFER_CAPACITY)
         try {

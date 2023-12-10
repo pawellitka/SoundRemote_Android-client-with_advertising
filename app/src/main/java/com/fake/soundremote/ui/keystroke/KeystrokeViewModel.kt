@@ -64,7 +64,7 @@ internal class KeystrokeViewModel @Inject constructor(
 
     private fun getKeyGroupIndex(keyCode: Int?): Int {
         if (keyCode == null) return KeyGroup.LETTER_DIGIT.index
-        val key = Key.values().find { it.keyCode == keyCode }
+        val key = Key.entries.find { it.keyCode == keyCode }
         return key?.group?.index ?: KeyGroup.LETTER_DIGIT.index
     }
 

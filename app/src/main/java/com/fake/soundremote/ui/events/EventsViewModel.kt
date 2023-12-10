@@ -38,7 +38,7 @@ internal class EventsViewModel @Inject constructor(
     private val keystrokeRepository: KeystrokeRepository,
 ) : ViewModel() {
     val uiState: StateFlow<EventsUIState> = combine(
-        flowOf(Event.values()),
+        flowOf(Event.entries.toTypedArray()),
         eventActionRepository.getAll(),
     ) { events, eventActions ->
         val eventUIStates = mutableListOf<EventUIState>()
