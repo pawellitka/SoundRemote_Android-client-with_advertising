@@ -17,11 +17,11 @@ kotlinx-coroutines = "1.7.3"
 ktx = "1.12.0"
 lifecycle = "2.6.2"
 material = "1.10.0"
-media = "1.6.0"
+media = "1.7.0"
 mockk = "1.13.8"
 navigation = "2.7.5"
 preference-ktx = "1.2.1"
-room = "2.6.0"
+room = "2.6.1"
 runner = "1.5.2"
 
 [libraries]
