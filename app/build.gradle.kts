@@ -60,13 +60,13 @@ dependencies {
     implementation(composeBom)
     androidTestImplementation(composeBom)
     // UI
-    implementation("androidx.compose.material3:material3")
+    implementation(libs.androidx.compose.material3)
     // Android Studio Preview support
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
     // UI Tests
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 // Instrumented tests
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.core.ktx)
