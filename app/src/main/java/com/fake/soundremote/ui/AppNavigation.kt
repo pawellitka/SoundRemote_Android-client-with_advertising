@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -34,6 +35,7 @@ fun AppNavigation(
     padding: PaddingValues
 ) {
     val navController = rememberNavController()
+    val compactHeight = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
     NavHost(
         navController = navController,
         startDestination = homeRoute,
@@ -49,6 +51,7 @@ fun AppNavigation(
             onEditKeystroke = { navController.navigateToKeystrokeEdit(it) },
             showSnackbar = showSnackbar,
             setFab = setFab,
+            compactHeight = compactHeight,
         )
         keystrokeListScreen(
             onCreate = navController::navigateToKeystrokeCreate,

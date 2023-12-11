@@ -55,13 +55,16 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fake.soundremote.R
-import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.ui.components.ListItemHeadline
 import com.fake.soundremote.ui.components.ListItemSupport
+import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.ConnectionStatus
 
 private val paddingMod = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp)
-private val keystrokeItemModifier = Modifier.fillMaxWidth().height(72.dp).then(paddingMod)
+private val keystrokeItemModifier = Modifier
+    .fillMaxWidth()
+    .height(72.dp)
+    .then(paddingMod)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,6 +81,7 @@ internal fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
+    compactHeight: Boolean,
     modifier: Modifier = Modifier,
 ) {
     // Messages
@@ -87,9 +91,32 @@ internal fun HomeScreen(
         onMessageShown()
     }
 
+    var address by rememberSaveable(uiState.serverAddress, stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(uiState.serverAddress))
+    }
+    val onAddressChange: (TextFieldValue) -> Unit = { newAddressValue ->
+        cleanAddressInput(newAddressValue, address)?.let { address = it }
+    }
+
     Column(modifier = modifier) {
         TopAppBar(
-            title = { Text(stringResource(R.string.home_title)) },
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(stringResource(R.string.home_title))
+                    if (compactHeight) {
+                        ConnectComponent(
+                            address = address,
+                            onAddressChange = onAddressChange,
+                            connectionStatus = uiState.connectionStatus,
+                            onConnect = { onConnect(it) },
+                            onDisconnect = onDisconnect,
+                            topBar = true,
+                        )
+                    }
+                }
+            },
             actions = {
                 IconToggleButton(
                     checked = uiState.isMuted,
@@ -150,14 +177,20 @@ internal fun HomeScreen(
                 }
             }
         )
-        ConnectComponent(
-            address = uiState.serverAddress,
-            connectionStatus = uiState.connectionStatus,
-            onConnect = { onConnect(it) },
-            onDisconnect = onDisconnect,
-        )
+        if (!compactHeight) {
+            ConnectComponent(
+                address = address,
+                onAddressChange = onAddressChange,
+                connectionStatus = uiState.connectionStatus,
+                onConnect = { onConnect(it) },
+                onDisconnect = onDisconnect,
+                topBar = false,
+            )
+        }
         LazyColumn(
-            modifier = Modifier.fillMaxHeight().padding(top = 8.dp, bottom = 8.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(top = 8.dp, bottom = 8.dp),
         ) {
             items(items = uiState.keystrokes, key = { it.id }) { keystroke ->
                 KeystrokeItem(
@@ -173,35 +206,32 @@ internal fun HomeScreen(
 
 @Composable
 private fun ConnectComponent(
-    address: String,
+    address: TextFieldValue,
+    onAddressChange: (TextFieldValue) -> Unit,
     connectionStatus: ConnectionStatus,
     onConnect: (String) -> Unit,
     onDisconnect: () -> Unit,
+    topBar: Boolean,
     modifier: Modifier = Modifier
 ) {
-    var addressValue by rememberSaveable(address, stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(address))
-    }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.then(paddingMod)
     ) {
         AddressEdit(
-            address = addressValue,
-            onChange = { newEditValue ->
-                addressValue = cleanAddressInput(newEditValue, addressValue) ?: return@AddressEdit
-            },
-            onConnect = { onConnect(addressValue.text) },
-            modifier = Modifier.weight(1f)
+            address = address,
+            onChange = onAddressChange,
+            onConnect = { onConnect(address.text) },
+            modifier = Modifier.weight(1f),
+            topBar = topBar,
         )
         Spacer(Modifier.width(16.dp))
         ConnectButton(
             connectionStatus = connectionStatus,
-            onConnect = { onConnect(addressValue.text) },
+            onConnect = { onConnect(address.text) },
             onDisconnect = onDisconnect,
             // Padding to look aligned with OutlinedTextField vertically
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = if (topBar) Modifier else Modifier.padding(top = 8.dp)
         )
     }
 }
@@ -221,12 +251,19 @@ private fun AddressEdit(
     address: TextFieldValue,
     onChange: (TextFieldValue) -> Unit,
     onConnect: () -> Unit,
+    topBar: Boolean,
     modifier: Modifier = Modifier
 ) {
+    // Hide label when in top bar mode because it doesn't fit
+    val label: @Composable (() -> Unit)? = if (topBar) {
+        null
+    } else {
+        { Text(stringResource(R.string.address_label)) }
+    }
     OutlinedTextField(
         value = address,
         onValueChange = onChange,
-        label = { Text(stringResource(R.string.address_label)) },
+        label = label,
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Go,
@@ -326,7 +363,7 @@ private fun KeystrokeItem(
     device = "id:Nexus 5"
 )
 @Composable
-private fun ScreenPreview() {
+private fun Home() {
     var status by remember { mutableStateOf(ConnectionStatus.DISCONNECTED) }
     var id = 0
     SoundRemoteTheme {
@@ -357,6 +394,7 @@ private fun ScreenPreview() {
             onNavigateToSettings = {},
             onNavigateToAbout = {},
             showSnackbar = { _, _ -> },
+            compactHeight = false,
         )
     }
 }
