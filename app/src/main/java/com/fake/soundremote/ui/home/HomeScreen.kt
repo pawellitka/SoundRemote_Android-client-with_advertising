@@ -363,7 +363,25 @@ private fun KeystrokeItem(
     device = "id:Nexus 5"
 )
 @Composable
-private fun Home() {
+private fun Portrait() {
+    HomePreview(false)
+}
+
+@Preview(
+    showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light",
+    device = "spec:parent=Nexus 5,orientation=landscape"
+)
+@Preview(
+    showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark",
+    device = "spec:parent=Nexus 5,orientation=landscape"
+)
+@Composable
+private fun Landscape() {
+    HomePreview(true)
+}
+
+@Composable
+private fun HomePreview(compactHeight: Boolean) {
     var status by remember { mutableStateOf(ConnectionStatus.DISCONNECTED) }
     var id = 0
     SoundRemoteTheme {
@@ -394,7 +412,7 @@ private fun Home() {
             onNavigateToSettings = {},
             onNavigateToAbout = {},
             showSnackbar = { _, _ -> },
-            compactHeight = false,
+            compactHeight = compactHeight,
         )
     }
 }
