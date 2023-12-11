@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -27,6 +28,7 @@ import com.fake.soundremote.ui.settings.settingsScreen
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AppNavigation(
+    windowSizeClass: WindowSizeClass,
     showSnackbar: (String, SnackbarDuration) -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
     padding: PaddingValues

@@ -3,6 +3,7 @@ package com.fake.soundremote.ui
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -20,7 +21,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun SoundRemoteApp(viewModel: AppViewModel = hiltViewModel()) {
+internal fun SoundRemoteApp(
+    windowSizeClass: WindowSizeClass,
+    viewModel: AppViewModel = hiltViewModel(),
+) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val (fab, setFab) = remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
@@ -54,6 +58,7 @@ internal fun SoundRemoteApp(viewModel: AppViewModel = hiltViewModel()) {
         floatingActionButton = { fab?.invoke() }
     ) { paddingValues ->
         AppNavigation(
+            windowSizeClass,
             showSnackbar = { message, duration ->
                 scope.launch {
                     snackbarHostState.showSnackbar(message = message, duration = duration)
