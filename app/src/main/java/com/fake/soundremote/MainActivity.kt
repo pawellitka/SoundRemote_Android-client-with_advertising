@@ -9,12 +9,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.core.content.ContextCompat
 import com.fake.soundremote.service.MainService
 import com.fake.soundremote.ui.SoundRemoteApp
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.ACTION_CLOSE
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -26,12 +28,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             SoundRemoteTheme {
-                SoundRemoteApp()
+                SoundRemoteApp(calculateWindowSizeClass(this))
             }
         }
         volumeControlStream = AudioManager.STREAM_MUSIC

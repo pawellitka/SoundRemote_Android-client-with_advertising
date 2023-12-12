@@ -202,6 +202,7 @@ internal class HomeScreenTest {
                 onNavigateToAbout = onNavigateToAbout,
                 showSnackbar = showSnackbar,
                 modifier = modifier,
+                compactHeight = false,
             )
         }
     }
