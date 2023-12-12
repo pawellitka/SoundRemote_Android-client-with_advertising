@@ -31,9 +31,14 @@ fun NavGraphBuilder.keystrokeCreateScreen(
     onNavigateUp: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
+    compactHeight: Boolean,
 ) {
     composable(KEYSTROKE_CREATE_ROUTE) {
-        KeystrokeScreenRoute(onNavigateUp, showSnackbar)
+        KeystrokeScreenRoute(
+            onNavigateUp = onNavigateUp,
+            showSnackbar = showSnackbar,
+            compactHeight = compactHeight
+        )
         LaunchedEffect(Unit) {
             setFab(null)
         }
@@ -49,12 +54,17 @@ fun NavGraphBuilder.keystrokeEditScreen(
     onNavigateUp: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
+    compactHeight: Boolean,
 ) {
     composable(
         route = KEYSTROKE_EDIT_ROUTE,
         arguments = listOf(navArgument(KEYSTROKE_ID_ARG) { type = NavType.IntType }),
     ) {
-        KeystrokeScreenRoute(onNavigateUp, showSnackbar)
+        KeystrokeScreenRoute(
+            onNavigateUp = onNavigateUp,
+            showSnackbar = showSnackbar,
+            compactHeight = compactHeight
+        )
         LaunchedEffect(Unit) {
             setFab(null)
         }
@@ -65,6 +75,7 @@ fun NavGraphBuilder.keystrokeEditScreen(
 private fun KeystrokeScreenRoute(
     onNavigateUp: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
+    compactHeight: Boolean,
 ) {
     val viewModel: KeystrokeViewModel = hiltViewModel()
     val state by viewModel.keystrokeScreenState.collectAsStateWithLifecycle()
@@ -80,5 +91,6 @@ private fun KeystrokeScreenRoute(
         onSave = viewModel::saveKeystroke,
         onClose = onNavigateUp,
         showSnackbar = showSnackbar,
+        compactHeight = compactHeight,
     )
 }

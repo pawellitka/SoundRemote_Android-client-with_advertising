@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -73,6 +74,7 @@ internal fun KeystrokeScreen(
     onSave: () -> Unit,
     onClose: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
+    compactHeight: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val invalidKeyError = stringResource(R.string.error_invalid_key)
@@ -111,26 +113,56 @@ internal fun KeystrokeScreen(
             keyGroupIndex = state.keyGroupIndex,
             onKeyCodeChange = { onKeyCodeChange(it) }
         )
-        ModSelectItem(
-            text = stringResource(R.string.win_checkbox_label),
-            checkedProvider = { state.win },
-            onCheckedChange = { onWinChange(it) },
-        )
-        ModSelectItem(
-            text = stringResource(R.string.ctrl_checkbox_label),
-            checkedProvider = { state.ctrl },
-            onCheckedChange = { onCtrlChange(it) },
-        )
-        ModSelectItem(
-            text = stringResource(R.string.shift_checkbox_label),
-            checkedProvider = { state.shift },
-            onCheckedChange = { onShiftChange(it) },
-        )
-        ModSelectItem(
-            text = stringResource(R.string.alt_checkbox_label),
-            checkedProvider = { state.alt },
-            onCheckedChange = { onAltChange(it) },
-        )
+        if (compactHeight) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+            ) {
+                ModSelectItem(
+                    text = stringResource(R.string.win_checkbox_label),
+                    checkedProvider = { state.win },
+                    onCheckedChange = { onWinChange(it) },
+                )
+                ModSelectItem(
+                    text = stringResource(R.string.ctrl_checkbox_label),
+                    checkedProvider = { state.ctrl },
+                    onCheckedChange = { onCtrlChange(it) },
+                )
+                ModSelectItem(
+                    text = stringResource(R.string.shift_checkbox_label),
+                    checkedProvider = { state.shift },
+                    onCheckedChange = { onShiftChange(it) },
+                )
+                ModSelectItem(
+                    text = stringResource(R.string.alt_checkbox_label),
+                    checkedProvider = { state.alt },
+                    onCheckedChange = { onAltChange(it) },
+                )
+            }
+        } else {
+            ModSelectItem(
+                text = stringResource(R.string.win_checkbox_label),
+                checkedProvider = { state.win },
+                onCheckedChange = { onWinChange(it) },
+            )
+            ModSelectItem(
+                text = stringResource(R.string.ctrl_checkbox_label),
+                checkedProvider = { state.ctrl },
+                onCheckedChange = { onCtrlChange(it) },
+            )
+            ModSelectItem(
+                text = stringResource(R.string.shift_checkbox_label),
+                checkedProvider = { state.shift },
+                onCheckedChange = { onShiftChange(it) },
+            )
+            ModSelectItem(
+                text = stringResource(R.string.alt_checkbox_label),
+                checkedProvider = { state.alt },
+                onCheckedChange = { onAltChange(it) },
+            )
+        }
         NameEdit(
             value = state.name,
             onChange = { onNameChange(it) },
@@ -356,27 +388,43 @@ private fun NameEdit(
 
 @Preview(showBackground = true)
 @Composable
-private fun ScreenPreview() {
+private fun Portrait() {
+    ScreenPreview(false)
+}
+
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape")
+@Composable
+private fun Landscape() {
+    ScreenPreview(true)
+}
+
+@Composable
+private fun ScreenPreview(compactHeight: Boolean) {
+    var win by remember { mutableStateOf(true) }
+    var ctrl by remember { mutableStateOf(false) }
+    var shift by remember { mutableStateOf(true) }
+    var alt by remember { mutableStateOf(false) }
     KeystrokeScreen(
         state = KeystrokeScreenUIState(
             mode = KeystrokeScreenMode.EDIT,
             name = "Test name",
-            win = true,
-            ctrl = false,
-            shift = true,
-            alt = false,
+            win = win,
+            ctrl = ctrl,
+            shift = shift,
+            alt = alt,
             keyCode = Key.MEDIA_NEXT.keyCode,
             keyGroupIndex = Key.MEDIA_NEXT.group.index
         ),
         onKeyCodeChange = {},
-        onWinChange = {},
-        onCtrlChange = {},
-        onAltChange = {},
-        onShiftChange = {},
+        onWinChange = { win = it },
+        onCtrlChange = { ctrl = it },
+        onAltChange = { alt = it },
+        onShiftChange = { shift = it },
         onClose = {},
         checkCanSave = { false },
         onNameChange = {},
         onSave = {},
         showSnackbar = { _, _ -> },
+        compactHeight = compactHeight,
     )
 }

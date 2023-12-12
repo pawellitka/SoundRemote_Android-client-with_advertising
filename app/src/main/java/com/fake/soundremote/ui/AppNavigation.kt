@@ -63,11 +63,13 @@ fun AppNavigation(
             onNavigateUp = navController::navigateUp,
             showSnackbar = showSnackbar,
             setFab = setFab,
+            compactHeight = compactHeight,
         )
         keystrokeEditScreen(
             onNavigateUp = navController::navigateUp,
             showSnackbar = showSnackbar,
             setFab = setFab,
+            compactHeight = compactHeight,
         )
         eventsScreen(
             onNavigateUp = navController::navigateUp,
