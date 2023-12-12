@@ -56,9 +56,7 @@ data class Keystroke(
         if (keyCode != other.keyCode) return false
         if (mods != other.mods) return false
         if (name != other.name) return false
-        if (isFavoured != other.isFavoured) return false
-
-        return true
+        return isFavoured == other.isFavoured
     }
 
     override fun hashCode(): Int {
