@@ -1,5 +1,6 @@
 package com.fake.soundremote.ui.home
 
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
@@ -8,6 +9,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,7 +49,11 @@ fun NavGraphBuilder.homeScreen(
         )
         LaunchedEffect(Unit) {
             setFab {
-                FloatingActionButton(onClick = onNavigateToKeystrokeList) {
+                FloatingActionButton(
+                    onClick = onNavigateToKeystrokeList,
+                    modifier = Modifier
+                        .navigationBarsPadding(),
+                ) {
                     Icon(Icons.Default.Edit, stringResource(R.string.action_edit_keystrokes))
                 }
             }
