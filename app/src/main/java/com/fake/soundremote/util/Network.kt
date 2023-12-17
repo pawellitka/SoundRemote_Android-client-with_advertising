@@ -66,7 +66,7 @@ object Net {
 
     private val keepAlivePacket: ByteBuffer
     private val disconnectPacket: ByteBuffer
-    private val BYTE_ORDER: ByteOrder = ByteOrder.LITTLE_ENDIAN
+    private val BYTE_ORDER: ByteOrder = ByteOrder.BIG_ENDIAN
 
     init {
         keepAlivePacket =
