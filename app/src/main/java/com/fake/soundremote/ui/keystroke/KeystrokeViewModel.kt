@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.KeystrokeRepository
 import com.fake.soundremote.util.Key
+import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.KeyGroup
 import com.fake.soundremote.util.ModKey
 import com.fake.soundremote.util.createMods
@@ -26,7 +27,7 @@ data class KeystrokeScreenUIState(
     val ctrl: Boolean = false,
     val shift: Boolean = false,
     val alt: Boolean = false,
-    val keyCode: Int? = null,
+    val keyCode: KeyCode? = null,
     val keyGroupIndex: Int = KeyGroup.LETTER_DIGIT.index,
 )
 
@@ -62,13 +63,13 @@ internal class KeystrokeViewModel @Inject constructor(
         }
     }
 
-    private fun getKeyGroupIndex(keyCode: Int?): Int {
+    private fun getKeyGroupIndex(keyCode: KeyCode?): Int {
         if (keyCode == null) return KeyGroup.LETTER_DIGIT.index
         val key = Key.entries.find { it.keyCode == keyCode }
         return key?.group?.index ?: KeyGroup.LETTER_DIGIT.index
     }
 
-    fun updateKeyCode(keyCode: Int?) {
+    fun updateKeyCode(keyCode: KeyCode?) {
         _keystrokeState.value = _keystrokeState.value
             .copy(keyCode = keyCode, keyGroupIndex = getKeyGroupIndex(keyCode))
     }

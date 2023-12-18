@@ -10,13 +10,13 @@ import com.fake.soundremote.data.Keystroke
  * If this Char is a digit or an english alphabet letter, returns the corresponding virtual-key code.
  * Otherwise, returns null.
  */
-fun Char.toKeyCode(): Int? {
+fun Char.toKeyCode(): KeyCode? {
     if (this in '0'..'9') {
-        return 0x30 + this.code - '0'.code
+        return KeyCode(0x30 + this.code - '0'.code)
     }
     val lowercase = this.lowercaseChar()
     return if (lowercase in 'a'..'z') {
-        0x41 + lowercase.code - 'a'.code
+        KeyCode(0x41 + lowercase.code - 'a'.code)
     } else null
 }
 
@@ -49,7 +49,7 @@ fun generateDescription(keystroke: Keystroke): String =
  * @param mods mods bitfield
  * @return description
  */
-fun generateDescription(keyCode: Int, mods: Int): String = ModKey.entries
+fun generateDescription(keyCode: KeyCode, mods: Int): String = ModKey.entries
     .filter { mods.isModActive(it) }
     .fold("") { result, mod -> result + "${mod.label} + " } + keyLabel(keyCode)
 
@@ -59,7 +59,7 @@ fun generateDescription(keyCode: Int, mods: Int): String = ModKey.entries
  * @param code virtual-key code
  * @return text label
  */
-private fun keyLabel(code: Int): String {
+private fun keyLabel(code: KeyCode): String {
     return code.toLetterOrDigitChar()?.toString()?.uppercase()
         ?: Key.entries.find { it.keyCode == code }?.label
         ?: "<?>"
@@ -89,88 +89,87 @@ enum class KeyGroup(val nameStringId: Int, val label: String) {
  * @param descriptionStringId optional description resource string id
  */
 enum class Key(
-    val keyCode: Int,
+    val keyCode: KeyCode,
     val label: String,
     val group: KeyGroup,
     @StringRes
     val descriptionStringId: Int? = null
 ) {
     // Media
-    MEDIA_PLAY_PAUSE(0xB3, "Play/Pause Media", KeyGroup.MEDIA),
-    MEDIA_NEXT(0xB0, "Next Track", KeyGroup.MEDIA),
-    MEDIA_PREV(0xB1, "Previous Track", KeyGroup.MEDIA),
-    MEDIA_STOP(0xB2, "Stop Media", KeyGroup.MEDIA),
-    MEDIA_VOLUME_MUTE(0xAD, "Volume Mute", KeyGroup.MEDIA),
-    MEDIA_VOLUME_DOWN(0xAE, "Volume Down", KeyGroup.MEDIA),
-    MEDIA_VOLUME_UP(0xAF, "Volume Up", KeyGroup.MEDIA),
+    MEDIA_PLAY_PAUSE(KeyCode(0xB3), "Play/Pause Media", KeyGroup.MEDIA),
+    MEDIA_NEXT(KeyCode(0xB0), "Next Track", KeyGroup.MEDIA),
+    MEDIA_PREV(KeyCode(0xB1), "Previous Track", KeyGroup.MEDIA),
+    MEDIA_STOP(KeyCode(0xB2), "Stop Media", KeyGroup.MEDIA),
+    MEDIA_VOLUME_MUTE(KeyCode(0xAD), "Volume Mute", KeyGroup.MEDIA),
+    MEDIA_VOLUME_DOWN(KeyCode(0xAE), "Volume Down", KeyGroup.MEDIA),
+    MEDIA_VOLUME_UP(KeyCode(0xAF), "Volume Up", KeyGroup.MEDIA),
 
     // Typing
-    TILDE(0xC0, "`", KeyGroup.TYPING, R.string.key_desc_tilde),
-    MINUS(0xBD, "−", KeyGroup.TYPING, R.string.key_desc_minus),
-    PLUS(0xBB, "=", KeyGroup.TYPING, R.string.key_desc_plus),
-    SQUARE_BRACKET_LEFT(0xDB, "[", KeyGroup.TYPING, R.string.key_desc_bracket_open),
-    SQUARE_BRACKET_RIGHT(0xDD, "]", KeyGroup.TYPING, R.string.key_desc_bracket_close),
-    SEMICOLON(0xBA, ";", KeyGroup.TYPING, R.string.key_desc_semicolon),
-    QUOTE(0xDE, "'", KeyGroup.TYPING, R.string.key_desc_quote),
-    BACKSLASH(0xDC, "\\", KeyGroup.TYPING, R.string.key_desc_backslash),
-    COMMA(0xBC, ",", KeyGroup.TYPING, R.string.key_desc_comma),
-    PERIOD(0xBE, ".", KeyGroup.TYPING, R.string.key_desc_period),
-    SLASH(0xBF, "/", KeyGroup.TYPING, R.string.key_desc_slash),
+    TILDE(KeyCode(0xC0), "`", KeyGroup.TYPING, R.string.key_desc_tilde),
+    MINUS(KeyCode(0xBD), "−", KeyGroup.TYPING, R.string.key_desc_minus),
+    PLUS(KeyCode(0xBB), "=", KeyGroup.TYPING, R.string.key_desc_plus),
+    SQUARE_BRACKET_LEFT(KeyCode(0xDB), "[", KeyGroup.TYPING, R.string.key_desc_bracket_open),
+    SQUARE_BRACKET_RIGHT(KeyCode(0xDD), "]", KeyGroup.TYPING, R.string.key_desc_bracket_close),
+    SEMICOLON(KeyCode(0xBA), ";", KeyGroup.TYPING, R.string.key_desc_semicolon),
+    QUOTE(KeyCode(0xDE), "'", KeyGroup.TYPING, R.string.key_desc_quote),
+    BACKSLASH(KeyCode(0xDC), "\\", KeyGroup.TYPING, R.string.key_desc_backslash),
+    COMMA(KeyCode(0xBC), ",", KeyGroup.TYPING, R.string.key_desc_comma),
+    PERIOD(KeyCode(0xBE), ".", KeyGroup.TYPING, R.string.key_desc_period),
+    SLASH(KeyCode(0xBF), "/", KeyGroup.TYPING, R.string.key_desc_slash),
 
     // Control
-    TAB(0x9, "Tab", KeyGroup.CONTROL),
-    SPACE(0x20, "Space", KeyGroup.CONTROL),
-    BACK(0x08, "Backspace", KeyGroup.CONTROL),
-    ENTER(0x0D, "Enter", KeyGroup.CONTROL),
-    CAPITAL(0x14, "Caps Lock", KeyGroup.CONTROL),
-    ESC(0x1B, "Esc", KeyGroup.CONTROL),
-    PRINT_SCREEN(0x2C, "Print Screen", KeyGroup.CONTROL),
-    SCROLL_LOCK(0x91, "Scroll Lock", KeyGroup.CONTROL),
-    PAUSE(0x13, "Pause", KeyGroup.CONTROL),
+    TAB(KeyCode(0x09), "Tab", KeyGroup.CONTROL),
+    SPACE(KeyCode(0x20), "Space", KeyGroup.CONTROL),
+    BACK(KeyCode(0x08), "Backspace", KeyGroup.CONTROL),
+    ENTER(KeyCode(0x0D), "Enter", KeyGroup.CONTROL),
+    CAPITAL(KeyCode(0x14), "Caps Lock", KeyGroup.CONTROL),
+    ESC(KeyCode(0x1B), "Esc", KeyGroup.CONTROL),
+    PRINT_SCREEN(KeyCode(0x2C), "Print Screen", KeyGroup.CONTROL),
+    SCROLL_LOCK(KeyCode(0x91), "Scroll Lock", KeyGroup.CONTROL),
+    PAUSE(KeyCode(0x13), "Pause", KeyGroup.CONTROL),
 
     // Navigation
-    INSERT(0x2D, "Insert", KeyGroup.NAVIGATION),
-    DELETE(0x2E, "Delete", KeyGroup.NAVIGATION),
-    HOME(0x24, "Home", KeyGroup.NAVIGATION),
-    END(0x23, "End", KeyGroup.NAVIGATION),
-    PAGE_UP(0x21, "Page Up", KeyGroup.NAVIGATION),
-    PAGE_DOWN(0x22, "Page Down", KeyGroup.NAVIGATION),
-    UP(0x26, "Up", KeyGroup.NAVIGATION),
-    LEFT(0x25, "Left", KeyGroup.NAVIGATION),
-    RIGHT(0x27, "Right", KeyGroup.NAVIGATION),
-    DOWN(0x28, "Down", KeyGroup.NAVIGATION),
+    INSERT(KeyCode(0x2D), "Insert", KeyGroup.NAVIGATION),
+    DELETE(KeyCode(0x2E), "Delete", KeyGroup.NAVIGATION),
+    HOME(KeyCode(0x24), "Home", KeyGroup.NAVIGATION),
+    END(KeyCode(0x23), "End", KeyGroup.NAVIGATION),
+    PAGE_UP(KeyCode(0x21), "Page Up", KeyGroup.NAVIGATION),
+    PAGE_DOWN(KeyCode(0x22), "Page Down", KeyGroup.NAVIGATION),
+    UP(KeyCode(0x26), "Up", KeyGroup.NAVIGATION),
+    LEFT(KeyCode(0x25), "Left", KeyGroup.NAVIGATION),
+    RIGHT(KeyCode(0x27), "Right", KeyGroup.NAVIGATION),
+    DOWN(KeyCode(0x28), "Down", KeyGroup.NAVIGATION),
 
     // Numpad
-    NUM_0(0x60, "Num 0", KeyGroup.NUM_PAD),
-    NUM_1(0x61, "Num 1", KeyGroup.NUM_PAD),
-    NUM_2(0x62, "Num 2", KeyGroup.NUM_PAD),
-    NUM_3(0x63, "Num 3", KeyGroup.NUM_PAD),
-    NUM_4(0x64, "Num 4", KeyGroup.NUM_PAD),
-    NUM_5(0x65, "Num 5", KeyGroup.NUM_PAD),
-    NUM_6(0x66, "Num 6", KeyGroup.NUM_PAD),
-    NUM_7(0x67, "Num 7", KeyGroup.NUM_PAD),
-    NUM_8(0x68, "Num 8", KeyGroup.NUM_PAD),
-    NUM_9(0x69, "Num 9", KeyGroup.NUM_PAD),
-    NUM_MULTIPLY(0x6A, "Num *", KeyGroup.NUM_PAD),
-    NUM_ADD(0x6B, "Num +", KeyGroup.NUM_PAD),
-    NUM_SUBTRACT(0x6D, "Num -", KeyGroup.NUM_PAD),
-    NUM_DECIMAL(0x6E, "Num .", KeyGroup.NUM_PAD),
-    NUM_DIVIDE(0x6F, "Num /", KeyGroup.NUM_PAD),
-    NUM_LOCK(0x90, "Num Lock", KeyGroup.NUM_PAD),
+    NUM_0(KeyCode(0x60), "Num 0", KeyGroup.NUM_PAD),
+    NUM_1(KeyCode(0x61), "Num 1", KeyGroup.NUM_PAD),
+    NUM_2(KeyCode(0x62), "Num 2", KeyGroup.NUM_PAD),
+    NUM_3(KeyCode(0x63), "Num 3", KeyGroup.NUM_PAD),
+    NUM_4(KeyCode(0x64), "Num 4", KeyGroup.NUM_PAD),
+    NUM_5(KeyCode(0x65), "Num 5", KeyGroup.NUM_PAD),
+    NUM_6(KeyCode(0x66), "Num 6", KeyGroup.NUM_PAD),
+    NUM_7(KeyCode(0x67), "Num 8", KeyGroup.NUM_PAD),
+    NUM_9(KeyCode(0x69), "Num 9", KeyGroup.NUM_PAD),
+    NUM_MULTIPLY(KeyCode(0x6A), "Num *", KeyGroup.NUM_PAD),
+    NUM_ADD(KeyCode(0x6B), "Num +", KeyGroup.NUM_PAD),
+    NUM_SUBTRACT(KeyCode(0x6D), "Num -", KeyGroup.NUM_PAD),
+    NUM_DECIMAL(KeyCode(0x6E), "Num .", KeyGroup.NUM_PAD),
+    NUM_DIVIDE(KeyCode(0x6F), "Num /", KeyGroup.NUM_PAD),
+    NUM_LOCK(KeyCode(0x90), "Num Lock", KeyGroup.NUM_PAD),
 
     // Function
-    F1(0x70, "F1", KeyGroup.FUNCTION),
-    F2(0x71, "F2", KeyGroup.FUNCTION),
-    F3(0x72, "F3", KeyGroup.FUNCTION),
-    F4(0x73, "F4", KeyGroup.FUNCTION),
-    F5(0x74, "F5", KeyGroup.FUNCTION),
-    F6(0x75, "F6", KeyGroup.FUNCTION),
-    F7(0x76, "F7", KeyGroup.FUNCTION),
-    F8(0x77, "F8", KeyGroup.FUNCTION),
-    F9(0x78, "F9", KeyGroup.FUNCTION),
-    F10(0x79, "F10", KeyGroup.FUNCTION),
-    F11(0x7A, "F11", KeyGroup.FUNCTION),
-    F12(0x7B, "F12", KeyGroup.FUNCTION);
+    F1(KeyCode(0x70), "F1", KeyGroup.FUNCTION),
+    F2(KeyCode(0x71), "F2", KeyGroup.FUNCTION),
+    F3(KeyCode(0x72), "F3", KeyGroup.FUNCTION),
+    F4(KeyCode(0x73), "F4", KeyGroup.FUNCTION),
+    F5(KeyCode(0x74), "F5", KeyGroup.FUNCTION),
+    F6(KeyCode(0x75), "F6", KeyGroup.FUNCTION),
+    F7(KeyCode(0x76), "F7", KeyGroup.FUNCTION),
+    F8(KeyCode(0x77), "F8", KeyGroup.FUNCTION),
+    F9(KeyCode(0x78), "F9", KeyGroup.FUNCTION),
+    F10(KeyCode(0x79), "F10", KeyGroup.FUNCTION),
+    F11(KeyCode(0x7A), "F11", KeyGroup.FUNCTION),
+    F12(KeyCode(0x7B), "F12", KeyGroup.FUNCTION);
 
     override fun toString(): String {
         return label
