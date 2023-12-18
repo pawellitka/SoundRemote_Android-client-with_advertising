@@ -209,3 +209,15 @@ fun Keystroke.isModActive(mod: ModKey): Boolean {
 private fun Int.isModActive(mod: ModKey): Boolean {
     return this and mod.bitField != 0
 }
+
+@JvmInline
+value class KeyCode(val value: Int) {
+    fun toLetterOrDigitChar(): Char? {
+        if (value in 0x30..0x39) {
+            return ('0'.code + value - 0x30).toChar()
+        }
+        return if (value in 0x41..0x5A) {
+            ('a'.code + value - 0x41).toChar()
+        } else null
+    }
+}
