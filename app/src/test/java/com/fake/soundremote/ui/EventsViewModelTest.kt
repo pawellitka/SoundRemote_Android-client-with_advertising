@@ -3,9 +3,9 @@ package com.fake.soundremote.ui
 import com.fake.soundremote.MainDispatcherExtension
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.data.EventAction
-import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.TestEventActionRepository
 import com.fake.soundremote.data.TestKeystrokeRepository
+import com.fake.soundremote.getKeystroke
 import com.fake.soundremote.ui.events.EventsViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -44,7 +44,7 @@ internal class EventsViewModelTest {
             }
 
             val keystrokeId = 10
-            val keystrokes = listOf(Keystroke(keystrokeId, 100, 0, "TestK", false, 0))
+            val keystrokes = listOf(getKeystroke(id = keystrokeId))
             keystrokeRepository.setKeystrokes(keystrokes)
             val eventId = Event.CALL_END.id
             assertNull(viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId)
@@ -65,7 +65,7 @@ internal class EventsViewModelTest {
             }
 
             val keystrokeId = 1
-            val keystrokes = listOf(Keystroke(keystrokeId, 100, 0, "TestK", false, 0))
+            val keystrokes = listOf(getKeystroke(id = keystrokeId))
             keystrokeRepository.setKeystrokes(keystrokes)
             val eventId = Event.CALL_BEGIN.id
             val eventActions = listOf(EventAction(eventId, keystrokeId))
@@ -81,7 +81,7 @@ internal class EventsViewModelTest {
         }
 
         @Test
-        @DisplayName("updates action of an event with other action")
+        @DisplayName("updates action of an event with another action")
         fun eventWithAction_existingAction_updatesAction() = runTest {
             val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect {}
@@ -90,8 +90,8 @@ internal class EventsViewModelTest {
             val oldKeystrokeId = 1
             val newKeystrokeId = 2
             val keystrokes = listOf(
-                Keystroke(oldKeystrokeId, 100, 0, "TestK", false, 0),
-                Keystroke(newKeystrokeId, 100, 0, "TestK", false, 0),
+                getKeystroke(id = oldKeystrokeId),
+                getKeystroke(id = newKeystrokeId),
             )
             keystrokeRepository.setKeystrokes(keystrokes)
             val eventId = Event.CALL_BEGIN.id

@@ -1,9 +1,9 @@
 package com.fake.soundremote.ui
 
 import com.fake.soundremote.MainDispatcherExtension
-import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.TestKeystrokeRepository
 import com.fake.soundremote.data.preferences.TestPreferencesRepository
+import com.fake.soundremote.getKeystroke
 import com.fake.soundremote.service.ServiceState
 import com.fake.soundremote.service.TestServiceManager
 import com.fake.soundremote.ui.home.HomeViewModel
@@ -127,19 +127,13 @@ class HomeViewModelTest {
     @Test
     @DisplayName("sendKeystroke() calls ServiceManger.sendKeystroke()")
     fun sendKeystroke_callsService() = runTest {
-        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.homeUIState.collect {}
-        }
-
         val id = 3
-        val expected = Keystroke(id, 0x99, 0, "Name", true, 0)
+        val expected = getKeystroke(id = id)
         keystrokeRepository.setKeystrokes(listOf(expected))
 
         viewModel.sendKeystroke(id)
 
         val actual = serviceManager.sentKeystroke
         assertEquals(expected, actual)
-
-        collectJob.cancel()
     }
 }

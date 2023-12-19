@@ -2,11 +2,12 @@ package com.fake.soundremote.ui
 
 import androidx.lifecycle.SavedStateHandle
 import com.fake.soundremote.MainDispatcherExtension
-import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.TestKeystrokeRepository
+import com.fake.soundremote.getKeystroke
 import com.fake.soundremote.ui.keystroke.KEYSTROKE_ID_ARG
 import com.fake.soundremote.ui.keystroke.KeystrokeScreenMode
 import com.fake.soundremote.ui.keystroke.KeystrokeViewModel
+import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.KeyGroup
 import com.fake.soundremote.util.ModKey
 import com.fake.soundremote.util.createMods
@@ -57,7 +58,7 @@ class KeystrokeViewModelTest {
         @Test
         @DisplayName("updateKeyCode() updates keyCode")
         fun updateKeyCode_updates() {
-            val expected = 0x60
+            val expected = KeyCode(0x60)
             assertNotEquals(expected, viewModel.keystrokeScreenState.value.keyCode)
 
             viewModel.updateKeyCode(expected)
@@ -112,7 +113,7 @@ class KeystrokeViewModelTest {
         @DisplayName("saveKeystroke() saves new Keystroke")
         fun saveKeystroke_createsNewKeystroke() = runTest {
             val expectedName = "TestName12"
-            val expectedKeyCode = 0x42
+            val expectedKeyCode = KeyCode(0x42)
             viewModel.updateName(expectedName)
             viewModel.updateKeyCode(expectedKeyCode)
             viewModel.updateMod(ModKey.SHIFT, true)
@@ -140,7 +141,7 @@ class KeystrokeViewModelTest {
         @DisplayName("Sets screen mode correctly")
         fun screenMode_isCorrect() {
             val id = 1
-            val keystroke = Keystroke(id, 123, 0, "K", true, 0)
+            val keystroke = getKeystroke(id = id)
             keystrokeRepository.setKeystrokes(listOf(keystroke))
             val savedState = SavedStateHandle(mapOf(KEYSTROKE_ID_ARG to id))
             viewModel = KeystrokeViewModel(savedState, keystrokeRepository)
@@ -155,7 +156,7 @@ class KeystrokeViewModelTest {
         fun keystrokeProperties_areCorrect() {
             val mods = createMods(win = true, ctrl = true, shift = true, alt = true)
             val id = 1
-            val keystroke = Keystroke(id, 100, mods, "TestK", false, 0)
+            val keystroke = getKeystroke(id = id, mods = mods)
             keystrokeRepository.setKeystrokes(listOf(keystroke))
             val savedState = SavedStateHandle(mapOf(KEYSTROKE_ID_ARG to id))
             viewModel = KeystrokeViewModel(savedState, keystrokeRepository)
@@ -175,7 +176,7 @@ class KeystrokeViewModelTest {
         @DisplayName("Sets key group correctly")
         fun keyGroup_isCorrect(keyCode: Int, expectedKeyGroup: KeyGroup) {
             val id = 1
-            val keystroke = Keystroke(id, keyCode, 0, "K", true, 0)
+            val keystroke = getKeystroke(id = id, keyCode = KeyCode(keyCode))
             keystrokeRepository.setKeystrokes(listOf(keystroke))
             val savedState = SavedStateHandle(mapOf(KEYSTROKE_ID_ARG to id))
             viewModel = KeystrokeViewModel(savedState, keystrokeRepository)
@@ -190,13 +191,14 @@ class KeystrokeViewModelTest {
         fun saveKeystroke_updatesKeystroke() = runTest {
             // Create a Keystroke to edit
             val id = 10
-            val keystroke = Keystroke(id, 0x100, 0, "Original name", true, 0)
+            val keystroke =
+                getKeystroke(id = id, keyCode = KeyCode(0x100), mods = 0, name = "Original name")
             keystrokeRepository.setKeystrokes(listOf(keystroke))
             val savedState = SavedStateHandle(mapOf(KEYSTROKE_ID_ARG to id))
             viewModel = KeystrokeViewModel(savedState, keystrokeRepository)
             // Edit the Keystroke
             val expectedName = "New name"
-            val expectedKeyCode = 0x42
+            val expectedKeyCode = KeyCode(0x42)
             viewModel.updateName(expectedName)
             viewModel.updateKeyCode(expectedKeyCode)
             viewModel.updateMod(ModKey.SHIFT, true)
