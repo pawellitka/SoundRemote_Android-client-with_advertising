@@ -21,19 +21,6 @@ fun Char.toKeyCode(): KeyCode? {
 }
 
 /**
- * If this Int is a virtual-key code for a digit or an english alphabet letter key, returns a Char
- * representing the corresponding character. Otherwise, returns null.
- */
-fun Int.toLetterOrDigitChar(): Char? {
-    if (this in 0x30..0x39) {
-        return ('0'.code + this - 0x30).toChar()
-    }
-    return if (this in 0x41..0x5A) {
-        ('a'.code + this - 0x41).toChar()
-    } else null
-}
-
-/**
  * Generates a description for the keystroke, for example "Ctrl + Alt + Shift + Space"
  *
  * @param keystroke the source [Keystroke]
@@ -211,6 +198,10 @@ private fun Int.isModActive(mod: ModKey): Boolean {
 
 @JvmInline
 value class KeyCode(val value: Int) {
+    /**
+     * If this [KeyCode] is a virtual-key code for a digit or an english alphabet letter key, returns a Char
+     * representing the corresponding character. Otherwise, returns null.
+     */
     fun toLetterOrDigitChar(): Char? {
         if (value in 0x30..0x39) {
             return ('0'.code + value - 0x30).toChar()
