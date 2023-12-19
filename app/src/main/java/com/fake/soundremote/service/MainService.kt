@@ -428,7 +428,7 @@ internal class MainService : MediaBrowserServiceCompat() {
     }
 
     private fun sendKey(key: KeyCode) {
-        connection.sendKeystroke(key, 0)
+        connection.sendKeystroke(key)
     }
 
     private fun createNotification(sessionToken: MediaSessionCompat.Token): Notification {

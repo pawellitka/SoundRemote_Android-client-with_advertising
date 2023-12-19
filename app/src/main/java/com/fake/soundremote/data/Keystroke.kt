@@ -6,6 +6,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.fake.soundremote.util.KeyCode
+import com.fake.soundremote.util.Mods
 import com.fake.soundremote.util.generateDescription
 
 @Entity(tableName = Keystroke.TABLE_NAME)
@@ -16,7 +17,7 @@ data class Keystroke(
     @ColumnInfo(name = COLUMN_KEY_CODE)
     var keyCode: KeyCode,
     @ColumnInfo(name = COLUMN_MODS)
-    var mods: Int,
+    var mods: Mods,
     @ColumnInfo(name = COLUMN_NAME)
     var name: String,
     @ColumnInfo(name = COLUMN_FAVOURED)
@@ -35,11 +36,11 @@ data class Keystroke(
      * @param favoured show the keystroke in the main app screen
      */
     @Ignore
-    constructor(keyCode: KeyCode, name: String, mods: Int? = null, favoured: Boolean = true) :
+    constructor(keyCode: KeyCode, name: String, mods: Mods? = null, favoured: Boolean = true) :
             this(
                 keyCode = keyCode,
                 name = name,
-                mods = mods ?: 0,
+                mods = mods ?: Mods(0),
                 isFavoured = favoured,
                 order = ORDER_DEFAULT_VALUE,
             )
@@ -63,7 +64,7 @@ data class Keystroke(
     override fun hashCode(): Int {
         var result = id
         result = 31 * result + keyCode.value
-        result = 31 * result + mods
+        result = 31 * result + mods.value
         result = 31 * result + name.hashCode()
         result = 31 * result + isFavoured.hashCode()
         result = 31 * result + order
@@ -88,7 +89,7 @@ data class KeystrokeInfo(
     @ColumnInfo(name = Keystroke.COLUMN_KEY_CODE)
     var keyCode: KeyCode,
     @ColumnInfo(name = Keystroke.COLUMN_MODS)
-    var mods: Int,
+    var mods: Mods,
     @ColumnInfo(name = Keystroke.COLUMN_NAME)
     var name: String,
 )

@@ -9,7 +9,7 @@ import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.KeyGroup
 import com.fake.soundremote.util.ModKey
-import com.fake.soundremote.util.createMods
+import com.fake.soundremote.util.Mods
 import com.fake.soundremote.util.generateDescription
 import com.fake.soundremote.util.isModActive
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -94,7 +94,7 @@ internal class KeystrokeViewModel @Inject constructor(
     fun saveKeystroke() {
         keystrokeScreenState.value.let { currentState ->
             val currentKeyCode = currentState.keyCode ?: return@let
-            val mods = createMods(
+            val mods = Mods(
                 win = currentState.win,
                 ctrl = currentState.ctrl,
                 shift = currentState.shift,

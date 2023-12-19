@@ -3,6 +3,7 @@ package com.fake.soundremote.network
 import android.os.Build
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.KeyCode
+import com.fake.soundremote.util.Mods
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.PacketProtocolType
 import com.fake.soundremote.util.SystemMessage
@@ -113,8 +114,8 @@ internal class Connection(
         }
     }
 
-    fun sendKeystroke(keyCode: KeyCode, mods: Int) {
-        val keystrokePacket = Net.getKeystrokePacket(keyCode.value.toUByte(), mods.toUByte())
+    fun sendKeystroke(keyCode: KeyCode, mods: Mods = Mods()) {
+        val keystrokePacket = Net.getKeystrokePacket(keyCode.value.toUByte(), mods.value.toUByte())
         scope.launch(CoroutineName("Send Keystroke")) { send(keystrokePacket) }
     }
 

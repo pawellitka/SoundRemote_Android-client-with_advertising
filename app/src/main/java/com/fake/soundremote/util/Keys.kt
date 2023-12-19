@@ -36,7 +36,7 @@ fun generateDescription(keystroke: Keystroke): String =
  * @param mods mods bitfield
  * @return description
  */
-fun generateDescription(keyCode: KeyCode, mods: Int): String = ModKey.entries
+fun generateDescription(keyCode: KeyCode, mods: Mods): String = ModKey.entries
     .filter { mods.isModActive(it) }
     .fold("") { result, mod -> result + "${mod.label} + " } + keyLabel(keyCode)
 
@@ -189,7 +189,7 @@ fun createMods(win: Boolean, ctrl: Boolean, shift: Boolean, alt: Boolean): Int {
  * @return true if this keystroke has the specified mod key active
  */
 fun Keystroke.isModActive(mod: ModKey): Boolean {
-    return this.mods.isModActive(mod)
+    return mods.isModActive(mod)
 }
 
 private fun Int.isModActive(mod: ModKey): Boolean {
