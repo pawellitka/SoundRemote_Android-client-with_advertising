@@ -211,3 +211,17 @@ value class KeyCode(val value: Int) {
         } else null
     }
 }
+
+@JvmInline
+value class Mods(val value: Int = 0) {
+    constructor(win: Boolean, ctrl: Boolean, shift: Boolean, alt: Boolean) : this(
+        (if (win) ModKey.WIN.bitField else 0)
+                or (if (ctrl) ModKey.CTRL.bitField else 0)
+                or (if (shift) ModKey.SHIFT.bitField else 0)
+                or (if (alt) ModKey.ALT.bitField else 0)
+    )
+
+    fun isModActive(mod: ModKey): Boolean {
+        return value and mod.bitField != 0
+    }
+}
