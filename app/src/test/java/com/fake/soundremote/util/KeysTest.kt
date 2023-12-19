@@ -35,7 +35,7 @@ internal class KeysTest {
         }
     }
 
-    @DisplayName("Int.toLetterOrDigitChar")
+    @DisplayName("KeyCode.toLetterOrDigitChar")
     @Nested
     inner class KeyCodeToCharTests {
         @ParameterizedTest
