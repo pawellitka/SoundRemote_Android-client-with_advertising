@@ -75,7 +75,7 @@ class KeystrokeListViewModelTest {
         collectJob.cancel()
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "from {1} to {2} results in {3}")
     @MethodSource("com.fake.soundremote.ui.KeystrokeListViewModelTest#moveKeystrokeProvider")
     @DisplayName("moveKeystroke() moves correctly")
     fun moveKeystroke_movesCorrectly(
