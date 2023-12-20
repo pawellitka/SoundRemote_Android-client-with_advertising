@@ -38,19 +38,7 @@ fun generateDescription(keystroke: Keystroke): String =
  */
 fun generateDescription(keyCode: KeyCode, mods: Mods): String = ModKey.entries
     .filter { mods.isModActive(it) }
-    .fold("") { result, mod -> result + "${mod.label} + " } + keyLabel(keyCode)
-
-/**
- * Returns a text label for a virtual-key code
- *
- * @param code virtual-key code
- * @return text label
- */
-private fun keyLabel(code: KeyCode): String {
-    return code.toLetterOrDigitChar()?.toString()?.uppercase()
-        ?: Key.entries.find { it.keyCode == code }?.label
-        ?: "<?>"
-}
+    .fold("") { result, mod -> result + "${mod.label} + " } + keyCode.keyLabel()
 
 // https://support.microsoft.com/en-us/windows/using-your-keyboard-18b2efc1-9e32-ba5a-0896-676f9f3b994f
 // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
@@ -193,6 +181,17 @@ value class KeyCode(val value: Int) {
         return if (value in 0x41..0x5A) {
             ('a'.code + value - 0x41).toChar()
         } else null
+    }
+
+    /**
+     * Returns a text label for the virtual-key code
+     *
+     * @return text label
+     */
+    fun keyLabel(): String {
+        return toLetterOrDigitChar()?.toString()?.uppercase()
+            ?: Key.entries.find { it.keyCode == this }?.label
+            ?: "<?>"
     }
 }
 
