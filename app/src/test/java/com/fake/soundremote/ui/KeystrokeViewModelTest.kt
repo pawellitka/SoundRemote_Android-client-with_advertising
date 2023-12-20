@@ -10,7 +10,7 @@ import com.fake.soundremote.ui.keystroke.KeystrokeViewModel
 import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.KeyGroup
 import com.fake.soundremote.util.ModKey
-import com.fake.soundremote.util.createMods
+import com.fake.soundremote.util.Mods
 import com.fake.soundremote.util.isModActive
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.test.runTest
@@ -154,7 +154,7 @@ class KeystrokeViewModelTest {
         @Test
         @DisplayName("Sets keystroke properties correctly")
         fun keystrokeProperties_areCorrect() {
-            val mods = createMods(win = true, ctrl = true, shift = true, alt = true)
+            val mods = Mods(win = true, ctrl = true, shift = true, alt = true)
             val id = 1
             val keystroke = getKeystroke(id = id, mods = mods)
             keystrokeRepository.setKeystrokes(listOf(keystroke))
@@ -191,19 +191,22 @@ class KeystrokeViewModelTest {
         fun saveKeystroke_updatesKeystroke() = runTest {
             // Create a Keystroke to edit
             val id = 10
-            val keystroke =
-                getKeystroke(id = id, keyCode = KeyCode(0x100), mods = 0, name = "Original name")
+            val keystroke = getKeystroke(
+                id = id,
+                keyCode = KeyCode(0x100),
+                mods = Mods(),
+                name = "Original name"
+            )
             keystrokeRepository.setKeystrokes(listOf(keystroke))
             val savedState = SavedStateHandle(mapOf(KEYSTROKE_ID_ARG to id))
             viewModel = KeystrokeViewModel(savedState, keystrokeRepository)
-            // Edit the Keystroke
             val expectedName = "New name"
             val expectedKeyCode = KeyCode(0x42)
+
             viewModel.updateName(expectedName)
             viewModel.updateKeyCode(expectedKeyCode)
             viewModel.updateMod(ModKey.SHIFT, true)
             viewModel.updateMod(ModKey.CTRL, true)
-
             viewModel.saveKeystroke()
 
             val updatedKeystroke = keystrokeRepository.getById(id)

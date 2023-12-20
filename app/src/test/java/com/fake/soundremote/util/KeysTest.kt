@@ -1,6 +1,5 @@
 package com.fake.soundremote.util
 
-import com.fake.soundremote.createKeystrokeWithMods
 import com.fake.soundremote.getKeystroke
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
@@ -64,7 +63,7 @@ internal class KeysTest {
         @DisplayName("produces description without mod labels for a keystroke without mods")
         @EnumSource(ModKey::class)
         fun keystrokeWithoutMods_ContainsNoModLabel(mod: ModKey) {
-            val keystroke = createKeystrokeWithMods(null)
+            val keystroke = getKeystroke(mods = Mods())
 
             val description = generateDescription(keystroke)
 
@@ -76,7 +75,7 @@ internal class KeysTest {
         @DisplayName("produces description with a mod label for a keystroke with mod")
         @EnumSource(ModKey::class)
         fun keystrokeWithOneMod_ContainsCorrectModLabel(mod: ModKey) {
-            val keystroke = createKeystrokeWithMods(mod.bitField)
+            val keystroke = getKeystroke(mods = Mods(mod.bitField))
 
             val description = generateDescription(keystroke)
 

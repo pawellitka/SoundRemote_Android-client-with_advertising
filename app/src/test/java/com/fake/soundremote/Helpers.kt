@@ -2,10 +2,7 @@ package com.fake.soundremote
 
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.util.KeyCode
-
-fun createKeystrokeWithMods(mods: Int?): Keystroke {
-    return Keystroke(KeyCode(0x2D), "Name", mods, false)
-}
+import com.fake.soundremote.util.Mods
 
 /**
  * Creates a [Keystroke] with the specified parameters. Other parameters will have arbitrary default
@@ -14,7 +11,7 @@ fun createKeystrokeWithMods(mods: Int?): Keystroke {
 fun getKeystroke(
     id: Int = 0,
     keyCode: KeyCode = KeyCode(0x42),
-    mods: Int = 0,
+    mods: Mods = Mods(),
     name: String = "Keystroke name",
     favoured: Boolean = false,
     order: Int = 0,
