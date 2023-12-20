@@ -1,7 +1,6 @@
 package com.fake.soundremote.util
 
-import com.fake.soundremote.createKeystrokeWithMods
-import com.fake.soundremote.data.Keystroke
+import com.fake.soundremote.getKeystroke
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -22,7 +21,7 @@ internal class KeysTest {
         fun validChar_returnsCorrectCode(ch: Char, expected: Int) {
             val actual = ch.toKeyCode()
 
-            assertEquals(expected, actual)
+            assertEquals(KeyCode(expected), actual)
         }
 
         @ParameterizedTest
@@ -35,14 +34,14 @@ internal class KeysTest {
         }
     }
 
-    @DisplayName("Int.toLetterOrDigitChar")
+    @DisplayName("KeyCode.toLetterOrDigitChar")
     @Nested
     inner class KeyCodeToCharTests {
         @ParameterizedTest
         @DisplayName("returns correct Char for a digit or [a-z/A-Z] letter key code")
         @CsvSource("48, 0", "57, 9", "65, a", "90, z")
         fun validCode_returnsCorrectChar(code: Int, expected: Char) {
-            val actual = code.toLetterOrDigitChar()
+            val actual = KeyCode(code).toLetterOrDigitChar()
 
             assertEquals(expected, actual)
         }
@@ -51,7 +50,7 @@ internal class KeysTest {
         @DisplayName("returns null for a non digit or [a-z/A-Z] letter key code")
         @ValueSource(ints = [-1, 0, 200, 500])
         fun invalidCode_returnsNull(code: Int) {
-            val actual = code.toLetterOrDigitChar()
+            val actual = KeyCode(code).toLetterOrDigitChar()
 
             assertNull(actual)
         }
@@ -64,7 +63,7 @@ internal class KeysTest {
         @DisplayName("produces description without mod labels for a keystroke without mods")
         @EnumSource(ModKey::class)
         fun keystrokeWithoutMods_ContainsNoModLabel(mod: ModKey) {
-            val keystroke = createKeystrokeWithMods(null)
+            val keystroke = getKeystroke(mods = Mods())
 
             val description = generateDescription(keystroke)
 
@@ -76,7 +75,7 @@ internal class KeysTest {
         @DisplayName("produces description with a mod label for a keystroke with mod")
         @EnumSource(ModKey::class)
         fun keystrokeWithOneMod_ContainsCorrectModLabel(mod: ModKey) {
-            val keystroke = createKeystrokeWithMods(mod.bitField)
+            val keystroke = getKeystroke(mods = Mods(mod.bitField))
 
             val description = generateDescription(keystroke)
 
@@ -88,7 +87,7 @@ internal class KeysTest {
         @DisplayName("produces description with a correct label for a passed key code")
         @CsvSource("45, insert", "121, f10", "48, 0", "57, 9", "65, a", "90, Z")
         fun keystroke_ContainsCorrectKeyLabel(code: Int, label: String) {
-            val keystroke = Keystroke(code, "Name", null, false)
+            val keystroke = getKeystroke(keyCode = KeyCode(code))
 
             val description = generateDescription(keystroke)
 

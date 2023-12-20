@@ -1,5 +1,6 @@
 package com.fake.soundremote.data
 
+import com.fake.soundremote.util.KeyCode
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.equalTo
@@ -33,7 +34,7 @@ internal class AppDatabaseTest {
         @Test
         fun createKeystroke_setsOrderToDefaultValue() = runTest(dispatcher) {
             val expected = Keystroke.ORDER_DEFAULT_VALUE
-            val keystrokeId = database.keystrokeRepository.insert(Keystroke(1, "Test"))
+            val keystrokeId = database.keystrokeRepository.insert(Keystroke(KeyCode(1), "Test"))
             val actual = database.keystrokeRepository.getById(keystrokeId.toInt())?.order
 
             assertThat(
@@ -46,7 +47,7 @@ internal class AppDatabaseTest {
         fun deleteEventBoundKeystroke_unbindsEvent() = runTest(dispatcher) {
             val eventId = Event.CALL_BEGIN.id
             val keystrokeId = database.keystrokeRepository
-                .insert(Keystroke(1, "Test")).toInt()
+                .insert(Keystroke(KeyCode(1), "Test")).toInt()
             database.eventActionRepository.insert(EventAction(eventId, keystrokeId))
 
             database.keystrokeRepository.deleteById(keystrokeId)

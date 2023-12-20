@@ -1,7 +1,8 @@
 package com.fake.soundremote.data
 
-import com.fake.soundremote.createKeystrokeWithMods
+import com.fake.soundremote.getKeystroke
 import com.fake.soundremote.util.ModKey
+import com.fake.soundremote.util.Mods
 import com.fake.soundremote.util.isModActive
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
@@ -20,7 +21,7 @@ internal class KeystrokeTest {
         @ParameterizedTest
         @EnumSource(ModKey::class)
         fun isModActive_NoMods_ReturnsFalse(mod: ModKey) {
-            val keystroke = createKeystrokeWithMods(null)
+            val keystroke = getKeystroke(mods = Mods())
 
             val modActive = keystroke.isModActive(mod)
 
@@ -31,7 +32,7 @@ internal class KeystrokeTest {
         @ParameterizedTest
         @EnumSource(ModKey::class)
         fun isModActive_WithMods_ReturnsTrue(mod: ModKey) {
-            val keystroke = createKeystrokeWithMods(mod.bitField)
+            val keystroke = getKeystroke(mods = Mods(mod.bitField))
 
             val modActive = keystroke.isModActive(mod)
 
@@ -41,8 +42,8 @@ internal class KeystrokeTest {
         @DisplayName("Bitfield is correct set when created without mods")
         @Test
         fun modsBitfield_NoMods_ReturnsCorrectValue() {
-            val expected = 0
-            val keystroke = createKeystrokeWithMods(null)
+            val expected = Mods()
+            val keystroke = getKeystroke(mods = Mods())
 
             val actual = keystroke.mods
 
@@ -53,8 +54,8 @@ internal class KeystrokeTest {
         @ParameterizedTest
         @EnumSource(ModKey::class)
         fun modsBitfield_WithMod_ReturnsCorrectValue(mod: ModKey) {
-            val expected = mod.bitField
-            val keystroke = createKeystrokeWithMods(mod.bitField)
+            val expected = Mods(mod.bitField)
+            val keystroke = getKeystroke(mods = Mods(mod.bitField))
 
             val actual = keystroke.mods
 

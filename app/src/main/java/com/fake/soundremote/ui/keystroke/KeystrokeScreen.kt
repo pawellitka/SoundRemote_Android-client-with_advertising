@@ -52,9 +52,9 @@ import androidx.compose.ui.unit.dp
 import com.fake.soundremote.R
 import com.fake.soundremote.ui.components.NavigateUpButton
 import com.fake.soundremote.util.Key
+import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.KeyGroup
 import com.fake.soundremote.util.toKeyCode
-import com.fake.soundremote.util.toLetterOrDigitChar
 
 private val sharedMod = Modifier
     .fillMaxWidth()
@@ -64,7 +64,7 @@ private val sharedMod = Modifier
 @Composable
 internal fun KeystrokeScreen(
     state: KeystrokeScreenUIState,
-    onKeyCodeChange: (Int?) -> Unit,
+    onKeyCodeChange: (KeyCode?) -> Unit,
     onWinChange: (Boolean) -> Unit,
     onCtrlChange: (Boolean) -> Unit,
     onShiftChange: (Boolean) -> Unit,
@@ -190,9 +190,9 @@ private fun keyGroupToTabIndex(keyGroupIndex: Int): Int {
 
 @Composable
 private fun KeySelect(
-    keyCode: Int?,
+    keyCode: KeyCode?,
     keyGroupIndex: Int,
-    onKeyCodeChange: (Int?) -> Unit,
+    onKeyCodeChange: (KeyCode?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val keyOptions = remember { keyOptions() }
@@ -278,8 +278,8 @@ private fun KeySelect(
 @Composable
 private fun KeySelectCombobox(
     keys: List<Key>,
-    selectedKeyCode: Int?,
-    onSelectKey: (Int) -> Unit,
+    selectedKeyCode: KeyCode?,
+    onSelectKey: (KeyCode) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }

@@ -3,6 +3,7 @@ package com.fake.soundremote.ui
 import com.fake.soundremote.MainDispatcherExtension
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.TestKeystrokeRepository
+import com.fake.soundremote.getKeystroke
 import com.fake.soundremote.ui.keystrokelist.KeystrokeListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -42,8 +43,8 @@ class KeystrokeListViewModelTest {
 
         val id = 10
         val keystrokes = listOf(
-            Keystroke(id, 100, 0, "Test1", false, 0),
-            Keystroke(id + 1, 200, 0, "Test2", true, 0),
+            getKeystroke(id = id),
+            getKeystroke(id = id + 1),
         )
         keystrokeRepository.setKeystrokes(keystrokes)
 
@@ -63,7 +64,7 @@ class KeystrokeListViewModelTest {
         }
 
         val id = 10
-        val keystrokes = listOf(Keystroke(id, 100, 0, "Test", true, 0))
+        val keystrokes = listOf(getKeystroke(id = id, favoured = true))
         keystrokeRepository.setKeystrokes(keystrokes)
 
         viewModel.changeFavoured(id, false)
@@ -74,7 +75,7 @@ class KeystrokeListViewModelTest {
         collectJob.cancel()
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "from {1} to {2} results in {3}")
     @MethodSource("com.fake.soundremote.ui.KeystrokeListViewModelTest#moveKeystrokeProvider")
     @DisplayName("moveKeystroke() moves correctly")
     fun moveKeystroke_movesCorrectly(
@@ -104,19 +105,19 @@ class KeystrokeListViewModelTest {
         @JvmStatic
         fun moveKeystrokeProvider(): Stream<Arguments> = Stream.of(
             Arguments.arguments(
-                generateKeystrokes(10),
+                generateZeroOrderKeystrokes(10),
                 3,
                 8,
                 listOf(1, 2, 3, 5, 6, 7, 8, 9, 4, 10),
             ),
             Arguments.arguments(
-                generateKeystrokes(10),
+                generateZeroOrderKeystrokes(10),
                 9,
                 0,
                 listOf(10, 1, 2, 3, 4, 5, 6, 7, 8, 9)
             ),
             Arguments.arguments(
-                generateKeystrokes(8),
+                generateZeroOrderKeystrokes(8),
                 5,
                 5,
                 listOf(1, 2, 3, 4, 5, 6, 7, 8)
@@ -126,10 +127,10 @@ class KeystrokeListViewModelTest {
         /**
          * Generates keystrokes with order value of 0
          */
-        private fun generateKeystrokes(n: Int): List<Keystroke> = buildList {
+        private fun generateZeroOrderKeystrokes(n: Int): List<Keystroke> = buildList {
             repeat(n) {
                 val id = it + 1
-                add(Keystroke(id, 100, 0, "K_$id", false, 0))
+                add(getKeystroke(id = id, order = 0))
             }
         }
     }

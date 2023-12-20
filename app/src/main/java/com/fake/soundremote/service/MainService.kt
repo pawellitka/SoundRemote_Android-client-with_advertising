@@ -43,6 +43,7 @@ import com.fake.soundremote.network.Connection
 import com.fake.soundremote.util.ACTION_CLOSE
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Key
+import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.SystemMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -426,8 +427,8 @@ internal class MainService : MediaBrowserServiceCompat() {
 //        }
     }
 
-    private fun sendKey(key: Int) {
-        connection.sendKeystroke(key, 0)
+    private fun sendKey(key: KeyCode) {
+        connection.sendKeystroke(key)
     }
 
     private fun createNotification(sessionToken: MediaSessionCompat.Token): Notification {

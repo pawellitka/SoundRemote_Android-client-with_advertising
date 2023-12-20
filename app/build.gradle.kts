@@ -39,6 +39,9 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.4"
     }
+    ksp {
+        arg("room.generateKotlin", "true")
+    }
     buildToolsVersion = "34.0.0"
 }
 
