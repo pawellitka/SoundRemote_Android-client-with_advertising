@@ -171,18 +171,6 @@ enum class ModKey(val bitField: Int, val label: String) {
 }
 
 /**
- * Creates keystroke mods bitfield
- */
-fun createMods(win: Boolean, ctrl: Boolean, shift: Boolean, alt: Boolean): Int {
-    var result = 0
-    if (win) result = result or ModKey.WIN.bitField
-    if (ctrl) result = result or ModKey.CTRL.bitField
-    if (shift) result = result or ModKey.SHIFT.bitField
-    if (alt) result = result or ModKey.ALT.bitField
-    return result
-}
-
-/**
  * Checks this keystroke for the specific mod key
  *
  * @param mod [ModKey] to check
@@ -190,10 +178,6 @@ fun createMods(win: Boolean, ctrl: Boolean, shift: Boolean, alt: Boolean): Int {
  */
 fun Keystroke.isModActive(mod: ModKey): Boolean {
     return mods.isModActive(mod)
-}
-
-private fun Int.isModActive(mod: ModKey): Boolean {
-    return this and mod.bitField != 0
 }
 
 @JvmInline
