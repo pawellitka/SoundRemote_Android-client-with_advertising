@@ -10,13 +10,10 @@ import com.fake.soundremote.util.DEFAULT_AUDIO_COMPRESSION
 import com.fake.soundremote.util.DEFAULT_CLIENT_PORT
 import com.fake.soundremote.util.DEFAULT_SERVER_ADDRESS
 import com.fake.soundremote.util.DEFAULT_SERVER_PORT
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,13 +30,9 @@ private const val KEY_SERVER_ADDRESS = "server_address"
 private const val KEY_AUDIO_COMPRESSION = "audio_compression"
 
 @Singleton
-class UserPreferencesRepository(
+class UserPreferencesRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-    private val defaultDispatcher: CoroutineDispatcher
 ) : PreferencesRepository {
-    @Inject
-    constructor(dataStore: DataStore<Preferences>) : this(dataStore, Dispatchers.IO)
-
     private object PreferencesKeys {
         val SERVER_ADDRESS = stringPreferencesKey(KEY_SERVER_ADDRESS)
         val SERVER_PORT = intPreferencesKey(KEY_SERVER_PORT)
@@ -81,11 +74,10 @@ class UserPreferencesRepository(
         }
     }
 
-    override suspend fun getServerAddress(): String = withContext(defaultDispatcher) {
-        preferencesFlow.map { preferences ->
+    override suspend fun getServerAddress(): String = preferencesFlow
+        .map { preferences ->
             preferences[PreferencesKeys.SERVER_ADDRESS] ?: DEFAULT_SERVER_ADDRESS
         }.first()
-    }
 
     override suspend fun setServerPort(value: Int) {
         dataStore.edit { prefs ->
@@ -93,9 +85,8 @@ class UserPreferencesRepository(
         }
     }
 
-    override suspend fun getServerPort(): Int = withContext(defaultDispatcher) {
+    override suspend fun getServerPort(): Int =
         settingsScreenPreferencesFlow.first().serverPort
-    }
 
     override suspend fun setClientPort(value: Int) {
         dataStore.edit { prefs ->
@@ -103,9 +94,8 @@ class UserPreferencesRepository(
         }
     }
 
-    override suspend fun getClientPort(): Int = withContext(defaultDispatcher) {
+    override suspend fun getClientPort(): Int =
         settingsScreenPreferencesFlow.first().clientPort
-    }
 
     override suspend fun setAudioCompression(value: Int) {
         dataStore.edit { prefs ->
@@ -113,7 +103,6 @@ class UserPreferencesRepository(
         }
     }
 
-    override suspend fun getAudioCompression(): Int = withContext(defaultDispatcher) {
+    override suspend fun getAudioCompression(): Int =
         audioCompressionFlow.first()
-    }
 }
