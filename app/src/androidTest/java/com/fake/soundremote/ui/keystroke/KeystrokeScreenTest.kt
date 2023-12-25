@@ -9,12 +9,18 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import com.fake.soundremote.R
 import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
+import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.KeyCode
+import com.fake.soundremote.util.KeyGroup
 import com.fake.soundremote.util.ModKey
+import com.fake.soundremote.util.toKeyCode
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 
@@ -23,6 +29,8 @@ internal class KeystrokeScreenTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private val navigateUp by composeTestRule.stringResource(R.string.navigate_up)
+    private val name by composeTestRule.stringResource(R.string.keystroke_name_edit_label)
+    private val keyEdit by composeTestRule.stringResource(R.string.keystroke_key_edit_label)
 
     // Keystroke screen should contain navigate up arrow
     @Test
@@ -99,6 +107,96 @@ internal class KeystrokeScreenTest {
         }
 
         composeTestRule.onNodeWithText(ModKey.ALT.label).performClick()
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun nameTextField_textInput_changesName() {
+        val expected = "Key Name"
+        var actual = ""
+        composeTestRule.setContent {
+            CreateKeystrokeScreen(
+                state = KeystrokeScreenUIState(),
+                onNameChange = { actual = it },
+            )
+        }
+
+        composeTestRule.onNodeWithText(name).performTextInput(expected)
+
+        assertEquals(expected, actual)
+    }
+
+    // Key Groups
+    @Test
+    fun keyGroupTabs_exist() {
+        composeTestRule.setContent {
+            CreateKeystrokeScreen()
+        }
+
+        for (keyGroup in KeyGroup.entries) {
+            val groupName = composeTestRule.activity.getString(keyGroup.nameStringId)
+            composeTestRule.onNodeWithText(groupName).assertExists()
+        }
+    }
+
+    // Valid character input (a-z or digit) should call `onKeyCodeChange`
+    @Test
+    fun keyEdit_validKeyInput_changesKeyCode() {
+        val c = 'W'
+        val expected = c.toKeyCode()
+        var actual: KeyCode? = null
+        composeTestRule.setContent {
+            CreateKeystrokeScreen(
+                state = KeystrokeScreenUIState(keyGroupIndex = KeyGroup.LETTER_DIGIT.index),
+                onKeyCodeChange = { actual = it },
+            )
+        }
+
+        composeTestRule.onNodeWithText(keyEdit).apply {
+            performClick()
+            performTextInput(c.toString())
+        }
+
+        assertEquals(expected, actual)
+    }
+
+    // Invalid character input should not call `onKeyCodeChange`
+    @Test
+    fun keyEdit_invalidKeyInput_doesNotChangeKeyCode() {
+        var actual: KeyCode? = null
+        composeTestRule.setContent {
+            CreateKeystrokeScreen(
+                state = KeystrokeScreenUIState(keyGroupIndex = KeyGroup.LETTER_DIGIT.index),
+                onKeyCodeChange = { actual = it },
+            )
+        }
+
+        composeTestRule.onNodeWithText(keyEdit).apply {
+            performClick()
+            performTextInput("@")
+        }
+
+        assertNull(actual)
+    }
+
+    // Key select menu item click should call `onKeyCodeChange`
+    @Test
+    fun keySelectMenu_click_changesKeyCode() {
+        val expected = Key.F12.keyCode
+        var actual: KeyCode? = null
+        composeTestRule.setContent {
+            CreateKeystrokeScreen(
+                state = KeystrokeScreenUIState(keyGroupIndex = KeyGroup.FUNCTION.index),
+                onKeyCodeChange = { actual = it },
+            )
+        }
+
+        composeTestRule.onNodeWithText(keyEdit).performClick()
+        composeTestRule.onNodeWithText(Key.F12.label).apply {
+            performScrollTo()
+            performClick()
+        }
 
         assertEquals(expected, actual)
     }
