@@ -10,8 +10,11 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isOff
 import androidx.compose.ui.test.isOn
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import com.fake.soundremote.R
 import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
@@ -168,6 +171,44 @@ internal class HomeScreenTest {
         composeTestRule.onNodeWithContentDescription(disconnect).performClick()
 
         assertTrue(actualPerformed)
+    }
+
+    // Click on keystroke calls onSendKeystroke
+    @Test
+    fun keystroke_click_sendsKeystroke() {
+        val expectedId = 12
+        val keystrokeName = "Key Title"
+        val keystroke = HomeKeystrokeUIState(expectedId, keystrokeName, "Key Description")
+        var sentKeystrokeId = -1
+        composeTestRule.setContent {
+            val uiState = HomeUIState(
+                keystrokes = listOf(keystroke),
+            )
+            CreateHomeScreen(uiState = uiState, onSendKeystroke = { sentKeystrokeId = it })
+        }
+
+        composeTestRule.onNodeWithText(keystrokeName).performClick()
+
+        assertEquals(expectedId, sentKeystrokeId)
+    }
+
+    // Long click on keystroke calls onEditKeystroke
+    @Test
+    fun keystroke_longClick_editsKeystroke() {
+        val expectedId = 12
+        val keystrokeName = "Key Title"
+        val keystroke = HomeKeystrokeUIState(expectedId, keystrokeName, "Key Description")
+        var editKeystrokeId = -1
+        composeTestRule.setContent {
+            val uiState = HomeUIState(
+                keystrokes = listOf(keystroke),
+            )
+            CreateHomeScreen(uiState = uiState, onEditKeystroke = { editKeystrokeId = it })
+        }
+
+        composeTestRule.onNodeWithText(keystrokeName).performTouchInput { longClick() }
+
+        assertEquals(expectedId, editKeystrokeId)
     }
 
     @Suppress("TestFunctionName")
