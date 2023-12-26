@@ -48,7 +48,7 @@ fun AppNavigation(
             onNavigateToEvents = navController::navigateToEvents,
             onNavigateToSettings = navController::navigateToSettings,
             onNavigateToAbout = navController::navigateToAbout,
-            onEditKeystroke = { navController.navigateToKeystrokeEdit(it) },
+            onNavigateToEditKeystroke = { navController.navigateToKeystrokeEdit(it) },
             showSnackbar = showSnackbar,
             setFab = setFab,
             compactHeight = compactHeight,

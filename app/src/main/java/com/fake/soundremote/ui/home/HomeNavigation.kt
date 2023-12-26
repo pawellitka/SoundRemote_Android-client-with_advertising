@@ -26,7 +26,7 @@ fun NavGraphBuilder.homeScreen(
     onNavigateToEvents: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit,
-    onEditKeystroke: (keystrokeId: Int) -> Unit,
+    onNavigateToEditKeystroke: (keystrokeId: Int) -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
     compactHeight: Boolean,
@@ -38,9 +38,9 @@ fun NavGraphBuilder.homeScreen(
         HomeScreen(
             uiState = homeUIState,
             messageId = viewModel.messageState,
-            onEditKeystroke = {
+            onNavigateToEditKeystroke = {
                 if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    onEditKeystroke(it)
+                    onNavigateToEditKeystroke(it)
                 }
             },
             onConnect = { viewModel.connect(it) },
