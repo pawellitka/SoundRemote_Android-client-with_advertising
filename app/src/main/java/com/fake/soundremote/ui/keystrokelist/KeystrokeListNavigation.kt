@@ -18,8 +18,8 @@ fun NavController.navigateToKeystrokeList() {
 }
 
 fun NavGraphBuilder.keystrokeListScreen(
-    onCreate: () -> Unit,
-    onEdit: (keystrokeId: Int) -> Unit,
+    onNavigateToKeystrokeCreate: () -> Unit,
+    onNavigateToKeystrokeEdit: (keystrokeId: Int) -> Unit,
     onNavigateUp: () -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
 ) {
@@ -29,14 +29,14 @@ fun NavGraphBuilder.keystrokeListScreen(
         val lifecycleOwner = LocalLifecycleOwner.current
         KeystrokeListScreen(
             state = state,
-            onCreate = {
+            onNavigateToKeystrokeCreate = {
                 if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    onCreate()
+                    onNavigateToKeystrokeCreate()
                 }
             },
-            onEdit = {
+            onNavigateToKeystrokeEdit = { keystrokeId ->
                 if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    onEdit(it)
+                    onNavigateToKeystrokeEdit(keystrokeId)
                 }
             },
             onDelete = { viewModel.deleteKeystroke(it) },

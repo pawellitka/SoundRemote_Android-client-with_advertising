@@ -59,8 +59,8 @@ import java.io.Serializable
 @Composable
 internal fun KeystrokeListScreen(
     state: KeystrokeListUIState,
-    onCreate: () -> Unit,
-    onEdit: (id: Int) -> Unit,
+    onNavigateToKeystrokeCreate: () -> Unit,
+    onNavigateToKeystrokeEdit: (keystrokeId: Int) -> Unit,
     onDelete: (id: Int) -> Unit,
     onChangeFavoured: (id: Int, favoured: Boolean) -> Unit,
     onMove: (fromIndex: Int, toIndex: Int) -> Unit,
@@ -73,7 +73,7 @@ internal fun KeystrokeListScreen(
             navigationIcon = { NavigateUpButton(onNavigateUp) },
             actions = {
                 IconButton(
-                    onClick = onCreate
+                    onClick = onNavigateToKeystrokeCreate
                 ) {
                     Icon(Icons.Default.Add, stringResource(R.string.action_keystroke_create))
                 }
@@ -82,7 +82,7 @@ internal fun KeystrokeListScreen(
         KeystrokeList(
             keystrokes = state.keystrokes,
             onChangeFavoured = { id, fav -> onChangeFavoured(id, fav) },
-            onEdit = onEdit,
+            onEdit = onNavigateToKeystrokeEdit,
             onMove = { from, to -> onMove(from, to) },
             onDelete = { onDelete(it) },
         )
