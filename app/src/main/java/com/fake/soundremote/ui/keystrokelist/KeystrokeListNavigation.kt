@@ -3,7 +3,9 @@ package com.fake.soundremote.ui.keystrokelist
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -24,10 +26,19 @@ fun NavGraphBuilder.keystrokeListScreen(
     composable(KEYSTROKE_LIST_ROUTE) {
         val viewModel: KeystrokeListViewModel = hiltViewModel()
         val state by viewModel.keystrokeListState.collectAsStateWithLifecycle()
+        val lifecycleOwner = LocalLifecycleOwner.current
         KeystrokeListScreen(
             state = state,
-            onCreate = onCreate,
-            onEdit = { onEdit(it) },
+            onCreate = {
+                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    onCreate()
+                }
+            },
+            onEdit = {
+                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    onEdit(it)
+                }
+            },
             onDelete = { viewModel.deleteKeystroke(it) },
             onChangeFavoured = { keystrokeId, favoured ->
                 viewModel.changeFavoured(keystrokeId, favoured)
