@@ -203,8 +203,8 @@ internal class KeystrokeListScreenTest {
         SoundRemoteTheme {
             KeystrokeListScreen(
                 state,
-                onCreate = onCreate,
-                onEdit = onEdit,
+                onNavigateToKeystrokeCreate = onCreate,
+                onNavigateToKeystrokeEdit = onEdit,
                 onDelete = onDelete,
                 onChangeFavoured = onChangeFavoured,
                 onMove = onMove,

@@ -48,14 +48,18 @@ fun AppNavigation(
             onNavigateToEvents = navController::navigateToEvents,
             onNavigateToSettings = navController::navigateToSettings,
             onNavigateToAbout = navController::navigateToAbout,
-            onEditKeystroke = { navController.navigateToKeystrokeEdit(it) },
+            onNavigateToEditKeystroke = { keystrokeId ->
+                navController.navigateToKeystrokeEdit(keystrokeId)
+            },
             showSnackbar = showSnackbar,
             setFab = setFab,
             compactHeight = compactHeight,
         )
         keystrokeListScreen(
-            onCreate = navController::navigateToKeystrokeCreate,
-            onEdit = { navController.navigateToKeystrokeEdit(it) },
+            onNavigateToKeystrokeCreate = navController::navigateToKeystrokeCreate,
+            onNavigateToKeystrokeEdit = { keystrokeId ->
+                navController.navigateToKeystrokeEdit(keystrokeId)
+            },
             onNavigateUp = navController::navigateUp,
             setFab = setFab,
         )

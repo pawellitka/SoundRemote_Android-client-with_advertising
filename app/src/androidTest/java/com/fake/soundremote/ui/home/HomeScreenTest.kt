@@ -233,7 +233,7 @@ internal class HomeScreenTest {
                 uiState = uiState,
                 messageId = messageId,
                 onSendKeystroke = onSendKeystroke,
-                onEditKeystroke = onEditKeystroke,
+                onNavigateToEditKeystroke = onEditKeystroke,
                 onConnect = onConnect,
                 onDisconnect = onDisconnect,
                 onSetMuted = onSetMuted,

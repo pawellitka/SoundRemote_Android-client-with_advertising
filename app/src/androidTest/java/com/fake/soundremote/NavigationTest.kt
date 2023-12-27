@@ -1,6 +1,8 @@
 package com.fake.soundremote
 
 import androidx.annotation.StringRes
+import androidx.compose.ui.test.MainTestClock
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -161,6 +163,46 @@ class NavigationTest {
         composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
     }
 
+    // Given: simultaneous clicks on different navigation menu items on `Home` screen.
+    // Clicking back on opened screen should return to `Home` screen.
+    // I.e. app should not navigate to other screens more than once.
+    @Test
+    fun navigateMenu_clickTwoItemsSimultaneously_navigatesOnce() {
+        composeTestRule.apply {
+            // Open navigation menu
+            onNodeWithContentDescription(navigationMenu).performClick()
+            // Click 2 menu items simultaneously
+            onNodeWithText(menuAbout).performClick()
+            mainClock.autoAdvance = false
+            onNodeWithText(menuSettings).performClick()
+            mainClock.autoAdvance = true
+        }
+        // Press back
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        // Should be on `Home` screen
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
+    }
+
+    // Given: multiple simultaneous clicks on `Edit keystrokes` FAB on `Home` screen.
+    // Clicking back on `Keystrokes` screen should return to `Home` screen.
+    // I.e. app should not navigate to `Keystrokes` screens more than once.
+    @Test
+    fun multipleClicksEditKeystrokes_back_returnsToHomeScreen() {
+        composeTestRule.apply {
+            // Imitate double click on `Edit keystrokes` button
+            onNodeWithContentDescription(editKeystrokes)
+                .performSimultaneousDoubleClick(composeTestRule.mainClock)
+        }
+        // Press back
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        // Should be on `Home` screen
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
+    }
+
     // Create keystroke button navigates to create keystroke screen
     @Test
     fun createKeystroke_click_navigatesToCreateKeystrokeScreen() {
@@ -184,4 +226,32 @@ class NavigationTest {
         }
         composeTestRule.onNodeWithText(keystrokesTitle).assertIsDisplayed()
     }
+
+    // Given: multiple simultaneous clicks on `create keystroke` button on `Keystrokes` screen.
+    // Clicking back on `Create keystroke` screen should return to `Keystrokes` screen
+    // I.e. app should not navigate to `Create keystroke` screen more than once.
+    @Test
+    fun multipleClicksCreateKeystroke_back_returnsToKeystrokesScreen() {
+        composeTestRule.apply {
+            // Go to `Keystrokes` screen
+            onNodeWithContentDescription(editKeystrokes).performClick()
+
+            // Imitate double click on `Create keystroke` button
+            onNodeWithContentDescription(createKeystroke)
+                .performSimultaneousDoubleClick(composeTestRule.mainClock)
+        }
+        // Press back
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        // Assert that app is back on `Keystrokes` screen
+        composeTestRule.onNodeWithText(keystrokesTitle).assertIsDisplayed()
+    }
+}
+
+private fun SemanticsNodeInteraction.performSimultaneousDoubleClick(clock: MainTestClock) {
+    performClick()
+    clock.autoAdvance = false
+    performClick()
+    clock.autoAdvance = true
 }

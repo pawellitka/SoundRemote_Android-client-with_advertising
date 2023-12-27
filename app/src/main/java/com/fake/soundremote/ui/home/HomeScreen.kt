@@ -72,7 +72,7 @@ internal fun HomeScreen(
     uiState: HomeUIState,
     @StringRes messageId: Int?,
     onSendKeystroke: (Int) -> Unit,
-    onEditKeystroke: (Int) -> Unit,
+    onNavigateToEditKeystroke: (Int) -> Unit,
     onConnect: (String) -> Unit,
     onDisconnect: () -> Unit,
     onSetMuted: (Boolean) -> Unit,
@@ -197,7 +197,7 @@ internal fun HomeScreen(
                     name = keystroke.name,
                     description = keystroke.description,
                     onClick = { onSendKeystroke(keystroke.id) },
-                    onLongClick = { onEditKeystroke(keystroke.id) },
+                    onLongClick = { onNavigateToEditKeystroke(keystroke.id) },
                 )
             }
         }
@@ -396,7 +396,7 @@ private fun HomePreview(compactHeight: Boolean) {
                 isMuted = true,
             ),
             messageId = null,
-            onEditKeystroke = {},
+            onNavigateToEditKeystroke = {},
             onConnect = { status = ConnectionStatus.CONNECTING },
             onDisconnect = {
                 status = if (status == ConnectionStatus.CONNECTING) {

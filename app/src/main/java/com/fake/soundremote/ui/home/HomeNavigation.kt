@@ -10,8 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -24,7 +26,7 @@ fun NavGraphBuilder.homeScreen(
     onNavigateToEvents: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit,
-    onEditKeystroke: (keystrokeId: Int) -> Unit,
+    onNavigateToEditKeystroke: (keystrokeId: Int) -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
     compactHeight: Boolean,
@@ -32,25 +34,46 @@ fun NavGraphBuilder.homeScreen(
     composable(homeRoute) {
         val viewModel: HomeViewModel = hiltViewModel()
         val homeUIState by viewModel.homeUIState.collectAsStateWithLifecycle()
+        val lifecycleOwner = LocalLifecycleOwner.current
         HomeScreen(
             uiState = homeUIState,
             messageId = viewModel.messageState,
-            onEditKeystroke = onEditKeystroke,
+            onNavigateToEditKeystroke = {
+                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    onNavigateToEditKeystroke(it)
+                }
+            },
             onConnect = { viewModel.connect(it) },
             onDisconnect = viewModel::disconnect,
             onSendKeystroke = { viewModel.sendKeystroke(it) },
             onSetMuted = { viewModel.setMuted(it) },
             onMessageShown = viewModel::messageShown,
-            onNavigateToEvents = onNavigateToEvents,
-            onNavigateToSettings = onNavigateToSettings,
-            onNavigateToAbout = onNavigateToAbout,
+            onNavigateToEvents = {
+                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    onNavigateToEvents.invoke()
+                }
+            },
+            onNavigateToSettings = {
+                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    onNavigateToSettings.invoke()
+                }
+            },
+            onNavigateToAbout = {
+                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    onNavigateToAbout.invoke()
+                }
+            },
             showSnackbar = showSnackbar,
             compactHeight = compactHeight,
         )
         LaunchedEffect(Unit) {
             setFab {
                 FloatingActionButton(
-                    onClick = onNavigateToKeystrokeList,
+                    onClick = {
+                        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                            onNavigateToKeystrokeList.invoke()
+                        }
+                    },
                     modifier = Modifier
                         .navigationBarsPadding(),
                 ) {
