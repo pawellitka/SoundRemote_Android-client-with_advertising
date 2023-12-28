@@ -132,4 +132,13 @@
     <string name="compression_256">256 kbps</string>
     <string name="compression_320">320 kbps</string>
 
+    <!--Action types-->
+    <string name="action_type_app">Application</string>
+    <string name="action_type_keystroke">Keystroke</string>
+
+    <!--App actions-->
+    <string name="app_action_mute">Mute</string>
+    <string name="app_action_unmute">Unmute</string>
+    <string name="app_action_connect">Connect</string>
+    <string name="app_action_disconnect">Disconnect</string>
 </resources>
