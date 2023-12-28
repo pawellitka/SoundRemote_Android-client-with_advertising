@@ -29,6 +29,8 @@ data class EventAction internal constructor(
     companion object {
         const val TABLE_NAME = "event_action"
         const val COLUMN_ID = BaseColumns._ID
+        const val COLUMN_ACTION_TYPE = "action_type"
+        const val COLUMN_ACTION_ID = "action_id"
         const val COLUMN_KEYSTROKE_ID = "keystroke_id"
     }
 }
