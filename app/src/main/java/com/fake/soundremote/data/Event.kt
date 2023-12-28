@@ -1,10 +1,12 @@
 package com.fake.soundremote.data
 
+import androidx.annotation.StringRes
 import com.fake.soundremote.R
 import com.fake.soundremote.util.AppPermission
 
 internal enum class Event(
     val id: Int,
+    @StringRes
     val nameStringId: Int,
     val requiredPermission: AppPermission?,
     // Min SDK version for permission to be requested for the event.
