@@ -4,10 +4,12 @@ import android.os.Build
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fake.soundremote.data.Action
+import com.fake.soundremote.data.ActionType
+import com.fake.soundremote.data.AppAction
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.data.EventAction
 import com.fake.soundremote.data.EventActionRepository
-import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.KeystrokeRepository
 import com.fake.soundremote.util.AppPermission
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,8 +26,13 @@ internal data class EventUIState(
     @StringRes
     val nameStringId: Int,
     val permission: AppPermission? = null,
-    val keystrokeId: Int? = null,
-    val keystrokeName: String? = null,
+    val action: ActionUIState? = null,
+)
+
+internal data class ActionUIState(
+    val type: ActionType,
+    val id: Int,
+    val name: String,
 )
 
 internal data class EventsUIState(
@@ -43,9 +50,20 @@ internal class EventsViewModel @Inject constructor(
     ) { events, eventActions ->
         val eventUIStates = mutableListOf<EventUIState>()
         for (event in events) {
-            // Only use repository for events that have a bound keystroke
-            val keystroke: Keystroke? = eventActions.find { it.eventId == event.id }
-                ?.keystrokeId?.let { keystrokeRepository.getById(it) }
+            val eventAction = eventActions.find { it.eventId == event.id }
+            val actionUIState = eventAction?.action?.let { action ->
+                val type = ActionType.getById(action.actionType)
+                val name: String = when (type) {
+                    ActionType.APP -> {
+                        AppAction.getById(action.actionId).name
+                    }
+
+                    ActionType.KEYSTROKE -> {
+                        keystrokeRepository.getById(action.actionId)!!.name
+                    }
+                }
+                ActionUIState(type, action.actionId, name)
+            }
             val permission = if (
                 (event.permissionMinSdk == null) ||
                 (event.permissionMinSdk <= Build.VERSION.SDK_INT)
@@ -59,8 +77,7 @@ internal class EventsViewModel @Inject constructor(
                     id = event.id,
                     nameStringId = event.nameStringId,
                     permission = permission,
-                    keystrokeId = keystroke?.id,
-                    keystrokeName = keystroke?.name
+                    action = actionUIState,
                 )
             )
         }
@@ -71,16 +88,16 @@ internal class EventsViewModel @Inject constructor(
         initialValue = EventsUIState()
     )
 
-    fun setKeystrokeForEvent(eventId: Int, keystrokeId: Int?) {
+    fun setActionForEvent(eventId: Int, action: Action?) {
         viewModelScope.launch {
-            if (keystrokeId == null) {
+            if (action == null) {
                 eventActionRepository.deleteById(eventId)
             } else {
                 val event = eventActionRepository.getById(eventId)
                 if (event == null) {
-                    eventActionRepository.insert(EventAction(eventId, keystrokeId))
+                    eventActionRepository.insert(EventAction(eventId, action))
                 } else {
-                    event.keystrokeId = keystrokeId
+                    event.action = action
                     eventActionRepository.update(event)
                 }
             }
