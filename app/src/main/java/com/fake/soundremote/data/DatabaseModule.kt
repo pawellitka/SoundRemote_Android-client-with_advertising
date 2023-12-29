@@ -20,6 +20,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext appContext: Context): AppDatabase {
         return databaseBuilder(appContext, AppDatabase::class.java, "sound_remote")
+            .addCallback(AppDatabase.Callback())
             .build()
     }
 

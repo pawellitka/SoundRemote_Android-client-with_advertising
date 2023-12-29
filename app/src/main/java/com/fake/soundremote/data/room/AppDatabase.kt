@@ -1,7 +1,9 @@
 package com.fake.soundremote.data.room
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.EventAction
 import com.fake.soundremote.data.Keystroke
@@ -11,12 +13,22 @@ import com.fake.soundremote.data.Keystroke
         Keystroke::class,
         EventAction::class
     ],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2, spec = DatabaseMigrations.Schema1to2::class),
+    ],
+    exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun keystrokeDao(): KeystrokeDao
     abstract fun eventActionDao(): EventActionDao
+
+    class Callback : RoomDatabase.Callback() {
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
+            db.execSQL(DELETE_EVENT_ACTION_ON_KEYSTROKE_DELETE)
+        }
+    }
 }
 
 // When a keystroke is deleted also delete all event actions with that keystroke
