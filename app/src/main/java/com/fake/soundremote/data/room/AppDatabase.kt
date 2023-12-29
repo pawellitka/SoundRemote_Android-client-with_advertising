@@ -37,7 +37,7 @@ val DELETE_EVENT_ACTION_ON_KEYSTROKE_DELETE = """
     AFTER DELETE ON ${Keystroke.TABLE_NAME}
     BEGIN
         DELETE FROM ${EventAction.TABLE_NAME}
-        WHERE ${EventAction.COLUMN_ACTION_TYPE} = ${ActionType.KEYSTROKE.id}
-        AND ${EventAction.COLUMN_ACTION_ID} = OLD.${Keystroke.COLUMN_ID};
+        WHERE ${Action.COLUMN_TYPE} = ${ActionType.KEYSTROKE.id}
+        AND ${Action.COLUMN_ID} = OLD.${Keystroke.COLUMN_ID};
     END
     """.trimIndent()
