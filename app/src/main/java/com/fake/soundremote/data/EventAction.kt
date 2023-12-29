@@ -9,23 +9,17 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = EventAction.TABLE_NAME,
-    foreignKeys = [ForeignKey(
-        entity = Keystroke::class,
-        parentColumns = arrayOf(Keystroke.COLUMN_ID),
-        childColumns = arrayOf(EventAction.COLUMN_KEYSTROKE_ID),
-        onDelete = CASCADE,
-    )]
 )
 data class EventAction internal constructor(
-    @field:ColumnInfo(name = COLUMN_ID) @field:PrimaryKey
+    @ColumnInfo(name = COLUMN_ID) @PrimaryKey
     var eventId: Int,
 
-    @field:ColumnInfo(
-        name = COLUMN_KEYSTROKE_ID,
-        index = true,
-    ) var keystrokeId: Int
-) {
+    @ColumnInfo(name = COLUMN_ACTION_TYPE)
+    var actionType: Int,
 
+    @ColumnInfo(name = COLUMN_ACTION_ID)
+    var actionId: Int,
+) {
     companion object {
         const val TABLE_NAME = "event_action"
         const val COLUMN_ID = BaseColumns._ID
