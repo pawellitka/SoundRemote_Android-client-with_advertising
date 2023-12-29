@@ -4,6 +4,7 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.fake.soundremote.data.Action
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.EventAction
 import com.fake.soundremote.data.Keystroke

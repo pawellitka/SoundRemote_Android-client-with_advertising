@@ -1,4 +1,4 @@
-package com.fake.soundremote.data.room
+package com.fake.soundremote.data
 
 import androidx.room.ColumnInfo
 

@@ -5,7 +5,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.fake.soundremote.data.room.Action
 
 @Entity(
     tableName = EventAction.TABLE_NAME,
@@ -14,7 +13,7 @@ data class EventAction internal constructor(
     @ColumnInfo(name = COLUMN_ID) @PrimaryKey
     var eventId: Int,
 
-    @Embedded val action: Action
+    @Embedded var action: Action
 ) {
     companion object {
         const val TABLE_NAME = "event_action"
