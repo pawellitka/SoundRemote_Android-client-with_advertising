@@ -9,5 +9,15 @@ internal enum class ActionType(
     val nameStringId: Int,
 ) {
     APP(1, R.string.action_type_app),
-    KEYSTROKE(2, R.string.action_type_keystroke),
+    KEYSTROKE(2, R.string.action_type_keystroke);
+
+    companion object {
+        /**
+         * Get enum entry by its id.
+         * @throws [NoSuchElementException] if no entry with such id is found.
+         */
+        fun getById(id: Int): ActionType {
+            return ActionType.entries.first { it.id == id }
+        }
+    }
 }
