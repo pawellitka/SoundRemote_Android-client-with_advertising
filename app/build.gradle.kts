@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     id("org.jetbrains.kotlin.kapt")
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -47,6 +48,10 @@ android {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
