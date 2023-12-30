@@ -8,6 +8,7 @@ internal enum class ActionType(
     @StringRes
     val nameStringId: Int,
 ) {
+    NONE(0, R.string.action_type_none),
     APP(1, R.string.action_type_app),
     KEYSTROKE(2, R.string.action_type_keystroke);
 

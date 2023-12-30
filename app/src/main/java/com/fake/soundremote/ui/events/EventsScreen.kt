@@ -37,6 +37,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fake.soundremote.R
+import com.fake.soundremote.data.Action
+import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.ui.components.KeystrokeSelectDialog
 import com.fake.soundremote.ui.components.ListItemHeadline
@@ -54,7 +56,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun EventsScreen(
     eventsUIState: EventsUIState,
-    onSetKeystrokeForEvent: (eventId: Int, keystrokeId: Int?) -> Unit,
+    onSetActionForEvent: (eventId: Int, action: Action?) -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -83,7 +85,11 @@ internal fun EventsScreen(
     fun onSelectKeystroke(keystrokeId: Int?) {
         val eventId = selectedEventId ?: return
         checkAndRequestPermission(eventId, keystrokeId)
-        onSetKeystrokeForEvent(eventId, keystrokeId)
+        if (keystrokeId == null) {
+            onSetActionForEvent(eventId, null)
+        } else {
+            onSetActionForEvent(eventId, Action(ActionType.KEYSTROKE.id, keystrokeId))
+        }
     }
 
     Events(
@@ -135,11 +141,11 @@ private fun Events(
             ) { eventState ->
                 EventItem(
                     eventName = stringResource(eventState.nameStringId),
-                    keystrokeName = eventState.keystrokeName,
+                    keystrokeName = eventState.action?.name,
                     permissionNameId = eventState.permission?.nameStringId,
                     permissionState = permissionStates[eventState.permission?.id],
                     onClick = {
-                        onEventClick(eventState.id, eventState.keystrokeId)
+                        onEventClick(eventState.id, eventState.action?.id)
                     }
                 )
             }
@@ -267,8 +273,7 @@ private fun EventsPreview() {
                 id = event.id,
                 nameStringId = event.nameStringId,
                 permission = event.requiredPermission,
-                keystrokeId = 0,
-                keystrokeName = "Ctrl + Shift + ${event.id}"
+                action = ActionUIState(ActionType.KEYSTROKE, 42, "Ctrl + Shift + ${event.id}")
             )
         },
         permissionStates = emptyMap(),

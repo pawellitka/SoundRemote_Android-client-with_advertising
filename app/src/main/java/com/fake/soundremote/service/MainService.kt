@@ -35,9 +35,12 @@ import androidx.media.session.MediaButtonReceiver
 import com.fake.soundremote.R
 import com.fake.soundremote.audio.AudioPipe
 import com.fake.soundremote.audio.AudioPipe.Companion.PIPE_PLAYING
+import com.fake.soundremote.data.Action
+import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.data.EventActionRepository
 import com.fake.soundremote.data.Keystroke
+import com.fake.soundremote.data.KeystrokeRepository
 import com.fake.soundremote.data.preferences.PreferencesRepository
 import com.fake.soundremote.network.Connection
 import com.fake.soundremote.util.ACTION_CLOSE
@@ -68,6 +71,9 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var eventActionRepository: EventActionRepository
+
+    @Inject
+    lateinit var keystrokeRepository: KeystrokeRepository
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val binder = LocalBinder()
@@ -246,6 +252,12 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     fun sendKeystroke(keystroke: Keystroke) {
         connection.sendKeystroke(keystroke.keyCode, keystroke.mods)
+    }
+
+    private suspend fun sendKeystroke(keystrokeId: Int) {
+        keystrokeRepository.getById(keystrokeId)?.let {
+            sendKeystroke(it)
+        }
     }
 
     fun setMuted(value: Boolean) {
@@ -562,20 +574,30 @@ internal class MainService : MediaBrowserServiceCompat() {
             TelephonyManager.CALL_STATE_IDLE -> {
                 Log.i(TAG, "Call state: IDLE")
                 scope.launch {
-                    eventActionRepository.getKeystrokeByEventId(Event.CALL_END.id)
-                        ?.also { sendKeystroke(it) }
+                    eventActionRepository.getById(Event.CALL_END.id)
+                        ?.let { executeAction(it.action) }
                 }
             }
 
             TelephonyManager.CALL_STATE_RINGING -> {
                 Log.i(TAG, "Call state: RINGING")
                 scope.launch {
-                    eventActionRepository.getKeystrokeByEventId(Event.CALL_BEGIN.id)
-                        ?.also { sendKeystroke(it) }
+                    eventActionRepository.getById(Event.CALL_BEGIN.id)
+                        ?.let { executeAction(it.action) }
                 }
             }
 
             TelephonyManager.CALL_STATE_OFFHOOK -> Log.i(TAG, "Call state: OFFHOOK")
+        }
+    }
+
+    private suspend fun executeAction(action: Action) {
+        when (action.actionType) {
+            // TODO: implement app actions
+            ActionType.APP.id -> {}
+            ActionType.KEYSTROKE.id -> {
+                sendKeystroke(action.actionId)
+            }
         }
     }
 

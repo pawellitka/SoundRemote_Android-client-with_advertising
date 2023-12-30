@@ -54,6 +54,8 @@ internal class EventsViewModel @Inject constructor(
             val actionUIState = eventAction?.action?.let { action ->
                 val type = ActionType.getById(action.actionType)
                 val name: String = when (type) {
+                    ActionType.NONE -> ActionType.NONE.name
+
                     ActionType.APP -> {
                         AppAction.getById(action.actionId).name
                     }

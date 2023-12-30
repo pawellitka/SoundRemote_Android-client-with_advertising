@@ -16,16 +16,6 @@ interface EventActionDao : BaseDao<EventAction> {
     @Query("DELETE FROM ${EventAction.TABLE_NAME} WHERE ${EventAction.COLUMN_ID} = :id")
     suspend fun deleteById(id: Int)
 
-    @Query(
-        """           
-        SELECT k.* FROM ${Keystroke.TABLE_NAME} AS k
-        JOIN ${EventAction.TABLE_NAME} AS e
-        ON e.${EventAction.COLUMN_KEYSTROKE_ID} = k.${Keystroke.COLUMN_ID}
-        WHERE e.${EventAction.COLUMN_ID} = :id
-        """
-    )
-    suspend fun getKeystrokeByEventId(id: Int): Keystroke?
-
     @Query("SELECT * FROM ${EventAction.TABLE_NAME}")
     fun getAll(): Flow<List<EventAction>>
 }

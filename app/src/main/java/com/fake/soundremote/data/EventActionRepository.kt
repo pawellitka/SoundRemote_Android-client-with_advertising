@@ -11,7 +11,5 @@ interface EventActionRepository {
 
     suspend fun deleteById(id: Int)
 
-    suspend fun getKeystrokeByEventId(id: Int): Keystroke?
-
     fun getAll(): Flow<List<EventAction>>
 }

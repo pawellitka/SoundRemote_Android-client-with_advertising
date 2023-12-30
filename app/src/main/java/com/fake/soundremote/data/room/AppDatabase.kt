@@ -18,7 +18,7 @@ import com.fake.soundremote.data.Keystroke
     autoMigrations = [
         AutoMigration(from = 1, to = 2, spec = DatabaseMigrations.Schema1to2::class),
     ],
-    exportSchema = false,
+    exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun keystrokeDao(): KeystrokeDao

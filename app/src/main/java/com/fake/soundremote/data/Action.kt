@@ -3,7 +3,7 @@ package com.fake.soundremote.data
 import androidx.room.ColumnInfo
 
 data class Action(
-    @ColumnInfo(name = COLUMN_TYPE)
+    @ColumnInfo(name = COLUMN_TYPE, defaultValue = "0")
     var actionType: Int,
 
     @ColumnInfo(name = COLUMN_ID)
