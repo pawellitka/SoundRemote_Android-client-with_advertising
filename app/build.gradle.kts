@@ -44,6 +44,9 @@ android {
         arg("room.generateKotlin", "true")
     }
     buildToolsVersion = "34.0.0"
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 tasks.withType<Test> {
@@ -80,6 +83,7 @@ dependencies {
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.core.ktx)
     androidTestImplementation(libs.androidx.navigation.testing)
+    androidTestImplementation(libs.androidx.room.testing)
 // Local tests
     testImplementation(libs.bundles.local.tests)
 // Room
