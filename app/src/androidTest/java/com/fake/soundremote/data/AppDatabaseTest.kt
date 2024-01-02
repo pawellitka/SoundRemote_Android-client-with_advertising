@@ -35,6 +35,7 @@ internal class AppDatabaseTest {
         fun createKeystroke_setsOrderToDefaultValue() = runTest(dispatcher) {
             val expected = Keystroke.ORDER_DEFAULT_VALUE
             val keystrokeId = database.keystrokeRepository.insert(Keystroke(KeyCode(1), "Test"))
+
             val actual = database.keystrokeRepository.getById(keystrokeId.toInt())?.order
 
             assertThat(
@@ -44,17 +45,18 @@ internal class AppDatabaseTest {
         }
 
         @Test
-        fun deleteEventBoundKeystroke_unbindsEvent() = runTest(dispatcher) {
-            val eventId = Event.CALL_BEGIN.id
-            val keystrokeId = database.keystrokeRepository
-                .insert(Keystroke(KeyCode(1), "Test")).toInt()
-            database.eventActionRepository.insert(EventAction(eventId, keystrokeId))
+        fun deleteEventBoundKeystroke_deletesEventAction() = runTest(dispatcher) {
+            val keystroke = Keystroke(KeyCode(123), "Test")
+            val keystrokeId = database.keystrokeRepository.insert(keystroke).toInt()
+            val eventId = Event.CALL_END.id
+            val eventAction = EventAction(eventId, Action(ActionType.KEYSTROKE, keystrokeId))
+            database.eventActionRepository.insert(eventAction)
 
             database.keystrokeRepository.deleteById(keystrokeId)
 
             val actual: EventAction? = database.eventActionRepository.getById(eventId)
             assertThat(
-                "Deleting Event bound Keystroke must delete the Event",
+                "Deleting Event bound Keystroke must delete the EventAction",
                 actual, nullValue()
             )
         }
