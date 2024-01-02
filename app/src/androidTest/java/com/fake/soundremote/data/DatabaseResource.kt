@@ -16,7 +16,9 @@ internal class DatabaseResource(private val dispatcher: CoroutineDispatcher) : E
 
     override fun before() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
+        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+            .addCallback(AppDatabase.Callback())
+            .build()
         eventActionRepository = SystemEventActionRepository(db.eventActionDao(), dispatcher)
         keystrokeRepository = UserKeystrokeRepository(db.keystrokeDao(), dispatcher)
     }
