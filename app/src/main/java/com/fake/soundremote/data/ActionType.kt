@@ -3,7 +3,7 @@ package com.fake.soundremote.data
 import androidx.annotation.StringRes
 import com.fake.soundremote.R
 
-internal enum class ActionType(
+enum class ActionType(
     val id: Int,
     @StringRes
     val nameStringId: Int,

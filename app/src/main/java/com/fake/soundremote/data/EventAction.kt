@@ -6,18 +6,17 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(
-    tableName = EventAction.TABLE_NAME,
-)
-data class EventAction internal constructor(
-    @ColumnInfo(name = COLUMN_ID) @PrimaryKey
+@Entity(tableName = EventAction.TABLE_NAME)
+data class EventAction(
+    @ColumnInfo(name = COLUMN_ID)
+    @PrimaryKey
     var eventId: Int,
 
-    @Embedded var action: Action
+    @Embedded
+    var action: Action
 ) {
     companion object {
         const val TABLE_NAME = "event_action"
         const val COLUMN_ID = BaseColumns._ID
-        const val COLUMN_KEYSTROKE_ID = "keystroke_id"
     }
 }
