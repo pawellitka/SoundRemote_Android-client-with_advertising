@@ -43,6 +43,9 @@ class UserKeystrokeRepository(
     override fun getAllOrdered(): Flow<List<Keystroke>> =
         keystrokeDao.getAllOrdered()
 
+    override fun getAllInfoOrdered(): Flow<List<KeystrokeInfo>> =
+        keystrokeDao.getAllInfoOrdered()
+
     override suspend fun updateOrders(keystrokeOrders: List<KeystrokeOrder>) =
         withContext(dispatcher) {
             keystrokeDao.updateOrders(*keystrokeOrders.toTypedArray())
