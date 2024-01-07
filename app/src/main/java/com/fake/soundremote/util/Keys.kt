@@ -5,6 +5,7 @@ package com.fake.soundremote.util
 import androidx.annotation.StringRes
 import com.fake.soundremote.R
 import com.fake.soundremote.data.Keystroke
+import com.fake.soundremote.data.KeystrokeInfo
 
 /**
  * If this Char is a digit or an english alphabet letter, returns the corresponding virtual-key code.
@@ -27,6 +28,9 @@ fun Char.toKeyCode(): KeyCode? {
  * @return description
  */
 fun generateDescription(keystroke: Keystroke): String =
+    generateDescription(keystroke.keyCode, keystroke.mods)
+
+fun generateDescription(keystroke: KeystrokeInfo): String =
     generateDescription(keystroke.keyCode, keystroke.mods)
 
 /**
