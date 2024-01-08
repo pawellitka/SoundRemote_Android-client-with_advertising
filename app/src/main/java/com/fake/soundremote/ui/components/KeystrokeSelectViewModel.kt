@@ -9,21 +9,22 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-data class KeystrokeSelectUIState(
+data class KeystrokeInfoUIState(
     val id: Int,
     val name: String,
     val description: String,
 )
 
 @HiltViewModel
-class KeystrokeSelectViewModel(
+class KeystrokeSelectViewModel @Inject constructor(
     private val keystrokeRepository: KeystrokeRepository,
 ) : ViewModel() {
-    val keystrokesState: StateFlow<List<KeystrokeSelectUIState>> = keystrokeRepository.getAllInfoOrdered()
+    val keystrokesState: StateFlow<List<KeystrokeInfoUIState>> = keystrokeRepository.getAllInfoOrdered()
             .map { keystrokes ->
                 keystrokes.map { keystroke ->
-                    KeystrokeSelectUIState(
+                    KeystrokeInfoUIState(
                         keystroke.id,
                         keystroke.name,
                         description = generateDescription(keystroke),

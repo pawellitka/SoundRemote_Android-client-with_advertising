@@ -34,8 +34,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fake.soundremote.R
-import com.fake.soundremote.ui.keystrokelist.KeystrokeListViewModel
-import com.fake.soundremote.ui.keystrokelist.KeystrokeUIState
 
 @Composable
 internal fun KeystrokeSelectDialog(
@@ -43,13 +41,13 @@ internal fun KeystrokeSelectDialog(
     initialKeystrokeId: Int? = null,
     onConfirm: (Int?) -> Unit,
     onDismiss: () -> Unit,
-    viewModel: KeystrokeListViewModel = hiltViewModel()
+    viewModel: KeystrokeSelectViewModel = hiltViewModel()
 ) {
-    val state by viewModel.keystrokeListState.collectAsStateWithLifecycle()
+    val keystrokes by viewModel.keystrokesState.collectAsStateWithLifecycle()
 
     KeystrokeSelectDialog(
         title = title,
-        items = state.keystrokes,
+        items = keystrokes,
         initialKeystrokeId = initialKeystrokeId,
         onConfirm = onConfirm,
         onDismiss = onDismiss,
@@ -60,7 +58,7 @@ internal fun KeystrokeSelectDialog(
 @Composable
 internal fun KeystrokeSelectDialog(
     title: String,
-    items: List<KeystrokeUIState>,
+    items: List<KeystrokeInfoUIState>,
     initialKeystrokeId: Int?,
     onConfirm: (Int?) -> Unit,
     onDismiss: () -> Unit,
@@ -99,7 +97,7 @@ internal fun KeystrokeSelectDialog(
 
 @Composable
 private fun KeystrokeList(
-    items: List<KeystrokeUIState>,
+    items: List<KeystrokeInfoUIState>,
     selectedKeystrokeId: Int?,
     onSelect: (Int?) -> Unit,
     modifier: Modifier = Modifier,
@@ -207,7 +205,7 @@ private fun KeystrokeDialogPreview() {
     KeystrokeSelectDialog(
         title = "Select keystroke",
         items = List(10) {
-            KeystrokeUIState(it, "Keystroke $it", "Ctrl + Shift + $it", false)
+            KeystrokeInfoUIState(it, "Keystroke $it", "Ctrl + Shift + $it")
         },
         initialKeystrokeId = 9,
         onConfirm = {},
