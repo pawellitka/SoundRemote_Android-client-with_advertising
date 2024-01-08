@@ -9,7 +9,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.fake.soundremote.R
 import com.fake.soundremote.stringResource
-import com.fake.soundremote.ui.keystrokelist.KeystrokeUIState
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -51,7 +50,7 @@ class KeystrokeSelectDialogTest {
         val items = buildList {
             repeat(3) {
                 val id = it + 1
-                add(KeystrokeUIState(id, "Key $id", "Desc $id", false))
+                add(KeystrokeInfoUIState(id, "Key $id", "Desc $id"))
             }
         }
         composeTestRule.setContent {
@@ -70,7 +69,7 @@ class KeystrokeSelectDialogTest {
         val items = buildList {
             repeat(count) {
                 val id = it + 1
-                add(KeystrokeUIState(id, "Key $id", "Desc $id", false))
+                add(KeystrokeInfoUIState(id, "Key $id", "Desc $id"))
             }
         }
         composeTestRule.setContent {
@@ -103,7 +102,7 @@ class KeystrokeSelectDialogTest {
             val items = buildList {
                 repeat(count) {
                     val id = it + 1
-                    add(KeystrokeUIState(id, "Key $id", "Desc $id", false))
+                    add(KeystrokeInfoUIState(id, "Key $id", "Desc $id"))
                 }
             }
             CreateKeystrokeSelectDialog(
@@ -125,7 +124,7 @@ class KeystrokeSelectDialogTest {
     @Composable
     private fun CreateKeystrokeSelectDialog(
         title: String = dialogTitle,
-        items: List<KeystrokeUIState> = emptyList(),
+        items: List<KeystrokeInfoUIState> = emptyList(),
         initialKeystrokeId: Int? = null,
         onConfirm: (Int?) -> Unit = {},
         onDismiss: () -> Unit = {},
