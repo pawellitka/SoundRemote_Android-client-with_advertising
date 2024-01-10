@@ -14,7 +14,7 @@ enum class ActionType(
 
     companion object {
         /**
-         * Get enum entry by its id.
+         * Get [ActionType] by its id.
          * @throws [NoSuchElementException] if no entry with such id is found.
          */
         fun getById(id: Int): ActionType {
