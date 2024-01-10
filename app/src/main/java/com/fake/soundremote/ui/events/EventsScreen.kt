@@ -37,13 +37,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fake.soundremote.R
-import com.fake.soundremote.data.Action
+import com.fake.soundremote.data.ActionState
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.Event
-import com.fake.soundremote.ui.components.KeystrokeSelectDialog
+import com.fake.soundremote.ui.components.ActionSelectDialog
 import com.fake.soundremote.ui.components.ListItemHeadline
 import com.fake.soundremote.ui.components.ListItemSupport
 import com.fake.soundremote.ui.components.NavigateUpButton
+import com.fake.soundremote.util.TextValue
 import com.fake.soundremote.util.showAppInfo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
@@ -56,13 +57,13 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun EventsScreen(
     eventsUIState: EventsUIState,
-    onSetActionForEvent: (eventId: Int, action: Action?) -> Unit,
+    onSetActionForEvent: (eventId: Int, action: ActionState?) -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var showKeystrokeSelect by rememberSaveable { mutableStateOf(false) }
+    var showActionSelect by rememberSaveable { mutableStateOf(false) }
     var selectedEventId: Int? by rememberSaveable { mutableStateOf(null) }
-    var selectedKeystrokeId: Int? by rememberSaveable { mutableStateOf(null) }
+    var selectedAction: ActionState? by remember { mutableStateOf(null) }
 
     val permissionStates = mutableMapOf<String, PermissionState>()
     for (event in eventsUIState.events) {
@@ -73,47 +74,46 @@ internal fun EventsScreen(
         }
     }
 
-    fun checkAndRequestPermission(eventId: Int, keystrokeId: Int?) {
+    fun checkAndRequestPermission(eventId: Int, action: ActionState?) {
         val permission = eventsUIState.events.find { it.id == eventId }?.permission
-        if (keystrokeId == null || permission == null) return
+        if (action == null || permission == null) return
         val permissionState = permissionStates[permission.id]!!
         if (!permissionState.status.isGranted) {
             permissionState.launchPermissionRequest()
         }
     }
 
-    fun onSelectKeystroke(keystrokeId: Int?) {
+    fun onSelectAction(action: ActionState?) {
         val eventId = selectedEventId ?: return
-        checkAndRequestPermission(eventId, keystrokeId)
-        if (keystrokeId == null) {
+        checkAndRequestPermission(eventId, action)
+        if (action == null) {
             onSetActionForEvent(eventId, null)
         } else {
-            onSetActionForEvent(eventId, Action(ActionType.KEYSTROKE.id, keystrokeId))
+            onSetActionForEvent(eventId, action)
         }
     }
 
     Events(
         events = eventsUIState.events,
         permissionStates = permissionStates,
-        onEventClick = { eventId, keystrokeId ->
+        onEventClick = { eventId, action ->
             selectedEventId = eventId
-            selectedKeystrokeId = keystrokeId
-            showKeystrokeSelect = true
+            selectedAction = action
+            showActionSelect = true
         },
         onNavigateUp = onNavigateUp,
         modifier = modifier,
     )
-    if (showKeystrokeSelect) {
-        KeystrokeSelectDialog(
-            title = stringResource(R.string.keystroke_select_title),
-            initialKeystrokeId = selectedKeystrokeId,
-            onConfirm = { keystrokeId ->
-                onSelectKeystroke(keystrokeId)
-                showKeystrokeSelect = false
+    if (showActionSelect) {
+        val actionTypes = Event.getById(selectedEventId!!).applicableActionTypes
+        ActionSelectDialog(
+            availableActions = actionTypes,
+            onConfirm = { action ->
+                onSelectAction(action)
+                showActionSelect = false
             },
-            onDismiss = {
-                showKeystrokeSelect = false
-            }
+            initialAction = selectedAction,
+            onDismiss = { showActionSelect = false }
         )
     }
 }
@@ -123,7 +123,7 @@ internal fun EventsScreen(
 private fun Events(
     events: List<EventUIState>,
     permissionStates: Map<String, PermissionState>,
-    onEventClick: (Int, Int?) -> Unit,
+    onEventClick: (Int, ActionState?) -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -138,14 +138,20 @@ private fun Events(
             items(
                 items = events,
                 key = { eventState -> eventState.id }
-            ) { eventState ->
+            ) { event ->
                 EventItem(
-                    eventName = stringResource(eventState.nameStringId),
-                    keystrokeName = eventState.action?.name,
-                    permissionNameId = eventState.permission?.nameStringId,
-                    permissionState = permissionStates[eventState.permission?.id],
+                    eventName = stringResource(event.nameStringId),
+                    actionName = event.action?.name?.let { text ->
+                        when (text) {
+                            is TextValue.TextResource -> stringResource(text.strId)
+                            is TextValue.TextString -> text.str
+                        }
+                    },
+                    permissionNameId = event.permission?.nameStringId,
+                    permissionState = permissionStates[event.permission?.id],
                     onClick = {
-                        onEventClick(eventState.id, eventState.action?.id)
+                        val action = event.action?.let { ActionState(it.type, it.id) }
+                        onEventClick(event.id, action)
                     }
                 )
             }
@@ -161,7 +167,7 @@ private val eventItemModifier = Modifier
 @Composable
 private fun EventItem(
     eventName: String,
-    keystrokeName: String?,
+    actionName: String?,
     permissionNameId: Int?,
     permissionState: PermissionState?,
     onClick: () -> Unit,
@@ -177,7 +183,7 @@ private fun EventItem(
         ) {
             Column(verticalArrangement = Arrangement.Center) {
                 ListItemHeadline(text = eventName)
-                ListItemSupport(text = keystrokeName ?: stringResource(R.string.event_no_keystroke))
+                ListItemSupport(text = actionName ?: stringResource(R.string.action_type_none))
             }
             if (permissionState != null && permissionNameId != null) {
                 PermissionInfo(permissionState, permissionNameId)
@@ -257,7 +263,7 @@ private fun PermissionInfo(
 private fun EventItemPreview() {
     EventItem(
         eventName = "Event name",
-        keystrokeName = "Keystroke name",
+        actionName = "Action name",
         permissionState = null,
         permissionNameId = null,
         onClick = {}
@@ -273,7 +279,12 @@ private fun EventsPreview() {
                 id = event.id,
                 nameStringId = event.nameStringId,
                 permission = event.requiredPermission,
-                action = ActionUIState(ActionType.KEYSTROKE, 42, "Ctrl + Shift + ${event.id}")
+                action = ActionUIState(
+                    ActionType.KEYSTROKE,
+                    42,
+                    TextValue.TextString("Ctrl + Shift + ${event.id}")
+                ),
+                applicableActionTypes = emptyList(),
             )
         },
         permissionStates = emptyMap(),
