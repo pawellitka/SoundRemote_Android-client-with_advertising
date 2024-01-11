@@ -14,6 +14,7 @@ import com.fake.soundremote.data.Event
 import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.AppPermission
+import com.fake.soundremote.util.TextValue
 import org.junit.Rule
 import org.junit.Test
 
@@ -40,7 +41,7 @@ internal class EventsScreenTest {
         val eventNameStringId = Event.CALL_BEGIN.nameStringId
         composeTestRule.setContent {
             val events = listOf(
-                EventUIState(1, eventNameStringId),
+                EventUIState(1, eventNameStringId, applicableActionTypes = emptySet()),
             )
             CreateEventsScreen(eventsUIState = EventsUIState(events))
         }
@@ -55,8 +56,17 @@ internal class EventsScreenTest {
         val keystrokeName = "Test name"
         composeTestRule.setContent {
             val events = buildList {
-                val action = ActionUIState(ActionType.KEYSTROKE, 1, keystrokeName)
-                add(EventUIState(1, Event.CALL_BEGIN.nameStringId, null, action))
+                val action =
+                    ActionUIState(ActionType.KEYSTROKE, 1, TextValue.TextString(keystrokeName))
+                add(
+                    EventUIState(
+                        1,
+                        Event.CALL_BEGIN.nameStringId,
+                        null,
+                        action,
+                        emptySet()
+                    )
+                )
             }
             CreateEventsScreen(eventsUIState = EventsUIState(events))
         }
@@ -69,8 +79,17 @@ internal class EventsScreenTest {
     fun permissionInfoButton_eventWithoutPermission_doesNotExist() {
         composeTestRule.setContent {
             val events = buildList {
-                val action = ActionUIState(ActionType.KEYSTROKE, 1, "Keystroke name")
-                add(EventUIState(1, Event.CALL_BEGIN.nameStringId, null, action))
+                val action =
+                    ActionUIState(ActionType.KEYSTROKE, 1, TextValue.TextString("Keystroke name"))
+                add(
+                    EventUIState(
+                        1,
+                        Event.CALL_BEGIN.nameStringId,
+                        null,
+                        action,
+                        emptySet()
+                    )
+                )
             }
             CreateEventsScreen(eventsUIState = EventsUIState(events))
         }
@@ -83,8 +102,17 @@ internal class EventsScreenTest {
     fun permissionInfoButton_eventWithPermission_isDisplayed() {
         composeTestRule.setContent {
             val events = buildList {
-                val action = ActionUIState(ActionType.KEYSTROKE, 1, "Keystroke name")
-                add(EventUIState(1, Event.CALL_BEGIN.nameStringId, AppPermission.Phone, action))
+                val action =
+                    ActionUIState(ActionType.KEYSTROKE, 1, TextValue.TextString("Keystroke name"))
+                add(
+                    EventUIState(
+                        1,
+                        Event.CALL_BEGIN.nameStringId,
+                        AppPermission.Phone,
+                        action,
+                        emptySet()
+                    )
+                )
             }
             CreateEventsScreen(eventsUIState = EventsUIState(events))
         }

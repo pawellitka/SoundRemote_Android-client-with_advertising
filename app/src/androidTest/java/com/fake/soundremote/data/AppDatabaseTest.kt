@@ -49,7 +49,7 @@ internal class AppDatabaseTest {
             val keystroke = Keystroke(KeyCode(123), "Test")
             val keystrokeId = database.keystrokeRepository.insert(keystroke).toInt()
             val eventId = Event.CALL_END.id
-            val eventAction = EventAction(eventId, Action(ActionType.KEYSTROKE, keystrokeId))
+            val eventAction = EventAction(eventId, ActionData(ActionType.KEYSTROKE, keystrokeId))
             database.eventActionRepository.insert(eventAction)
 
             database.keystrokeRepository.deleteById(keystrokeId)
