@@ -37,6 +37,7 @@ import com.fake.soundremote.audio.AudioPipe
 import com.fake.soundremote.audio.AudioPipe.Companion.PIPE_PLAYING
 import com.fake.soundremote.data.ActionData
 import com.fake.soundremote.data.ActionType
+import com.fake.soundremote.data.AppAction
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.data.EventActionRepository
 import com.fake.soundremote.data.Keystroke
@@ -593,7 +594,19 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     private suspend fun executeAction(action: ActionData) {
         when (action.actionType) {
-            ActionType.APP.id -> {}
+            ActionType.APP.id -> {
+                when (action.actionId) {
+                    AppAction.CONNECT.id -> {
+                        val address = userPreferencesRepo.getServerAddress()
+                        connect(address)
+                    }
+
+                    AppAction.DISCONNECT.id -> disconnect()
+                    AppAction.MUTE.id -> setMuted(true)
+                    AppAction.UNMUTE.id -> setMuted(false)
+                }
+            }
+
             ActionType.KEYSTROKE.id -> {
                 sendKeystroke(action.actionId)
             }
