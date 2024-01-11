@@ -284,7 +284,7 @@ private fun EventsPreview() {
                     42,
                     TextValue.TextString("Ctrl + Shift + ${event.id}")
                 ),
-                applicableActionTypes = emptyList(),
+                applicableActionTypes = emptySet(),
             )
         },
         permissionStates = emptyMap(),

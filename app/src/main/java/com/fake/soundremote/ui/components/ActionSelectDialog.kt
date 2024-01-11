@@ -44,13 +44,12 @@ import com.fake.soundremote.data.AppAction
 
 @Composable
 internal fun ActionSelectDialog(
-    availableActions: List<ActionType>,
+    availableActions: Set<ActionType>,
     initialAction: Action? = null,
     onConfirm: (Action?) -> Unit,
     onDismiss: () -> Unit,
     viewModel: KeystrokeSelectViewModel = hiltViewModel()
 ) {
-    Thread.currentThread().state
     val keystrokes by viewModel.keystrokesState.collectAsStateWithLifecycle()
 
     ActionSelectDialog(
@@ -89,18 +88,21 @@ val appActions: List<ActionUIState> by lazy {
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 @Composable
 internal fun ActionSelectDialog(
-    availableActionTypes: List<ActionType>,
+    availableActionTypes: Set<ActionType>,
     initialAction: Action?,
     keystrokes: List<KeystrokeInfoUIState>,
     onConfirm: (Action?) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val actionTypes = rememberSaveable(availableActionTypes) {
+        availableActionTypes.sortedBy { it.id }
+    }
     // Action type selected in UI
     var selectedActionTypeIndex: Int by rememberSaveable {
         val index = if (initialAction == null) {
             0
         } else {
-            availableActionTypes.indexOf(initialAction.type)
+            actionTypes.indexOf(initialAction.type)
         }
         mutableIntStateOf(index)
     }
@@ -114,7 +116,7 @@ internal fun ActionSelectDialog(
         if (currentAction == null) {
             null
         } else {
-            if (availableActionTypes[selectedActionTypeIndex] == currentAction.type) {
+            if (actionTypes[selectedActionTypeIndex] == currentAction.type) {
                 currentAction.id
             } else {
                 -1
@@ -126,7 +128,7 @@ internal fun ActionSelectDialog(
             ActionUIState.WithStrings(keystroke.id, keystroke.name, keystroke.description)
         }
     }
-    val items = when (availableActionTypes[selectedActionTypeIndex]) {
+    val items = when (actionTypes[selectedActionTypeIndex]) {
         ActionType.NONE -> emptyList()
         ActionType.APP -> appActions
         ActionType.KEYSTROKE -> keystrokeActions
@@ -139,7 +141,7 @@ internal fun ActionSelectDialog(
         text = {
             Column {
                 TabRow(selectedTabIndex = selectedActionTypeIndex) {
-                    for ((index, actionType) in availableActionTypes.withIndex()) {
+                    for ((index, actionType) in actionTypes.withIndex()) {
                         Tab(
                             selected = selectedActionTypeIndex == index,
                             onClick = { selectedActionTypeIndex = index },
@@ -154,7 +156,7 @@ internal fun ActionSelectDialog(
                         selectedAction = if (id == null) {
                             null
                         } else {
-                            Action(availableActionTypes[selectedActionTypeIndex], id)
+                            Action(actionTypes[selectedActionTypeIndex], id)
                         }
                     },
                 )

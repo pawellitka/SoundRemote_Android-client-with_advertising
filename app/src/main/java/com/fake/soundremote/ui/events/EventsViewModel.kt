@@ -29,7 +29,7 @@ internal data class EventUIState(
     val nameStringId: Int,
     val permission: AppPermission? = null,
     val action: ActionUIState? = null,
-    val applicableActionTypes: List<ActionType>,
+    val applicableActionTypes: Set<ActionType>,
 )
 
 internal data class ActionUIState(

@@ -8,7 +8,7 @@ internal enum class Event(
     val id: Int,
     @StringRes
     val nameStringId: Int,
-    val applicableActionTypes: List<ActionType>,
+    val applicableActionTypes: Set<ActionType>,
     val requiredPermission: AppPermission?,
     // Min SDK version for permission to be requested for the event.
     // If == null permission will always be requested.
@@ -17,14 +17,14 @@ internal enum class Event(
     CALL_BEGIN(
         1,
         R.string.event_name_call_start,
-        listOf(ActionType.KEYSTROKE),
+        setOf(ActionType.KEYSTROKE),
         AppPermission.Phone,
         31
     ),
     CALL_END(
         2,
         R.string.event_name_call_end,
-        listOf(ActionType.KEYSTROKE),
+        setOf(ActionType.KEYSTROKE),
         AppPermission.Phone,
         31
     );
