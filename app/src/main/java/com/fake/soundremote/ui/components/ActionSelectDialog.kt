@@ -105,9 +105,7 @@ internal fun ActionSelectDialog(
         mutableIntStateOf(index)
     }
     // Action selected by user
-    var selectedAction by rememberSaveable(stateSaver = ActionState.saver) {
-        mutableStateOf(initialAction)
-    }
+    var selectedAction by rememberSaveable { mutableStateOf(initialAction) }
     // Action id in currently selected action type.
     // If selected ActionType is not the same as the currently selected Action's type, set to -1 so
     // nothing would be selected.
