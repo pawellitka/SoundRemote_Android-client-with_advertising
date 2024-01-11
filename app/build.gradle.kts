@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     id("org.jetbrains.kotlin.kapt")
     alias(libs.plugins.room)
+    id("kotlin-parcelize")
 }
 
 kotlin {
