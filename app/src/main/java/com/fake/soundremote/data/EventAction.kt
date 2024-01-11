@@ -13,7 +13,7 @@ data class EventAction(
     var eventId: Int,
 
     @Embedded
-    var action: Action
+    var action: ActionData
 ) {
     companion object {
         const val TABLE_NAME = "event_action"

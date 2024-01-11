@@ -4,7 +4,7 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.fake.soundremote.data.Action
+import com.fake.soundremote.data.ActionData
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.EventAction
 import com.fake.soundremote.data.Keystroke
@@ -38,7 +38,7 @@ val DELETE_EVENT_ACTION_ON_KEYSTROKE_DELETE = """
     AFTER DELETE ON ${Keystroke.TABLE_NAME}
     BEGIN
         DELETE FROM ${EventAction.TABLE_NAME}
-        WHERE ${Action.COLUMN_TYPE} = ${ActionType.KEYSTROKE.id}
-        AND ${Action.COLUMN_ID} = OLD.${Keystroke.COLUMN_ID};
+        WHERE ${ActionData.COLUMN_TYPE} = ${ActionType.KEYSTROKE.id}
+        AND ${ActionData.COLUMN_ID} = OLD.${Keystroke.COLUMN_ID};
     END
     """.trimIndent()

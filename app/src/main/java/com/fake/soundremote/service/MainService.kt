@@ -35,7 +35,7 @@ import androidx.media.session.MediaButtonReceiver
 import com.fake.soundremote.R
 import com.fake.soundremote.audio.AudioPipe
 import com.fake.soundremote.audio.AudioPipe.Companion.PIPE_PLAYING
-import com.fake.soundremote.data.Action
+import com.fake.soundremote.data.ActionData
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.data.EventActionRepository
@@ -591,9 +591,8 @@ internal class MainService : MediaBrowserServiceCompat() {
         }
     }
 
-    private suspend fun executeAction(action: Action) {
+    private suspend fun executeAction(action: ActionData) {
         when (action.actionType) {
-            // TODO: implement app actions
             ActionType.APP.id -> {}
             ActionType.KEYSTROKE.id -> {
                 sendKeystroke(action.actionId)

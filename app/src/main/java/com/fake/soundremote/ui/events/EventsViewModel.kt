@@ -4,7 +4,7 @@ import android.os.Build
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fake.soundremote.data.Action
+import com.fake.soundremote.data.ActionData
 import com.fake.soundremote.data.ActionState
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.AppAction
@@ -99,7 +99,7 @@ internal class EventsViewModel @Inject constructor(
             if (actionState == null) {
                 eventActionRepository.deleteById(eventId)
             } else {
-                val action = Action(actionState.type.id, actionState.id)
+                val action = ActionData(actionState.type.id, actionState.id)
                 val event = eventActionRepository.getById(eventId)
                 if (event == null) {
                     eventActionRepository.insert(EventAction(eventId, action))

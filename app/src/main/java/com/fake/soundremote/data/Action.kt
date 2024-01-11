@@ -5,7 +5,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Ignore
 import kotlinx.parcelize.Parcelize
 
-data class Action(
+data class ActionData(
     @ColumnInfo(name = COLUMN_TYPE, defaultValue = "0")
     var actionType: Int,
 
