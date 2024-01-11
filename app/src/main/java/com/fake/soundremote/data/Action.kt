@@ -22,4 +22,4 @@ data class ActionData(
 }
 
 @Parcelize
-data class ActionState(val type: ActionType, val id: Int) : Parcelable
+data class Action(val type: ActionType, val id: Int) : Parcelable

@@ -37,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fake.soundremote.R
-import com.fake.soundremote.data.ActionState
+import com.fake.soundremote.data.Action
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.ui.components.ActionSelectDialog
@@ -57,13 +57,13 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun EventsScreen(
     eventsUIState: EventsUIState,
-    onSetActionForEvent: (eventId: Int, action: ActionState?) -> Unit,
+    onSetActionForEvent: (eventId: Int, action: Action?) -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showActionSelect by rememberSaveable { mutableStateOf(false) }
     var selectedEventId: Int? by rememberSaveable { mutableStateOf(null) }
-    var selectedAction: ActionState? by remember { mutableStateOf(null) }
+    var selectedAction: Action? by remember { mutableStateOf(null) }
 
     val permissionStates = mutableMapOf<String, PermissionState>()
     for (event in eventsUIState.events) {
@@ -74,7 +74,7 @@ internal fun EventsScreen(
         }
     }
 
-    fun checkAndRequestPermission(eventId: Int, action: ActionState?) {
+    fun checkAndRequestPermission(eventId: Int, action: Action?) {
         val permission = eventsUIState.events.find { it.id == eventId }?.permission
         if (action == null || permission == null) return
         val permissionState = permissionStates[permission.id]!!
@@ -83,7 +83,7 @@ internal fun EventsScreen(
         }
     }
 
-    fun onSelectAction(action: ActionState?) {
+    fun onSelectAction(action: Action?) {
         val eventId = selectedEventId ?: return
         checkAndRequestPermission(eventId, action)
         if (action == null) {
@@ -123,7 +123,7 @@ internal fun EventsScreen(
 private fun Events(
     events: List<EventUIState>,
     permissionStates: Map<String, PermissionState>,
-    onEventClick: (Int, ActionState?) -> Unit,
+    onEventClick: (Int, Action?) -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -150,7 +150,7 @@ private fun Events(
                     permissionNameId = event.permission?.nameStringId,
                     permissionState = permissionStates[event.permission?.id],
                     onClick = {
-                        val action = event.action?.let { ActionState(it.type, it.id) }
+                        val action = event.action?.let { Action(it.type, it.id) }
                         onEventClick(event.id, action)
                     }
                 )

@@ -38,15 +38,15 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fake.soundremote.R
-import com.fake.soundremote.data.ActionState
+import com.fake.soundremote.data.Action
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.AppAction
 
 @Composable
 internal fun ActionSelectDialog(
     availableActions: List<ActionType>,
-    initialAction: ActionState? = null,
-    onConfirm: (ActionState?) -> Unit,
+    initialAction: Action? = null,
+    onConfirm: (Action?) -> Unit,
     onDismiss: () -> Unit,
     viewModel: KeystrokeSelectViewModel = hiltViewModel()
 ) {
@@ -90,9 +90,9 @@ val appActions: List<ActionUIState> by lazy {
 @Composable
 internal fun ActionSelectDialog(
     availableActionTypes: List<ActionType>,
-    initialAction: ActionState?,
+    initialAction: Action?,
     keystrokes: List<KeystrokeInfoUIState>,
-    onConfirm: (ActionState?) -> Unit,
+    onConfirm: (Action?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     // Action type selected in UI
@@ -154,7 +154,7 @@ internal fun ActionSelectDialog(
                         selectedAction = if (id == null) {
                             null
                         } else {
-                            ActionState(availableActionTypes[selectedActionTypeIndex], id)
+                            Action(availableActionTypes[selectedActionTypeIndex], id)
                         }
                     },
                 )
