@@ -2,6 +2,7 @@ package com.fake.soundremote.ui
 
 import com.fake.soundremote.MainDispatcherExtension
 import com.fake.soundremote.data.Action
+import com.fake.soundremote.data.ActionData
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.data.EventAction
@@ -71,7 +72,7 @@ internal class EventsViewModelTest {
             keystrokeRepository.setKeystrokes(keystrokes)
             val eventId = Event.CALL_BEGIN.id
             val eventActions =
-                listOf(EventAction(eventId, Action(ActionType.KEYSTROKE, keystrokeId)))
+                listOf(EventAction(eventId, ActionData(ActionType.KEYSTROKE, keystrokeId)))
             eventActionRepository.setEventActions(eventActions)
             assertTrue(viewModel.uiState.value.events.find { it.id == eventId }?.action?.id == keystrokeId)
 
@@ -99,7 +100,7 @@ internal class EventsViewModelTest {
             keystrokeRepository.setKeystrokes(keystrokes)
             val eventId = Event.CALL_BEGIN.id
             val eventActions =
-                listOf(EventAction(eventId, Action(ActionType.KEYSTROKE, oldKeystrokeId)))
+                listOf(EventAction(eventId, ActionData(ActionType.KEYSTROKE, oldKeystrokeId)))
             eventActionRepository.setEventActions(eventActions)
             assertEquals(
                 oldKeystrokeId,
