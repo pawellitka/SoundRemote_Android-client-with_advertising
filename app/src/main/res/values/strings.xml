@@ -136,7 +136,7 @@
     <string name="compression_320">320 kbps</string>
 
     <!--Action types-->
-    <string name="action_type_none">No action</string>
+    <string name="action_none">No action</string>
     <string name="action_type_app">Application</string>
     <string name="action_type_keystroke">Keystroke</string>
 

@@ -183,7 +183,7 @@ private fun EventItem(
         ) {
             Column(verticalArrangement = Arrangement.Center) {
                 ListItemHeadline(text = eventName)
-                ListItemSupport(text = actionName ?: stringResource(R.string.action_type_none))
+                ListItemSupport(text = actionName ?: stringResource(R.string.action_none))
             }
             if (permissionState != null && permissionNameId != null) {
                 PermissionInfo(permissionState, permissionNameId)

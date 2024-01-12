@@ -207,7 +207,7 @@ private fun ActionList(
     ) {
         item(key = null) {
             ActionItem(
-                name = stringResource(R.string.action_type_none),
+                name = stringResource(R.string.action_none),
                 description = null,
                 selected = selectedActionId == null,
                 onClick = { onSelect(null) },
