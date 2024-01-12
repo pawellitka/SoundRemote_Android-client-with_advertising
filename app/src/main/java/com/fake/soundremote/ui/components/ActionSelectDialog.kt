@@ -129,7 +129,6 @@ internal fun ActionSelectDialog(
         }
     }
     val items = when (actionTypes[selectedActionTypeIndex]) {
-        ActionType.NONE -> emptyList()
         ActionType.APP -> appActions
         ActionType.KEYSTROKE -> keystrokeActions
     }
