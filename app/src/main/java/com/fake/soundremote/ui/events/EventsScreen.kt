@@ -107,7 +107,7 @@ internal fun EventsScreen(
     if (showActionSelect) {
         val actionTypes = Event.getById(selectedEventId!!).applicableActionTypes
         ActionSelectDialog(
-            availableActions = actionTypes,
+            availableActionTypes = actionTypes,
             onConfirm = { action ->
                 onSelectAction(action)
                 showActionSelect = false

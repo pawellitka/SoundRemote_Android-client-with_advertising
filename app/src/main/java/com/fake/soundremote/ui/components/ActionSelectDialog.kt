@@ -44,7 +44,7 @@ import com.fake.soundremote.data.AppAction
 
 @Composable
 internal fun ActionSelectDialog(
-    availableActions: Set<ActionType>,
+    availableActionTypes: Set<ActionType>,
     initialAction: Action? = null,
     onConfirm: (Action?) -> Unit,
     onDismiss: () -> Unit,
@@ -53,7 +53,7 @@ internal fun ActionSelectDialog(
     val keystrokes by viewModel.keystrokesState.collectAsStateWithLifecycle()
 
     ActionSelectDialog(
-        availableActions,
+        availableActionTypes,
         initialAction,
         keystrokes,
         onConfirm,
