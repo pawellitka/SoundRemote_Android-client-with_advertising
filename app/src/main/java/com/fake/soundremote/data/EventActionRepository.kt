@@ -12,4 +12,6 @@ interface EventActionRepository {
     suspend fun deleteById(id: Int)
 
     fun getAll(): Flow<List<EventAction>>
+
+    fun getShakeEventFlow(): Flow<EventAction?>
 }
