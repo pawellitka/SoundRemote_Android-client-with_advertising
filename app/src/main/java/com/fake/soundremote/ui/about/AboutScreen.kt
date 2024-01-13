@@ -67,7 +67,7 @@ internal fun AboutScreen(
             modifier = paddingMod
         )
         Text(
-            text = "© 2023 Aleksandr Shipovskii",
+            text = "© 2024 Aleksandr Shipovskii",
             style = MaterialTheme.typography.bodyLarge,
             modifier = paddingMod
         )
@@ -99,6 +99,12 @@ internal fun AboutScreen(
         Credit(
             name = "Accompanist",
             url = "https://google.github.io/accompanist",
+            onShowLicense = { loadLicense(apache2File) },
+            context = context,
+        )
+        Credit(
+            name = "Seismic",
+            url = "https://github.com/square/seismic",
             onShowLicense = { loadLicense(apache2File) },
             context = context,
         )
