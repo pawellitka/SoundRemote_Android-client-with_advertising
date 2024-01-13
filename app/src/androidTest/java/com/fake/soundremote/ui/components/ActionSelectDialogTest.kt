@@ -16,12 +16,12 @@ import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
-import kotlin.enums.enumEntries
 
 class ActionSelectDialogTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
+    private val ok by composeTestRule.stringResource(android.R.string.ok)
     private val cancel by composeTestRule.stringResource(R.string.cancel)
     private val noAction by composeTestRule.stringResource(R.string.action_none)
     private val appActionType by composeTestRule.stringResource(ActionType.APP.nameStringId)
@@ -93,6 +93,61 @@ class ActionSelectDialogTest {
             val name = composeTestRule.activity.getString(appAction.nameStringId)
             composeTestRule.onNodeWithText(name).assertExists()
         }
+    }
+
+    // Given: a long list of Keystrokes that doesn't fit into screen and initially selected
+    // keystroke id at the end of a that list.
+    // Expected: dialog should scroll to the selected Keystroke.
+    @Test
+    fun initialActionIsKeystroke_needsScrolling_isDisplayed() {
+        val count = 100
+        val keystrokes = buildList {
+            repeat(count) {
+                val id = it + 1
+                add(KeystrokeInfoUIState(id, "Key $id", "Desc $id"))
+            }
+        }
+        composeTestRule.setContent {
+            CreateActionSelectDialog(
+                availableActionTypes = ActionType.entries.toSet(),
+                initialAction = Action(ActionType.KEYSTROKE, count),
+                keystrokes = keystrokes,
+            )
+        }
+
+        composeTestRule.onNodeWithText("Key $count").apply {
+            assertIsDisplayed()
+            assertIsSelected()
+        }
+    }
+
+    @Test
+    fun okButton_onClick_confirmsWithCorrectAction() {
+        val count = 5
+        val expected = Action(ActionType.KEYSTROKE, 1)
+        var actual: Action? = null
+        composeTestRule.setContent {
+            val keystrokes = buildList {
+                repeat(count) {
+                    val id = it + 1
+                    add(KeystrokeInfoUIState(id, "Key $id", "Desc $id"))
+                }
+            }
+            CreateActionSelectDialog(
+                availableActionTypes = ActionType.entries.toSet(),
+                initialAction = Action(ActionType.APP, AppAction.DISCONNECT.id),
+                keystrokes = keystrokes,
+                onConfirm = { actual = it },
+            )
+        }
+
+        composeTestRule.apply {
+            onNodeWithText(keystrokeActionType).performClick()
+            onNodeWithText("Key 1").performClick()
+            onNodeWithText(ok).performClick()
+        }
+
+        Assert.assertEquals(expected, actual)
     }
 
     @Suppress("TestFunctionName")
