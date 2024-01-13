@@ -105,4 +105,6 @@ dependencies {
     implementation(libs.accompanist.permissions)
 // Guava
     implementation(libs.guava)
+// Seismic
+    implementation(libs.seismic)
 }
