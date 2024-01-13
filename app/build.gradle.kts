@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     id("org.jetbrains.kotlin.kapt")
+    alias(libs.plugins.room)
+    id("kotlin-parcelize")
 }
 
 kotlin {
@@ -43,10 +45,17 @@ android {
         arg("room.generateKotlin", "true")
     }
     buildToolsVersion = "34.0.0"
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
@@ -75,6 +84,7 @@ dependencies {
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.core.ktx)
     androidTestImplementation(libs.androidx.navigation.testing)
+    androidTestImplementation(libs.androidx.room.testing)
 // Local tests
     testImplementation(libs.bundles.local.tests)
 // Room

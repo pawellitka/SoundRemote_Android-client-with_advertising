@@ -1,6 +1,9 @@
 package com.fake.soundremote.ui
 
 import com.fake.soundremote.MainDispatcherExtension
+import com.fake.soundremote.data.Action
+import com.fake.soundremote.data.ActionData
+import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.Event
 import com.fake.soundremote.data.EventAction
 import com.fake.soundremote.data.TestEventActionRepository
@@ -47,11 +50,11 @@ internal class EventsViewModelTest {
             val keystrokes = listOf(getKeystroke(id = keystrokeId))
             keystrokeRepository.setKeystrokes(keystrokes)
             val eventId = Event.CALL_END.id
-            assertNull(viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId)
+            assertNull(viewModel.uiState.value.events.find { it.id == eventId }?.action)
 
-            viewModel.setKeystrokeForEvent(eventId, keystrokeId)
+            viewModel.setActionForEvent(eventId, Action(ActionType.KEYSTROKE, keystrokeId))
 
-            val actual = viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
+            val actual = viewModel.uiState.value.events.find { it.id == eventId }?.action?.id
             assertEquals(keystrokeId, actual)
 
             collectJob.cancel()
@@ -68,13 +71,14 @@ internal class EventsViewModelTest {
             val keystrokes = listOf(getKeystroke(id = keystrokeId))
             keystrokeRepository.setKeystrokes(keystrokes)
             val eventId = Event.CALL_BEGIN.id
-            val eventActions = listOf(EventAction(eventId, keystrokeId))
+            val eventActions =
+                listOf(EventAction(eventId, ActionData(ActionType.KEYSTROKE, keystrokeId)))
             eventActionRepository.setEventActions(eventActions)
-            assertTrue(viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId == keystrokeId)
+            assertTrue(viewModel.uiState.value.events.find { it.id == eventId }?.action?.id == keystrokeId)
 
-            viewModel.setKeystrokeForEvent(eventId, null)
+            viewModel.setActionForEvent(eventId, null)
 
-            val actual = viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
+            val actual = viewModel.uiState.value.events.find { it.id == eventId }?.action
             assertNull(actual)
 
             collectJob.cancel()
@@ -95,16 +99,17 @@ internal class EventsViewModelTest {
             )
             keystrokeRepository.setKeystrokes(keystrokes)
             val eventId = Event.CALL_BEGIN.id
-            val eventActions = listOf(EventAction(eventId, oldKeystrokeId))
+            val eventActions =
+                listOf(EventAction(eventId, ActionData(ActionType.KEYSTROKE, oldKeystrokeId)))
             eventActionRepository.setEventActions(eventActions)
             assertEquals(
                 oldKeystrokeId,
-                viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
+                viewModel.uiState.value.events.find { it.id == eventId }?.action?.id
             )
 
-            viewModel.setKeystrokeForEvent(eventId, newKeystrokeId)
+            viewModel.setActionForEvent(eventId, Action(ActionType.KEYSTROKE, newKeystrokeId))
 
-            val actual = viewModel.uiState.value.events.find { it.id == eventId }?.keystrokeId
+            val actual = viewModel.uiState.value.events.find { it.id == eventId }?.action?.id
             assertEquals(newKeystrokeId, actual)
 
             collectJob.cancel()

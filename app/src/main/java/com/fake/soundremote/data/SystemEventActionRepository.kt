@@ -32,9 +32,6 @@ class SystemEventActionRepository(
         eventActionDao.deleteById(id)
     }
 
-    override suspend fun getKeystrokeByEventId(id: Int): Keystroke? =
-        eventActionDao.getKeystrokeByEventId(id)
-
     override fun getAll(): Flow<List<EventAction>> =
         eventActionDao.getAll()
 }

@@ -33,3 +33,8 @@ internal fun showAppInfo(context: Context) {
 internal enum class AppPermission(val id: String, val nameStringId: Int) {
     Phone(android.Manifest.permission.READ_PHONE_STATE, R.string.permission_name_phone)
 }
+
+sealed interface TextValue {
+    data class TextString(val str: String) : TextValue
+    data class TextResource(@StringRes val strId: Int) : TextValue
+}

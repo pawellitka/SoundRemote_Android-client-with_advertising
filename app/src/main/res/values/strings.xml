@@ -79,6 +79,9 @@
     <string name="keystroke_select_title">Select keystroke</string>
     <string name="keystroke_select_none">No keystroke</string>
 
+    <!--Action select-->
+    <string name="action_select_title">Select action</string>
+
     <!--Events-->
     <string name="event_list_title">Events</string>
     <string name="event_no_keystroke">No keystroke</string>
@@ -132,4 +135,14 @@
     <string name="compression_256">256 kbps</string>
     <string name="compression_320">320 kbps</string>
 
+    <!--Action types-->
+    <string name="action_none">No action</string>
+    <string name="action_type_app">Application</string>
+    <string name="action_type_keystroke">Keystroke</string>
+
+    <!--App actions-->
+    <string name="app_action_mute">Mute</string>
+    <string name="app_action_unmute">Unmute</string>
+    <string name="app_action_connect">Connect</string>
+    <string name="app_action_disconnect">Disconnect</string>
 </resources>

@@ -20,14 +20,14 @@ class TestEventActionRepository : EventActionRepository {
         if (existing == null) {
             eventActionsFlow.tryEmit(currentEventActions + eventAction)
         } else {
-            existing.keystrokeId = eventAction.keystrokeId
+            existing.action = eventAction.action.copy()
             eventActionsFlow.tryEmit(currentEventActions)
         }
     }
 
     override suspend fun update(eventAction: EventAction): Int {
         val toUpdate = currentEventActions.find { it.eventId == eventAction.eventId } ?: return 0
-        toUpdate.keystrokeId = eventAction.keystrokeId
+        toUpdate.action = eventAction.action.copy()
         eventActionsFlow.tryEmit(currentEventActions)
         return 1
     }
@@ -37,10 +37,6 @@ class TestEventActionRepository : EventActionRepository {
         // If nothing to remove, do not emit
         if (!alteredList.removeIf { it.eventId == id }) return
         eventActionsFlow.tryEmit(alteredList)
-    }
-
-    override suspend fun getKeystrokeByEventId(id: Int): Keystroke? {
-        TODO("Not yet implemented")
     }
 
     override fun getAll(): Flow<List<EventAction>> = eventActionsFlow

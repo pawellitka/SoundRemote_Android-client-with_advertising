@@ -24,8 +24,8 @@ fun NavGraphBuilder.eventsScreen(
         val eventsUIState by viewModel.uiState.collectAsStateWithLifecycle()
         EventsScreen(
             eventsUIState = eventsUIState,
-            onSetKeystrokeForEvent = { eventId, keystrokeId ->
-                viewModel.setKeystrokeForEvent(eventId = eventId, keystrokeId = keystrokeId)
+            onSetActionForEvent = { eventId, action ->
+                viewModel.setActionForEvent(eventId, action)
             },
             onNavigateUp = onNavigateUp,
         )

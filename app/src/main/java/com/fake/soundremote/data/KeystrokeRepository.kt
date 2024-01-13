@@ -17,5 +17,7 @@ interface KeystrokeRepository {
 
     fun getAllOrdered(): Flow<List<Keystroke>>
 
+    fun getAllInfoOrdered(): Flow<List<KeystrokeInfo>>
+
     suspend fun updateOrders(keystrokeOrders: List<KeystrokeOrder>)
 }

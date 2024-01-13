@@ -47,6 +47,18 @@ interface KeystrokeDao : BaseDao<Keystroke> {
     )
     fun getAllOrdered(): Flow<List<Keystroke>>
 
+    @Query(
+        """
+        SELECT ${Keystroke.COLUMN_ID},
+        ${Keystroke.COLUMN_KEY_CODE},
+        ${Keystroke.COLUMN_MODS},
+        ${Keystroke.COLUMN_NAME}
+        FROM ${Keystroke.TABLE_NAME}
+        ORDER BY ${Keystroke.COLUMN_ORDER} DESC, ${Keystroke.COLUMN_ID};
+        """
+    )
+    fun getAllInfoOrdered(): Flow<List<KeystrokeInfo>>
+
     @Update(entity = Keystroke::class)
     suspend fun updateOrders(vararg keystrokeOrders: KeystrokeOrder)
 }

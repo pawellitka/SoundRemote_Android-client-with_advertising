@@ -59,6 +59,14 @@ class TestKeystrokeRepository : KeystrokeRepository {
         }
     }
 
+    override fun getAllInfoOrdered(): Flow<List<KeystrokeInfo>> {
+        return _keystrokesFlow.map { keystrokes ->
+            keystrokes
+                .sortedByDescending { it.order }
+                .map { KeystrokeInfo(it.id, it.keyCode, it.mods, it.name) }
+        }
+    }
+
     override suspend fun updateOrders(keystrokeOrders: List<KeystrokeOrder>) {
         val keystrokes = currentKeystrokes
         for ((id, order) in keystrokeOrders) {
