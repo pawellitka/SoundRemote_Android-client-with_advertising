@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.hardware.SensorManager
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -50,6 +51,7 @@ import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.SystemMessage
+import com.squareup.seismic.ShakeDetector
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -105,6 +107,16 @@ internal class MainService : MediaBrowserServiceCompat() {
     private lateinit var telephonyManager: TelephonyManager
     private val callStateExecutor = Executors.newSingleThreadExecutor()
 
+    // Shake
+    private var shakeDetector: ShakeDetector? = null
+    private val shakeListener = ShakeDetector.Listener {
+        Log.i(TAG, "Shake detected")
+        scope.launch {
+            eventActionRepository.getById(Event.SHAKE.id)
+                ?.let { executeAction(it.action) }
+        }
+    }
+
     init {
         scope.launch {
             connection.connectionStatus.collect {
@@ -137,6 +149,27 @@ internal class MainService : MediaBrowserServiceCompat() {
         mediaSession = createMediaSession()
         sessionToken = mediaSession.sessionToken
         notification = createNotification(mediaSession.sessionToken)
+
+        // Shake listener
+        scope.launch {
+            eventActionRepository.getShakeEventFlow().collect {
+                if (it == null) {
+                    shakeDetector?.let { sd ->
+                        sd.stop()
+                        shakeDetector = null
+                        Log.i(TAG, "Shake detector stopped")
+                    }
+                } else {
+                    if (shakeDetector == null) {
+                        val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+                        shakeDetector = ShakeDetector(shakeListener).apply {
+                            start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
+                        }
+                        Log.i(TAG, "Shake detector started")
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
