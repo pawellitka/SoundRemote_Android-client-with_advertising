@@ -87,6 +87,7 @@
     <string name="event_no_keystroke">No keystroke</string>
     <string name="event_name_call_start">Phone call start</string>
     <string name="event_name_call_end">Phone call end</string>
+    <string name="event_name_shake">Shake</string>
 
     <!--Settings-->
     <string name="settings_title">Settings</string>

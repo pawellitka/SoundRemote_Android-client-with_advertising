@@ -19,14 +19,21 @@ internal enum class Event(
         R.string.event_name_call_start,
         setOf(ActionType.KEYSTROKE),
         AppPermission.Phone,
-        31
+        31,
     ),
     CALL_END(
         2,
         R.string.event_name_call_end,
         setOf(ActionType.KEYSTROKE),
         AppPermission.Phone,
-        31
+        31,
+    ),
+    SHAKE(
+        100,
+        R.string.event_name_shake,
+        ActionType.entries.toSet(),
+        null,
+        null,
     );
 
     companion object {

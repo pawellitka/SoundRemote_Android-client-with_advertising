@@ -34,4 +34,7 @@ class SystemEventActionRepository(
 
     override fun getAll(): Flow<List<EventAction>> =
         eventActionDao.getAll()
+
+    override fun getShakeEventFlow(): Flow<EventAction?> =
+        eventActionDao.getEventActionFlow(Event.SHAKE.id)
 }

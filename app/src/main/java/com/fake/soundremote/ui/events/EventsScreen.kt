@@ -141,11 +141,13 @@ private fun Events(
             ) { event ->
                 EventItem(
                     eventName = stringResource(event.nameStringId),
-                    actionName = event.action?.name?.let { text ->
-                        when (text) {
-                            is TextValue.TextResource -> stringResource(text.strId)
-                            is TextValue.TextString -> text.str
+                    actionName = event.action?.let { action ->
+                        val actionTypeName = stringResource(action.type.nameStringId)
+                        val actionName = when (action.name) {
+                            is TextValue.TextResource -> stringResource(action.name.strId)
+                            is TextValue.TextString -> action.name.str
                         }
+                        "$actionTypeName: $actionName"
                     },
                     permissionNameId = event.permission?.nameStringId,
                     permissionState = permissionStates[event.permission?.id],
