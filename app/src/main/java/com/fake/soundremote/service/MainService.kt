@@ -109,13 +109,7 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     // Shake
     private var shakeDetector: ShakeDetector? = null
-    private val shakeListener = ShakeDetector.Listener {
-        Log.i(TAG, "Shake detected")
-        scope.launch {
-            eventActionRepository.getById(Event.SHAKE.id)
-                ?.let { executeAction(it.action) }
-        }
-    }
+    private var shakeListener: ShakeDetector.Listener? = null
 
     init {
         scope.launch {
@@ -154,19 +148,9 @@ internal class MainService : MediaBrowserServiceCompat() {
         scope.launch {
             eventActionRepository.getShakeEventFlow().collect {
                 if (it == null) {
-                    shakeDetector?.let { sd ->
-                        sd.stop()
-                        shakeDetector = null
-                        Log.i(TAG, "Shake detector stopped")
-                    }
+                    stopShakeDetection()
                 } else {
-                    if (shakeDetector == null) {
-                        val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-                        shakeDetector = ShakeDetector(shakeListener).apply {
-                            start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
-                        }
-                        Log.i(TAG, "Shake detector started")
-                    }
+                    startShakeDetection()
                 }
             }
         }
@@ -664,6 +648,31 @@ internal class MainService : MediaBrowserServiceCompat() {
                 android.telephony.PhoneStateListener.LISTEN_NONE
             )
         }
+    }
+
+    private fun stopShakeDetection() {
+        shakeDetector?.let { sd ->
+            sd.stop()
+            shakeDetector = null
+            shakeListener = null
+            Log.i(TAG, "Shake detection stopped")
+        }
+    }
+
+    private fun startShakeDetection() {
+        if (shakeDetector != null) return
+        shakeListener = ShakeDetector.Listener {
+            Log.i(TAG, "Shake detected")
+            scope.launch {
+                eventActionRepository.getById(Event.SHAKE.id)
+                    ?.let { executeAction(it.action) }
+            }
+        }
+        val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        shakeDetector = ShakeDetector(shakeListener).apply {
+            start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
+        }
+        Log.i(TAG, "Shake detection started")
     }
 
     companion object {
