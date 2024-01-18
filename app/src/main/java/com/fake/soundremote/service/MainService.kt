@@ -650,6 +650,8 @@ internal class MainService : MediaBrowserServiceCompat() {
         }
     }
 
+    // Shake detection
+
     private fun stopShakeDetection() {
         shakeDetector?.let { sd ->
             sd.stop()
@@ -661,18 +663,21 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     private fun startShakeDetection() {
         if (shakeDetector != null) return
-        shakeListener = ShakeDetector.Listener {
-            Log.i(TAG, "Shake detected")
-            scope.launch {
-                eventActionRepository.getById(Event.SHAKE.id)
-                    ?.let { executeAction(it.action) }
-            }
-        }
+        shakeListener = getShakeListener()
         val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         shakeDetector = ShakeDetector(shakeListener).apply {
             start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
         }
         Log.i(TAG, "Shake detection started")
+    }
+
+    private fun getShakeListener() = ShakeDetector.Listener {
+        Log.i(TAG, "Shake detected")
+        scope.launch {
+            eventActionRepository.getById(Event.SHAKE.id)?.let {
+                executeAction(it.action)
+            }
+        }
     }
 
     companion object {

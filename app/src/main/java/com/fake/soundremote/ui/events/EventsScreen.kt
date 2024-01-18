@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -162,7 +161,6 @@ private fun Events(
 }
 
 private val eventItemModifier = Modifier
-    .fillMaxWidth()
     .height(72.dp)
     .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 24.dp)
 
@@ -183,7 +181,10 @@ private fun EventItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(verticalArrangement = Arrangement.Center) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(1f),
+            ) {
                 ListItemHeadline(text = eventName)
                 ListItemSupport(text = actionName ?: stringResource(R.string.action_none))
             }

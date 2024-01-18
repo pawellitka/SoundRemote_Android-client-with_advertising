@@ -71,7 +71,7 @@ internal class EventsScreenTest {
             CreateEventsScreen(eventsUIState = EventsUIState(events))
         }
 
-        composeTestRule.onNodeWithText(keystrokeName).assertIsDisplayed()
+        composeTestRule.onNodeWithText(keystrokeName, true).assertIsDisplayed()
     }
 
     // Event without a permission doesn't show permission info button

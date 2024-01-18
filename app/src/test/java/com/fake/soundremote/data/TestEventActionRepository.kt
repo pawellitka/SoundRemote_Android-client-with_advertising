@@ -3,6 +3,7 @@ package com.fake.soundremote.data
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 
 class TestEventActionRepository : EventActionRepository {
     private val eventActionsFlow: MutableSharedFlow<List<EventAction>> = MutableSharedFlow(
@@ -40,6 +41,11 @@ class TestEventActionRepository : EventActionRepository {
     }
 
     override fun getAll(): Flow<List<EventAction>> = eventActionsFlow
+
+    override fun getShakeEventFlow(): Flow<EventAction?> {
+        val shakeAction = currentEventActions.find { it.eventId == Event.SHAKE.id }
+        return flowOf(shakeAction)
+    }
 
     // Test methods
     fun setEventActions(eventActions: List<EventAction>) {
