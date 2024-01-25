@@ -7,6 +7,11 @@ interface PreferencesRepository {
 
     val serverAddressFlow: Flow<String>
 
+    /**
+     * Recent server addresses, from the oldest to the most recent
+     */
+    val serverAddressesFlow: Flow<List<String>>
+
     val audioCompressionFlow: Flow<Int>
 
     suspend fun setServerAddress(serverAddress: String)
