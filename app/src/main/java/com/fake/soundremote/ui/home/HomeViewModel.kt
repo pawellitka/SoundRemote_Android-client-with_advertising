@@ -24,6 +24,7 @@ import javax.inject.Inject
 data class HomeUIState(
     val keystrokes: List<HomeKeystrokeUIState> = emptyList(),
     val serverAddress: String = "",
+    val recentServersAddresses: List<String> = emptyList(),
     val connectionStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED,
     val isMuted: Boolean = false,
 )
@@ -43,9 +44,9 @@ internal class HomeViewModel @Inject constructor(
 
     val homeUIState: StateFlow<HomeUIState> = combine(
         keystrokeRepository.getFavouredOrdered(true),
-        userPreferencesRepo.serverAddressFlow,
+        userPreferencesRepo.serverAddressesFlow,
         serviceManager.serviceState,
-    ) { keystrokes, address, serviceState ->
+    ) { keystrokes, addresses, serviceState ->
         val keystrokeStates = keystrokes.map { keystroke ->
             HomeKeystrokeUIState(
                 id = keystroke.id,
@@ -58,7 +59,8 @@ internal class HomeViewModel @Inject constructor(
         }
         HomeUIState(
             keystrokes = keystrokeStates,
-            serverAddress = address,
+            serverAddress = addresses.last(),
+            recentServersAddresses = addresses.subList(0, addresses.lastIndex),
             connectionStatus = serviceState.connectionStatus,
             isMuted = serviceState.isMuted,
         )
