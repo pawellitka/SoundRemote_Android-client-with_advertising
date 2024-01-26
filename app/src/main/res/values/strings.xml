@@ -45,6 +45,8 @@
     <string name="action_about">About</string>
     <string name="action_edit_keystrokes">Edit keystrokes</string>
     <string name="action_events">Events</string>
+    <string name="action_recent_servers">Show recent servers</string>
+    <string name="recent_servers_title">Recent servers</string>
 
     <!--Notification-->
     <string name="notification_title">SoundRemote</string>
