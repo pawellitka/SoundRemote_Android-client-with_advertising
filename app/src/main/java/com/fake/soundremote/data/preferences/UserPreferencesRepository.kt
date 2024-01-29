@@ -12,6 +12,7 @@ import com.fake.soundremote.util.DEFAULT_SERVER_ADDRESS
 import com.fake.soundremote.util.DEFAULT_SERVER_PORT
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
@@ -70,7 +71,7 @@ class UserPreferencesRepository @Inject constructor(
     override val audioCompressionFlow: Flow<Int> = preferencesFlow
         .map { preferences ->
             preferences[PreferencesKeys.AUDIO_COMPRESSION] ?: DEFAULT_AUDIO_COMPRESSION
-        }
+        }.distinctUntilChanged()
 
     override suspend fun setServerAddress(serverAddress: String) {
         val current = LinkedHashSet(serverAddressesFlow.first())
