@@ -26,7 +26,6 @@ data class SettingsScreenPreferences(
 
 private const val KEY_SERVER_PORT = "server_port"
 private const val KEY_CLIENT_PORT = "client_port"
-private const val KEY_SERVER_ADDRESS = "server_address"
 private const val KEY_SERVER_ADDRESSES = "server_addresses"
 private const val KEY_AUDIO_COMPRESSION = "audio_compression"
 
@@ -38,7 +37,6 @@ class UserPreferencesRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
 ) : PreferencesRepository {
     private object PreferencesKeys {
-        val SERVER_ADDRESS = stringPreferencesKey(KEY_SERVER_ADDRESS)
         val SERVER_ADDRESSES = stringPreferencesKey(KEY_SERVER_ADDRESSES)
         val SERVER_PORT = intPreferencesKey(KEY_SERVER_PORT)
         val CLIENT_PORT = intPreferencesKey(KEY_CLIENT_PORT)
@@ -61,11 +59,6 @@ class UserPreferencesRepository @Inject constructor(
             val audioCompression =
                 preferences[PreferencesKeys.AUDIO_COMPRESSION] ?: DEFAULT_AUDIO_COMPRESSION
             SettingsScreenPreferences(serverPort, clientPort, audioCompression)
-        }
-
-    override val serverAddressFlow: Flow<String> = preferencesFlow
-        .map { preferences ->
-            preferences[PreferencesKeys.SERVER_ADDRESS] ?: DEFAULT_SERVER_ADDRESS
         }
 
     override val serverAddressesFlow: Flow<List<String>> = preferencesFlow
