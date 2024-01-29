@@ -79,7 +79,7 @@ internal fun KeystrokeScreen(
 ) {
     val invalidKeyError = stringResource(R.string.error_invalid_key)
 
-    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+    Column {
         TopAppBar(
             title = {
                 val title = when (state.mode) {
@@ -108,18 +108,41 @@ internal fun KeystrokeScreen(
                 }
             }
         )
-        KeySelect(
-            keyCode = state.keyCode,
-            keyGroupIndex = state.keyGroupIndex,
-            onKeyCodeChange = { onKeyCodeChange(it) }
-        )
-        if (compactHeight) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-            ) {
+        Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+            KeySelect(
+                keyCode = state.keyCode,
+                keyGroupIndex = state.keyGroupIndex,
+                onKeyCodeChange = { onKeyCodeChange(it) }
+            )
+            if (compactHeight) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                ) {
+                    ModSelectItem(
+                        text = stringResource(R.string.win_checkbox_label),
+                        checkedProvider = { state.win },
+                        onCheckedChange = { onWinChange(it) },
+                    )
+                    ModSelectItem(
+                        text = stringResource(R.string.ctrl_checkbox_label),
+                        checkedProvider = { state.ctrl },
+                        onCheckedChange = { onCtrlChange(it) },
+                    )
+                    ModSelectItem(
+                        text = stringResource(R.string.shift_checkbox_label),
+                        checkedProvider = { state.shift },
+                        onCheckedChange = { onShiftChange(it) },
+                    )
+                    ModSelectItem(
+                        text = stringResource(R.string.alt_checkbox_label),
+                        checkedProvider = { state.alt },
+                        onCheckedChange = { onAltChange(it) },
+                    )
+                }
+            } else {
                 ModSelectItem(
                     text = stringResource(R.string.win_checkbox_label),
                     checkedProvider = { state.win },
@@ -141,32 +164,11 @@ internal fun KeystrokeScreen(
                     onCheckedChange = { onAltChange(it) },
                 )
             }
-        } else {
-            ModSelectItem(
-                text = stringResource(R.string.win_checkbox_label),
-                checkedProvider = { state.win },
-                onCheckedChange = { onWinChange(it) },
-            )
-            ModSelectItem(
-                text = stringResource(R.string.ctrl_checkbox_label),
-                checkedProvider = { state.ctrl },
-                onCheckedChange = { onCtrlChange(it) },
-            )
-            ModSelectItem(
-                text = stringResource(R.string.shift_checkbox_label),
-                checkedProvider = { state.shift },
-                onCheckedChange = { onShiftChange(it) },
-            )
-            ModSelectItem(
-                text = stringResource(R.string.alt_checkbox_label),
-                checkedProvider = { state.alt },
-                onCheckedChange = { onAltChange(it) },
+            NameEdit(
+                value = state.name,
+                onChange = { onNameChange(it) },
             )
         }
-        NameEdit(
-            value = state.name,
-            onChange = { onNameChange(it) },
-        )
     }
 }
 

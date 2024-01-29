@@ -3,6 +3,7 @@ package com.fake.soundremote.ui.home
 import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,12 +18,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
@@ -35,6 +40,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,6 +50,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -108,6 +115,7 @@ internal fun HomeScreen(
                     if (compactHeight) {
                         ConnectComponent(
                             address = address,
+                            recentAddresses = uiState.recentServersAddresses,
                             onAddressChange = onAddressChange,
                             connectionStatus = uiState.connectionStatus,
                             onConnect = { onConnect(it) },
@@ -180,6 +188,7 @@ internal fun HomeScreen(
         if (!compactHeight) {
             ConnectComponent(
                 address = address,
+                recentAddresses = uiState.recentServersAddresses,
                 onAddressChange = onAddressChange,
                 connectionStatus = uiState.connectionStatus,
                 onConnect = { onConnect(it) },
@@ -207,6 +216,7 @@ internal fun HomeScreen(
 @Composable
 private fun ConnectComponent(
     address: TextFieldValue,
+    recentAddresses: List<String>,
     onAddressChange: (TextFieldValue) -> Unit,
     connectionStatus: ConnectionStatus,
     onConnect: (String) -> Unit,
@@ -220,6 +230,7 @@ private fun ConnectComponent(
     ) {
         AddressEdit(
             address = address,
+            recentAddresses = recentAddresses,
             onChange = onAddressChange,
             onConnect = { onConnect(address.text) },
             modifier = Modifier.weight(1f),
@@ -249,6 +260,7 @@ private fun cleanAddressInput(newValue: TextFieldValue, oldValue: TextFieldValue
 @Composable
 private fun AddressEdit(
     address: TextFieldValue,
+    recentAddresses: List<String>,
     onChange: (TextFieldValue) -> Unit,
     onConnect: () -> Unit,
     topBar: Boolean,
@@ -260,6 +272,7 @@ private fun AddressEdit(
     } else {
         { Text(stringResource(R.string.address_label)) }
     }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     OutlinedTextField(
         value = address,
         onValueChange = onChange,
@@ -270,8 +283,55 @@ private fun AddressEdit(
             keyboardType = KeyboardType.Number,
         ),
         keyboardActions = KeyboardActions(onAny = { onConnect() }),
-        modifier = modifier
+        trailingIcon = if (recentAddresses.isEmpty()) {
+            null
+        } else {
+            {
+                Icon(
+                    Icons.Default.ArrowDropDown,
+                    stringResource(R.string.action_recent_servers),
+                    Modifier
+                        .size(24.dp)
+                        .rotate(if (expanded) 180f else 0f)
+                        .clickable { expanded = !expanded },
+                )
+            }
+        },
+        modifier = modifier,
     )
+    if (expanded) {
+        AlertDialog(
+            title = {
+                Text(stringResource(R.string.recent_servers_title))
+            },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    for (i in recentAddresses.indices.reversed()) {
+                        ListItemHeadline(
+                            text = recentAddresses[i],
+                            modifier = Modifier
+                                .clickable {
+                                    onChange(TextFieldValue(recentAddresses[i]))
+                                    expanded = false
+                                }
+                                .height(56.dp)
+                                .fillMaxWidth()
+                                .then(paddingMod),
+                        )
+                    }
+                }
+            },
+            onDismissRequest = { expanded = false },
+            dismissButton = {
+                TextButton(
+                    onClick = { expanded = false }
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+            confirmButton = {},
+        )
+    }
 }
 
 @Composable

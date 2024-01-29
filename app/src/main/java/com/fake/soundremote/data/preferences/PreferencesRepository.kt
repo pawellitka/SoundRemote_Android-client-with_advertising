@@ -5,7 +5,10 @@ import kotlinx.coroutines.flow.Flow
 interface PreferencesRepository {
     val settingsScreenPreferencesFlow: Flow<SettingsScreenPreferences>
 
-    val serverAddressFlow: Flow<String>
+    /**
+     * Recent server addresses, from the oldest to the most recent
+     */
+    val serverAddressesFlow: Flow<List<String>>
 
     val audioCompressionFlow: Flow<Int>
 

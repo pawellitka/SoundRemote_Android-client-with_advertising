@@ -34,6 +34,8 @@ internal class HomeScreenTest {
     private val unmute by composeTestRule.stringResource(R.string.unmute)
     private val connect by composeTestRule.stringResource(R.string.connect_caption)
     private val disconnect by composeTestRule.stringResource(R.string.disconnect_caption)
+    private val showRecentServers by composeTestRule.stringResource(R.string.action_recent_servers)
+    private val recentServersTitle by composeTestRule.stringResource(R.string.recent_servers_title)
 
     // Home screen should not contain navigate up arrow
     @Test
@@ -209,6 +211,44 @@ internal class HomeScreenTest {
         composeTestRule.onNodeWithText(keystrokeName).performTouchInput { longClick() }
 
         assertEquals(expectedId, editKeystrokeId)
+    }
+
+    // Click on recent servers button shows recent servers dialog
+    @Test
+    fun recentServersButton_click_showsRecentServersDialog() {
+        val recentServer = "123.45.67.89"
+        composeTestRule.setContent {
+            val uiState = HomeUIState(
+                recentServersAddresses = listOf(recentServer),
+            )
+            CreateHomeScreen(uiState = uiState)
+        }
+
+        composeTestRule.onNodeWithContentDescription(showRecentServers).performClick()
+
+        composeTestRule.onNodeWithText(recentServersTitle).assertIsDisplayed()
+        composeTestRule.onNodeWithText(recentServer).assertIsDisplayed()
+    }
+
+    // Click on recent server updates server address edit
+    @Test
+    fun recentServer_click_updatesAddressEdit() {
+        val recentServer = "123.45.67.89"
+        composeTestRule.setContent {
+            val uiState = HomeUIState(
+                serverAddress = "",
+                recentServersAddresses = listOf(recentServer),
+            )
+            CreateHomeScreen(uiState = uiState)
+        }
+
+        composeTestRule.onNodeWithContentDescription(showRecentServers).performClick()
+        composeTestRule.onNodeWithText(recentServer).performClick()
+
+        // Dialog is closed
+        composeTestRule.onNodeWithText(recentServersTitle).assertDoesNotExist()
+        // Clicked address is displayed
+        composeTestRule.onNodeWithText(recentServer).assertIsDisplayed()
     }
 
     @Suppress("TestFunctionName")

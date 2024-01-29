@@ -149,12 +149,15 @@ class UserPreferencesRepositoryTest {
     }
 
     @Test
-    @DisplayName("serverAddressFlow updates")
+    @DisplayName("serverAddressesFlow updates")
     fun serverAddressFlow_updates() = testScope.runTest {
         val expected = "123.45.67.89"
+        val initialAddresses = testRepo.serverAddressesFlow.first()
+        // Make sure that initial list contains only the default address
+        assertEquals(listOf(DEFAULT_SERVER_ADDRESS), initialAddresses)
 
         testRepo.setServerAddress(expected)
-        val actual = testRepo.serverAddressFlow.first()
+        val actual = testRepo.serverAddressesFlow.first().last()
 
         assertEquals(expected, actual)
     }

@@ -26,15 +26,18 @@ data class SettingsScreenPreferences(
 
 private const val KEY_SERVER_PORT = "server_port"
 private const val KEY_CLIENT_PORT = "client_port"
-private const val KEY_SERVER_ADDRESS = "server_address"
+private const val KEY_SERVER_ADDRESSES = "server_addresses"
 private const val KEY_AUDIO_COMPRESSION = "audio_compression"
+
+private const val SERVER_ADDRESSES_DELIMITER = ';'
+private const val SERVER_ADDRESSES_LIMIT = 5
 
 @Singleton
 class UserPreferencesRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
 ) : PreferencesRepository {
     private object PreferencesKeys {
-        val SERVER_ADDRESS = stringPreferencesKey(KEY_SERVER_ADDRESS)
+        val SERVER_ADDRESSES = stringPreferencesKey(KEY_SERVER_ADDRESSES)
         val SERVER_PORT = intPreferencesKey(KEY_SERVER_PORT)
         val CLIENT_PORT = intPreferencesKey(KEY_CLIENT_PORT)
         val AUDIO_COMPRESSION = intPreferencesKey(KEY_AUDIO_COMPRESSION)
@@ -58,9 +61,10 @@ class UserPreferencesRepository @Inject constructor(
             SettingsScreenPreferences(serverPort, clientPort, audioCompression)
         }
 
-    override val serverAddressFlow: Flow<String> = preferencesFlow
+    override val serverAddressesFlow: Flow<List<String>> = preferencesFlow
         .map { preferences ->
-            preferences[PreferencesKeys.SERVER_ADDRESS] ?: DEFAULT_SERVER_ADDRESS
+            preferences[PreferencesKeys.SERVER_ADDRESSES]
+                ?.split(SERVER_ADDRESSES_DELIMITER) ?: listOf(DEFAULT_SERVER_ADDRESS)
         }
 
     override val audioCompressionFlow: Flow<Int> = preferencesFlow
@@ -69,14 +73,22 @@ class UserPreferencesRepository @Inject constructor(
         }
 
     override suspend fun setServerAddress(serverAddress: String) {
+        val current = LinkedHashSet(serverAddressesFlow.first())
+        current.remove(serverAddress)
+        current.add(serverAddress)
+        while (current.size > SERVER_ADDRESSES_LIMIT) {
+            current.remove(current.first())
+        }
         dataStore.edit { prefs ->
-            prefs[PreferencesKeys.SERVER_ADDRESS] = serverAddress
+            prefs[PreferencesKeys.SERVER_ADDRESSES] = current
+                .joinToString(SERVER_ADDRESSES_DELIMITER.toString())
         }
     }
 
     override suspend fun getServerAddress(): String = preferencesFlow
         .map { preferences ->
-            preferences[PreferencesKeys.SERVER_ADDRESS] ?: DEFAULT_SERVER_ADDRESS
+            preferences[PreferencesKeys.SERVER_ADDRESSES]
+                ?.substringAfterLast(SERVER_ADDRESSES_DELIMITER) ?: DEFAULT_SERVER_ADDRESS
         }.first()
 
     override suspend fun setServerPort(value: Int) {
