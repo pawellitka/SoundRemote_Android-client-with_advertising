@@ -12,16 +12,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.RichTooltipBox
-import androidx.compose.material3.RichTooltipState
+import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -192,7 +194,7 @@ private fun EventItem(
                 PermissionInfo(permissionState, permissionNameId)
             }
         }
-        Divider()
+        HorizontalDivider()
     }
 }
 
@@ -203,7 +205,7 @@ private fun PermissionInfo(
     permissionNameStringId: Int,
 ) {
     val scope = rememberCoroutineScope()
-    val tooltipState = remember { RichTooltipState() }
+    val tooltipState = rememberTooltipState(isPersistent = true)
 
     val permissionText = if (permissionState.status.isGranted) {
         stringResource(R.string.permission_granted_caption)
@@ -230,30 +232,37 @@ private fun PermissionInfo(
                 style = typography.labelSmall,
             )
         }
-        RichTooltipBox(
-            title = { Text(stringResource(R.string.permission_tooltip_title)) },
-            text = {
-                Text(
-                    stringResource(R.string.permission_tooltip_text_template)
-                        .format(stringResource(permissionNameStringId))
-                )
-            },
-            action = {
-                val context = LocalContext.current
-                TextButton(
-                    onClick = {
-                        showAppInfo(context)
-                        scope.launch {
-                            tooltipState.dismiss()
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+            tooltip = {
+                RichTooltip(
+                    title = {
+                        Text(stringResource(R.string.permission_tooltip_title))
+                    },
+                    action = {
+                        val context = LocalContext.current
+                        TextButton(
+                            onClick = {
+                                showAppInfo(context)
+                                scope.launch {
+                                    tooltipState.dismiss()
+                                }
+                            }
+                        ) {
+                            Text(stringResource(R.string.app_info))
                         }
                     }
-                ) { Text(stringResource(R.string.app_info)) }
+                ) {
+                    Text(
+                        stringResource(R.string.permission_tooltip_text_template)
+                            .format(stringResource(permissionNameStringId))
+                    )
+                }
             },
-            tooltipState = tooltipState,
+            state = tooltipState,
         ) {
             IconButton(
                 onClick = { scope.launch { tooltipState.show() } },
-                modifier = Modifier.tooltipAnchor()
             ) {
                 Icon(Icons.Default.Info, stringResource(R.string.permission_show_info_caption))
             }

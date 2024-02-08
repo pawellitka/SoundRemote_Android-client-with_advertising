@@ -23,16 +23,16 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
@@ -173,7 +173,7 @@ internal fun HomeScreen(
                                 onNavigateToSettings()
                             },
                         )
-                        Divider()
+                        HorizontalDivider()
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_about)) },
                             onClick = {
@@ -355,7 +355,7 @@ private fun ConnectButton(
 
             ConnectionStatus.CONNECTED -> {
                 CircularProgressIndicator(
-                    progress = 1f,
+                    progress = { 1f },
                     modifier = statusIndicatorSize,
                     color = connectedColor,
                 )
@@ -367,7 +367,7 @@ private fun ConnectButton(
                     onClick = onConnect,
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowForward,
+                        imageVector = Icons.AutoMirrored.Default.ArrowForward,
                         contentDescription = stringResource(R.string.connect_caption),
                     )
                 }
