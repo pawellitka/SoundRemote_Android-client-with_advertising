@@ -1,6 +1,5 @@
 package com.fake.soundremote.ui
 
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -26,7 +25,6 @@ import com.fake.soundremote.ui.keystrokelist.navigateToKeystrokeList
 import com.fake.soundremote.ui.settings.navigateToSettings
 import com.fake.soundremote.ui.settings.settingsScreen
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AppNavigation(
     windowSizeClass: WindowSizeClass,

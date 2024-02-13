@@ -292,7 +292,7 @@ private fun KeySelectCombobox(
     }
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
+        onExpandedChange = { expanded = it },
         modifier = modifier.then(sharedMod)
     ) {
         OutlinedTextField(
@@ -306,7 +306,7 @@ private fun KeySelectCombobox(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
-//            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -329,6 +329,7 @@ private fun KeySelectCombobox(
                         onSelectKey(key.keyCode)
                         expanded = false
                     },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                 )
             }
         }

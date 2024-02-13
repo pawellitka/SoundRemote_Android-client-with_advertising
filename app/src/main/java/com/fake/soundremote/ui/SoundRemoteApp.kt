@@ -1,5 +1,6 @@
 package com.fake.soundremote.ui
 
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -11,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -54,6 +56,7 @@ internal fun SoundRemoteApp(
     }
 
     Scaffold(
+        modifier = Modifier.safeDrawingPadding(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = { fab?.invoke() }
     ) { paddingValues ->
