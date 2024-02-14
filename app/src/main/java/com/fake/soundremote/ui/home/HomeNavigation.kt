@@ -46,6 +46,7 @@ fun NavGraphBuilder.homeScreen(
             onConnect = { viewModel.connect(it) },
             onDisconnect = viewModel::disconnect,
             onSendKeystroke = { viewModel.sendKeystroke(it) },
+            onSendKey = { viewModel.sendKey(it) },
             onSetMuted = { viewModel.setMuted(it) },
             onMessageShown = viewModel::messageShown,
             onNavigateToEvents = {
