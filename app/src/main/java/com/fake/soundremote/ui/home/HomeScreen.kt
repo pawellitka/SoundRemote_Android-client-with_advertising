@@ -134,12 +134,12 @@ internal fun HomeScreen(
                 ) {
                     if (uiState.isMuted) {
                         Icon(
-                            painter = painterResource(R.drawable.sound_off_24),
+                            painter = painterResource(R.drawable.ic_volume_mute),
                             contentDescription = stringResource(R.string.unmute)
                         )
                     } else {
                         Icon(
-                            painter = painterResource(R.drawable.sound_on_24),
+                            painter = painterResource(R.drawable.ic_volume_up),
                             contentDescription = stringResource(R.string.mute)
                         )
                     }
