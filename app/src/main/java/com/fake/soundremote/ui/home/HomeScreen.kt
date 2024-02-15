@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -200,7 +199,7 @@ internal fun HomeScreen(
         }
         LazyColumn(
             modifier = Modifier
-                .fillMaxHeight()
+                .weight(1f)
                 .padding(top = 8.dp, bottom = 8.dp),
         ) {
             items(items = uiState.keystrokes, key = { it.id }) { keystroke ->
@@ -212,6 +211,7 @@ internal fun HomeScreen(
                 )
             }
         }
+        MediaBar(onSendKey)
     }
 }
 
