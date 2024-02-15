@@ -116,6 +116,15 @@
     <string name="key_group_control">Control</string>
     <string name="key_group_function">Function</string>
 
+    <!--Media keys-->
+    <string name="media_play_pause">Play/pause</string>
+    <string name="media_stop">Stop</string>
+    <string name="media_previous">Previous</string>
+    <string name="media_next">Next</string>
+    <string name="media_mute">Mute</string>
+    <string name="media_volume_up">Volume up</string>
+    <string name="media_volume_down">Volume down</string>
+
     <!--Typing keys descriptions-->
     <string name="key_desc_tilde">Grave accent/Tilde</string>
     <string name="key_desc_minus">Minus/Underscore</string>
