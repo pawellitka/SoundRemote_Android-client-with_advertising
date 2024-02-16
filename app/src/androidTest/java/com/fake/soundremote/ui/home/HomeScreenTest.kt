@@ -19,6 +19,7 @@ import com.fake.soundremote.R
 import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.ConnectionStatus
+import com.fake.soundremote.util.Key
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -30,12 +31,13 @@ internal class HomeScreenTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private val navigateUp by composeTestRule.stringResource(R.string.navigate_up)
-    private val mute by composeTestRule.stringResource(R.string.mute)
-    private val unmute by composeTestRule.stringResource(R.string.unmute)
+    private val muteApp by composeTestRule.stringResource(R.string.action_mute_app)
+    private val unmuteApp by composeTestRule.stringResource(R.string.action_unmute_app)
     private val connect by composeTestRule.stringResource(R.string.connect_caption)
     private val disconnect by composeTestRule.stringResource(R.string.disconnect_caption)
     private val showRecentServers by composeTestRule.stringResource(R.string.action_recent_servers)
     private val recentServersTitle by composeTestRule.stringResource(R.string.recent_servers_title)
+    private val mediaStop by composeTestRule.stringResource(R.string.media_stop)
 
     // Home screen should not contain navigate up arrow
     @Test
@@ -55,8 +57,8 @@ internal class HomeScreenTest {
             CreateHomeScreen(uiState = uiState)
         }
 
-        composeTestRule.onNodeWithContentDescription(mute).assertIsDisplayed()
-        composeTestRule.onNodeWithContentDescription(mute).assert(isOff())
+        composeTestRule.onNodeWithContentDescription(muteApp).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(muteApp).assert(isOff())
     }
 
     // Mute button is toggled when muted state is on
@@ -67,8 +69,8 @@ internal class HomeScreenTest {
             CreateHomeScreen(uiState = uiState)
         }
 
-        composeTestRule.onNodeWithContentDescription(unmute).assertIsDisplayed()
-        composeTestRule.onNodeWithContentDescription(unmute).assert(isOn())
+        composeTestRule.onNodeWithContentDescription(unmuteApp).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(unmuteApp).assert(isOn())
     }
 
     // Click on mute button mutes
@@ -80,7 +82,7 @@ internal class HomeScreenTest {
             CreateHomeScreen(uiState = uiState, onSetMuted = { actual = it })
         }
 
-        composeTestRule.onNodeWithContentDescription(mute).performClick()
+        composeTestRule.onNodeWithContentDescription(muteApp).performClick()
 
         assertTrue(actual)
     }
@@ -94,9 +96,22 @@ internal class HomeScreenTest {
             CreateHomeScreen(uiState = uiState, onSetMuted = { actual = it })
         }
 
-        composeTestRule.onNodeWithContentDescription(unmute).performClick()
+        composeTestRule.onNodeWithContentDescription(unmuteApp).performClick()
 
         assertFalse(actual)
+    }
+
+    // Click on MediaBar button invokes callback
+    @Test
+    fun mediaButton_click_sendsKey() {
+        var actual: Key? = null
+        composeTestRule.setContent {
+            CreateHomeScreen(onSendKey = { actual = it })
+        }
+
+        composeTestRule.onNodeWithContentDescription(mediaStop).performClick()
+
+        assertEquals(Key.MEDIA_STOP, actual)
     }
 
     // Connect button is displayed when disconnected
@@ -258,6 +273,7 @@ internal class HomeScreenTest {
         uiState: HomeUIState = HomeUIState(),
         @StringRes messageId: Int? = null,
         onSendKeystroke: (Int) -> Unit = {},
+        onSendKey: (Key) -> Unit = {},
         onEditKeystroke: (Int) -> Unit = {},
         onConnect: (String) -> Unit = {},
         onDisconnect: () -> Unit = {},
@@ -273,6 +289,7 @@ internal class HomeScreenTest {
                 uiState = uiState,
                 messageId = messageId,
                 onSendKeystroke = onSendKeystroke,
+                onSendKey = onSendKey,
                 onNavigateToEditKeystroke = onEditKeystroke,
                 onConnect = onConnect,
                 onDisconnect = onDisconnect,
