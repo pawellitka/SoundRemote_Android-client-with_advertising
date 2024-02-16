@@ -8,6 +8,7 @@ import com.fake.soundremote.service.ServiceState
 import com.fake.soundremote.service.TestServiceManager
 import com.fake.soundremote.ui.home.HomeViewModel
 import com.fake.soundremote.util.ConnectionStatus
+import com.fake.soundremote.util.Key
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -134,6 +135,17 @@ class HomeViewModelTest {
         viewModel.sendKeystroke(id)
 
         val actual = serviceManager.sentKeystroke
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    @DisplayName("sendKey() calls ServiceManger.sendKey()")
+    fun sendKey_callsService() = runTest {
+        val expected = Key.MEDIA_PLAY_PAUSE
+
+        viewModel.sendKey(expected)
+
+        val actual = serviceManager.sentKey
         assertEquals(expected, actual)
     }
 }

@@ -7,6 +7,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.util.ConnectionStatus
+import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.SystemMessage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -69,6 +70,11 @@ internal class MainServiceManager(
     override fun sendKeystroke(keystroke: Keystroke) {
         if (!bound) return
         service.get()?.sendKeystroke(keystroke)
+    }
+
+    override fun sendKey(key: Key) {
+        if (!bound) return
+        service.get()?.sendKey(key)
     }
 
     override fun setMuted(value: Boolean) {

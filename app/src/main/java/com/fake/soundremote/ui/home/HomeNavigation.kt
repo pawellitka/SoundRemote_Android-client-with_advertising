@@ -1,6 +1,6 @@
 package com.fake.soundremote.ui.home
 
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +47,7 @@ fun NavGraphBuilder.homeScreen(
             onConnect = { viewModel.connect(it) },
             onDisconnect = viewModel::disconnect,
             onSendKeystroke = { viewModel.sendKeystroke(it) },
+            onSendKey = { viewModel.sendKey(it) },
             onSetMuted = { viewModel.setMuted(it) },
             onMessageShown = viewModel::messageShown,
             onNavigateToEvents = {
@@ -75,7 +77,7 @@ fun NavGraphBuilder.homeScreen(
                         }
                     },
                     modifier = Modifier
-                        .navigationBarsPadding(),
+                        .padding(bottom = 48.dp),
                 ) {
                     Icon(Icons.Default.Edit, stringResource(R.string.action_edit_keystrokes))
                 }

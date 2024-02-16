@@ -272,6 +272,10 @@ internal class MainService : MediaBrowserServiceCompat() {
         connection.sendKeystroke(keystroke.keyCode, keystroke.mods)
     }
 
+    fun sendKey(key: Key) {
+        connection.sendKeystroke(key.keyCode)
+    }
+
     private suspend fun sendKeystroke(keystrokeId: Int) {
         keystrokeRepository.getById(keystrokeId)?.let {
             sendKeystroke(it)

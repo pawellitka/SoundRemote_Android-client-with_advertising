@@ -3,6 +3,7 @@ package com.fake.soundremote.service
 import android.content.Context
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.util.ConnectionStatus
+import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.SystemMessage
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +16,7 @@ internal interface ServiceManager {
     fun connect(address: String)
     fun disconnect()
     fun sendKeystroke(keystroke: Keystroke)
+    fun sendKey(key: Key)
     fun setMuted(value: Boolean)
 }
 

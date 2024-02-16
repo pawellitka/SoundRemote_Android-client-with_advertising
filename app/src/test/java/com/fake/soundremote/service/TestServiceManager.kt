@@ -3,6 +3,7 @@ package com.fake.soundremote.service
 import android.content.Context
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.util.ConnectionStatus
+import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.SystemMessage
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +41,10 @@ internal class TestServiceManager : ServiceManager {
         sentKeystroke = keystroke
     }
 
+    override fun sendKey(key: Key) {
+        sentKey = key
+    }
+
     override fun setMuted(value: Boolean) {
         _serviceState.update {
             it.copy(isMuted = value)
@@ -52,4 +57,5 @@ internal class TestServiceManager : ServiceManager {
     }
 
     var sentKeystroke: Keystroke? = null
+    var sentKey: Key? = null
 }

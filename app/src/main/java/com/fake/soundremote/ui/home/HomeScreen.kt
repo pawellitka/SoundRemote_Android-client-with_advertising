@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -66,6 +65,7 @@ import com.fake.soundremote.ui.components.ListItemHeadline
 import com.fake.soundremote.ui.components.ListItemSupport
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.ConnectionStatus
+import com.fake.soundremote.util.Key
 
 private val paddingMod = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp)
 private val keystrokeItemModifier = Modifier
@@ -78,11 +78,12 @@ private val keystrokeItemModifier = Modifier
 internal fun HomeScreen(
     uiState: HomeUIState,
     @StringRes messageId: Int?,
-    onSendKeystroke: (Int) -> Unit,
-    onNavigateToEditKeystroke: (Int) -> Unit,
-    onConnect: (String) -> Unit,
+    onSendKeystroke: (keystrokeId: Int) -> Unit,
+    onSendKey: (Key) -> Unit,
+    onNavigateToEditKeystroke: (keystrokeId: Int) -> Unit,
+    onConnect: (address: String) -> Unit,
     onDisconnect: () -> Unit,
-    onSetMuted: (Boolean) -> Unit,
+    onSetMuted: (muted: Boolean) -> Unit,
     onMessageShown: () -> Unit,
     onNavigateToEvents: () -> Unit,
     onNavigateToSettings: () -> Unit,
@@ -132,13 +133,13 @@ internal fun HomeScreen(
                 ) {
                     if (uiState.isMuted) {
                         Icon(
-                            painter = painterResource(R.drawable.sound_off_24),
-                            contentDescription = stringResource(R.string.unmute)
+                            painter = painterResource(R.drawable.ic_volume_mute),
+                            contentDescription = stringResource(R.string.action_unmute_app)
                         )
                     } else {
                         Icon(
-                            painter = painterResource(R.drawable.sound_on_24),
-                            contentDescription = stringResource(R.string.mute)
+                            painter = painterResource(R.drawable.ic_volume_up),
+                            contentDescription = stringResource(R.string.action_mute_app)
                         )
                     }
                 }
@@ -198,8 +199,7 @@ internal fun HomeScreen(
         }
         LazyColumn(
             modifier = Modifier
-                .fillMaxHeight()
-                .padding(top = 8.dp, bottom = 8.dp),
+                .weight(1f),
         ) {
             items(items = uiState.keystrokes, key = { it.id }) { keystroke ->
                 KeystrokeItem(
@@ -210,6 +210,7 @@ internal fun HomeScreen(
                 )
             }
         }
+        MediaBar(onSendKey)
     }
 }
 
@@ -467,6 +468,7 @@ private fun HomePreview(compactHeight: Boolean) {
             },
             onSetMuted = {},
             onSendKeystroke = {},
+            onSendKey = {},
             onMessageShown = {},
             onNavigateToEvents = {},
             onNavigateToSettings = {},

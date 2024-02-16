@@ -8,8 +8,6 @@
     <string name="clear">Clear</string>
     <string name="navigate_up">Navigate up</string>
     <string name="app_info">App info</string>
-    <string name="mute">Mute</string>
-    <string name="unmute">Unmute</string>
     <string name="input_field">Input field</string>
 
     <!--Permission-->
@@ -47,6 +45,8 @@
     <string name="action_events">Events</string>
     <string name="action_recent_servers">Show recent servers</string>
     <string name="recent_servers_title">Recent servers</string>
+    <string name="action_mute_app">Mute application</string>
+    <string name="action_unmute_app">Unmute application</string>
 
     <!--Notification-->
     <string name="notification_title">SoundRemote</string>
@@ -115,6 +115,15 @@
     <string name="key_group_numpad">Numpad</string>
     <string name="key_group_control">Control</string>
     <string name="key_group_function">Function</string>
+
+    <!--Media keys-->
+    <string name="media_play_pause">Play/pause</string>
+    <string name="media_stop">Stop</string>
+    <string name="media_previous">Previous</string>
+    <string name="media_next">Next</string>
+    <string name="media_mute">Mute</string>
+    <string name="media_volume_up">Volume up</string>
+    <string name="media_volume_down">Volume down</string>
 
     <!--Typing keys descriptions-->
     <string name="key_desc_tilde">Grave accent/Tilde</string>

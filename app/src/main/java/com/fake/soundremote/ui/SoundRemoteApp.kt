@@ -58,7 +58,7 @@ internal fun SoundRemoteApp(
     Scaffold(
         modifier = Modifier.safeDrawingPadding(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButton = { fab?.invoke() }
+        floatingActionButton = { fab?.invoke() },
     ) { paddingValues ->
         AppNavigation(
             windowSizeClass,

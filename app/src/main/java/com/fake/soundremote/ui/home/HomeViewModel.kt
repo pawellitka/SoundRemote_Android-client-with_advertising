@@ -11,6 +11,7 @@ import com.fake.soundremote.data.KeystrokeRepository
 import com.fake.soundremote.data.preferences.PreferencesRepository
 import com.fake.soundremote.service.ServiceManager
 import com.fake.soundremote.util.ConnectionStatus
+import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.generateDescription
 import com.google.common.net.InetAddresses
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -106,6 +107,10 @@ internal class HomeViewModel @Inject constructor(
                 serviceManager.sendKeystroke(it)
             }
         }
+    }
+
+    fun sendKey(key: Key) {
+        serviceManager.sendKey(key)
     }
 
     fun setMuted(value: Boolean) {
