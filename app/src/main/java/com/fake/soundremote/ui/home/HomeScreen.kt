@@ -134,12 +134,12 @@ internal fun HomeScreen(
                     if (uiState.isMuted) {
                         Icon(
                             painter = painterResource(R.drawable.ic_volume_mute),
-                            contentDescription = stringResource(R.string.unmute)
+                            contentDescription = stringResource(R.string.action_unmute_app)
                         )
                     } else {
                         Icon(
                             painter = painterResource(R.drawable.ic_volume_up),
-                            contentDescription = stringResource(R.string.mute)
+                            contentDescription = stringResource(R.string.action_mute_app)
                         )
                     }
                 }
@@ -199,8 +199,7 @@ internal fun HomeScreen(
         }
         LazyColumn(
             modifier = Modifier
-                .weight(1f)
-                .padding(top = 8.dp, bottom = 8.dp),
+                .weight(1f),
         ) {
             items(items = uiState.keystrokes, key = { it.id }) { keystroke ->
                 KeystrokeItem(

@@ -23,7 +23,7 @@ fun MediaBar(
 ) {
     Row(
         modifier = Modifier
-            .background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
+            .background(color = MaterialTheme.colorScheme.surfaceContainer)
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
     ) {
