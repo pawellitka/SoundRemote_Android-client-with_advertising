@@ -12,6 +12,11 @@ class TestKeystrokeRepository : KeystrokeRepository {
     private val currentKeystrokes get() = _keystrokesFlow.replayCache.firstOrNull() ?: emptyList()
     private val id = AtomicLong(1)
 
+    init {
+        // Set the initial value
+        _keystrokesFlow.tryEmit(emptyList())
+    }
+
     override suspend fun getById(id: Int): Keystroke? {
         return currentKeystrokes.find { it.id == id }?.copy()
     }
