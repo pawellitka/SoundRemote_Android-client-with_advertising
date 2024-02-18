@@ -72,6 +72,38 @@ class HomeViewModelTest {
 
             collectJob.cancel()
         }
+
+        @Test
+        fun `sets address as current server address`() = runTest {
+            val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.homeUIState.collect {}
+            }
+            val expected = "123.45.67.89"
+
+            viewModel.connect("192.168.0.1")
+            viewModel.connect("192.168.0.2")
+            viewModel.connect(expected)
+
+            val actual = viewModel.homeUIState.value.serverAddress
+            assertEquals(expected, actual)
+
+            collectJob.cancel()
+        }
+
+        @Test
+        fun `adds address to 'Recent servers' list`() = runTest {
+            val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.homeUIState.collect {}
+            }
+            val expected = "123.45.67.89"
+
+            viewModel.connect(expected)
+
+            val actual = viewModel.homeUIState.value.recentServersAddresses.last()
+            assertEquals(expected, actual)
+
+            collectJob.cancel()
+        }
     }
 
     @Test
