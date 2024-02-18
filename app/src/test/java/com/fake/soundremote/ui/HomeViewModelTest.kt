@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -36,39 +37,41 @@ class HomeViewModelTest {
         viewModel = HomeViewModel(preferencesRepository, keystrokeRepository, serviceManager)
     }
 
-    @Test
-    @DisplayName("connect() with valid address changes status to CONNECTED")
-    fun connect_validAddress_changesStatus() = runTest {
-        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.homeUIState.collect {}
+    @Nested
+    @DisplayName("connect")
+    inner class Connect {
+        @Test
+        fun `with valid address changes status to CONNECTED`() = runTest {
+            val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.homeUIState.collect {}
+            }
+            keystrokeRepository.setKeystrokes(emptyList())
+
+            viewModel.connect("123.45.67.89")
+
+            val actualStatus = viewModel.homeUIState.value.connectionStatus
+            assertEquals(ConnectionStatus.CONNECTED, actualStatus)
+
+            collectJob.cancel()
         }
-        keystrokeRepository.setKeystrokes(emptyList())
 
-        viewModel.connect("123.45.67.89")
+        @Test
+        fun `with invalid address changes messageState`() = runTest {
+            val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.homeUIState.collect {}
+            }
+            keystrokeRepository.setKeystrokes(emptyList())
+            assertNull(viewModel.messageState)
 
-        val actualStatus = viewModel.homeUIState.value.connectionStatus
-        assertEquals(ConnectionStatus.CONNECTED, actualStatus)
+            viewModel.connect("Invalid address")
 
-        collectJob.cancel()
-    }
+            val actualStatus = viewModel.homeUIState.value.connectionStatus
+            assertEquals(ConnectionStatus.DISCONNECTED, actualStatus)
+            val actualMessage = viewModel.messageState
+            assertNotNull(actualMessage)
 
-    @Test
-    @DisplayName("connect() with invalid address changes messageState")
-    fun connect_invalidAddress_updatesMessage() = runTest {
-        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.homeUIState.collect {}
+            collectJob.cancel()
         }
-        keystrokeRepository.setKeystrokes(emptyList())
-        assertNull(viewModel.messageState)
-
-        viewModel.connect("Invalid address")
-
-        val actualStatus = viewModel.homeUIState.value.connectionStatus
-        assertEquals(ConnectionStatus.DISCONNECTED, actualStatus)
-        val actualMessage = viewModel.messageState
-        assertNotNull(actualMessage)
-
-        collectJob.cancel()
     }
 
     @Test
