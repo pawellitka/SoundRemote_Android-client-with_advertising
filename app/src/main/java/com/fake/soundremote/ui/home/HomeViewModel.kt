@@ -61,7 +61,7 @@ internal class HomeViewModel @Inject constructor(
         HomeUIState(
             keystrokes = keystrokeStates,
             serverAddress = addresses.last(),
-            recentServersAddresses = addresses.subList(0, addresses.lastIndex),
+            recentServersAddresses = addresses,
             connectionStatus = serviceState.connectionStatus,
             isMuted = serviceState.isMuted,
         )
