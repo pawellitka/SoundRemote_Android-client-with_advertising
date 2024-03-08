@@ -2,7 +2,7 @@ package com.fake.soundremote.network
 
 import com.fake.soundremote.network.PacketHeader.Companion.SIZE
 import com.fake.soundremote.util.Net
-import com.fake.soundremote.util.Net.getUShort
+import com.fake.soundremote.util.Net.uShort
 import com.fake.soundremote.util.PacketRequestIdType
 import java.nio.ByteBuffer
 
@@ -24,7 +24,7 @@ data class AckData(val requestId: PacketRequestIdType, val customData: ByteBuffe
          */
         fun read(source: ByteBuffer): AckData? {
             if (source.remaining() < SIZE) return null
-            val id = source.getUShort()
+            val id = source.uShort
             val customData = Net.createPacketBuffer(CUSTOM_DATA_SIZE)
             source.get(customData.array())
             return AckData(id, customData)

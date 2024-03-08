@@ -79,9 +79,8 @@ object Net {
         return get().toUByte()
     }
 
-    fun ByteBuffer.getUShort(): UShort {
-        return short.toUShort()
-    }
+    val ByteBuffer.uShort: UShort
+        get() = short.toUShort()
 
     val ByteBuffer.uInt: UInt
         get() = int.toUInt()
