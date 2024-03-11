@@ -10,13 +10,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.content.ContextCompat
 import com.fake.soundremote.service.MainService
 import com.fake.soundremote.ui.SoundRemoteApp
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.ACTION_CLOSE
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import timber.log.Timber
+import timber.log.Timber.DebugTree
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -32,6 +34,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (BuildConfig.DEBUG) {
+            Timber.plant(DebugTree())
+        }
         setContent {
             SoundRemoteTheme {
                 SoundRemoteApp(calculateWindowSizeClass(this))
