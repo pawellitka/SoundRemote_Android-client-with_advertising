@@ -1,7 +1,7 @@
 package com.fake.soundremote.network
 
 import com.fake.soundremote.network.PacketHeader.Companion.SIZE
-import com.fake.soundremote.util.Net.getUByte
+import com.fake.soundremote.util.Net.uByte
 import com.fake.soundremote.util.PacketProtocolType
 import java.nio.ByteBuffer
 
@@ -23,7 +23,7 @@ data class AckConnectData(val protocol: PacketProtocolType) {
          */
         fun read(source: ByteBuffer): AckConnectData? {
             if (source.remaining() < SIZE) return null
-            val protocol = source.getUByte()
+            val protocol = source.uByte
             return AckConnectData(protocol)
         }
     }

@@ -75,17 +75,14 @@ object Net {
             createPacket(PacketCategory.DISCONNECT, DisconnectData(), DisconnectData.SIZE)
     }
 
-    fun ByteBuffer.getUByte(): UByte {
-        return get().toUByte()
-    }
+    val ByteBuffer.uByte: UByte
+        get() = get().toUByte()
 
-    fun ByteBuffer.getUShort(): UShort {
-        return short.toUShort()
-    }
+    val ByteBuffer.uShort: UShort
+        get() = short.toUShort()
 
-    fun ByteBuffer.getUInt(): UInt {
-        return int.toUInt()
-    }
+    val ByteBuffer.uInt: UInt
+        get() = int.toUInt()
 
     fun ByteBuffer.putUByte(value: UByte): ByteBuffer {
         return put(value.toByte())

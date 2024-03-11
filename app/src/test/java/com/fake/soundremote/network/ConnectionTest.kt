@@ -5,9 +5,9 @@ import com.fake.soundremote.network.Connection.Companion.createSendChannel
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.Net.PROTOCOL_VERSION
-import com.fake.soundremote.util.Net.getUShort
 import com.fake.soundremote.util.Net.putUByte
 import com.fake.soundremote.util.Net.putUShort
+import com.fake.soundremote.util.Net.uShort
 import com.fake.soundremote.util.PacketRequestIdType
 import com.fake.soundremote.util.SystemMessage
 import io.mockk.Runs
@@ -199,7 +199,7 @@ internal class ConnectionTest {
             return null
         }
         source.get()
-        return source.getUShort()
+        return source.uShort
     }
 
     private fun writeConnectResponse(requestId: PacketRequestIdType, dest: ByteBuffer) {
