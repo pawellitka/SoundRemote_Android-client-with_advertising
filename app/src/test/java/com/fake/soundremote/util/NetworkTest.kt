@@ -1,5 +1,19 @@
 package com.fake.soundremote.util
 
+import com.fake.soundremote.network.ConnectData
+import com.fake.soundremote.network.DisconnectData
+import com.fake.soundremote.network.KeepAliveData
+import com.fake.soundremote.network.KeystrokeData
+import com.fake.soundremote.network.PacketHeader
+import com.fake.soundremote.network.SetFormatData
+import com.fake.soundremote.util.Net.COMPRESSION_256
+import com.fake.soundremote.util.Net.COMPRESSION_320
+import com.fake.soundremote.util.Net.PROTOCOL_VERSION
+import com.fake.soundremote.util.Net.getConnectPacket
+import com.fake.soundremote.util.Net.getDisconnectPacket
+import com.fake.soundremote.util.Net.getKeepAlivePacket
+import com.fake.soundremote.util.Net.getKeystrokePacket
+import com.fake.soundremote.util.Net.getSetFormatPacket
 import com.fake.soundremote.util.Net.uByte
 import com.fake.soundremote.util.Net.uInt
 import com.fake.soundremote.util.Net.uShort
@@ -93,5 +107,83 @@ internal class NetworkTest {
 
             assertEquals(4, buf.position())
         }
+    }
+
+    @Test
+    @DisplayName("getConnectPacket() returns correct packet")
+    fun getConnectPacket_returnsCorrectPacket() {
+        @Net.Compression val compression = COMPRESSION_320
+        val requestId: PacketRequestIdType = 0xf123u
+        val expectedSize = PacketHeader.SIZE + ConnectData.SIZE
+
+        val actual = getConnectPacket(compression, requestId)
+
+        assertEquals(actual.remaining(), expectedSize)
+        assertEquals(actual.uShort, Net.PROTOCOL_SIGNATURE)
+        assertEquals(actual.uByte, Net.PacketCategory.CONNECT.value)
+        assertEquals(actual.uShort, expectedSize.toUShort())
+        assertEquals(actual.uByte, PROTOCOL_VERSION)
+        assertEquals(actual.uShort, requestId)
+        assertEquals(actual.uByte, compression.toUByte())
+    }
+
+    @Test
+    @DisplayName("getSetFormatPacket() returns correct packet")
+    fun getSetFormatPacket_returnsCorrectPacket() {
+        @Net.Compression val compression = COMPRESSION_256
+        val requestId: PacketRequestIdType = 0xfacbu
+        val expectedSize = PacketHeader.SIZE + SetFormatData.SIZE
+
+        val actual = getSetFormatPacket(compression, requestId)
+
+        assertEquals(actual.remaining(), expectedSize)
+        assertEquals(actual.uShort, Net.PROTOCOL_SIGNATURE)
+        assertEquals(actual.uByte, Net.PacketCategory.SET_FORMAT.value)
+        assertEquals(actual.uShort, expectedSize.toUShort())
+        assertEquals(actual.uShort, requestId)
+        assertEquals(actual.uByte, compression.toUByte())
+    }
+
+    @Test
+    @DisplayName("getKeystrokePacket() returns correct packet")
+    fun getKeystrokePacket_returnsCorrectPacket() {
+        val keyCode: PacketKeyType = 0xfbu
+        val mods: PacketModsType = 0xfau
+        val expectedSize = PacketHeader.SIZE + KeystrokeData.SIZE
+
+        val actual = getKeystrokePacket(keyCode, mods)
+
+        assertEquals(actual.remaining(), expectedSize)
+        assertEquals(actual.uShort, Net.PROTOCOL_SIGNATURE)
+        assertEquals(actual.uByte, Net.PacketCategory.KEYSTROKE.value)
+        assertEquals(actual.uShort, expectedSize.toUShort())
+        assertEquals(actual.uByte, keyCode)
+        assertEquals(actual.uByte, mods)
+    }
+
+    @Test
+    @DisplayName("getKeepAlivePacket() returns correct packet")
+    fun getKeepAlivePacket_returnsCorrectPacket() {
+        val expectedSize = PacketHeader.SIZE + KeepAliveData.SIZE
+
+        val actual = getKeepAlivePacket()
+
+        assertEquals(actual.remaining(), expectedSize)
+        assertEquals(actual.uShort, Net.PROTOCOL_SIGNATURE)
+        assertEquals(actual.uByte, Net.PacketCategory.CLIENT_KEEP_ALIVE.value)
+        assertEquals(actual.uShort, expectedSize.toUShort())
+    }
+
+    @Test
+    @DisplayName("getDisconnectPacket() returns correct packet")
+    fun getDisconnectPacket_returnsCorrectPacket() {
+        val expectedSize = PacketHeader.SIZE + DisconnectData.SIZE
+
+        val actual = getDisconnectPacket()
+
+        assertEquals(actual.remaining(), expectedSize)
+        assertEquals(actual.uShort, Net.PROTOCOL_SIGNATURE)
+        assertEquals(actual.uByte, Net.PacketCategory.DISCONNECT.value)
+        assertEquals(actual.uShort, expectedSize.toUShort())
     }
 }
