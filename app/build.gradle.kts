@@ -112,4 +112,6 @@ dependencies {
     implementation(libs.guava)
 // Seismic
     implementation(libs.seismic)
+// Timber
+    implementation(libs.timber)
 }

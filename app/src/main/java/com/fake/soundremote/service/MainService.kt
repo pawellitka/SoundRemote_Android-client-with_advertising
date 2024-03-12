@@ -27,7 +27,6 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -63,6 +62,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
@@ -134,7 +134,7 @@ internal class MainService : MediaBrowserServiceCompat() {
                 if (initialCompressionValue) {
                     initialCompressionValue = false
                 } else {
-                    Log.i(TAG, "Audio compression changed")
+                    Timber.i("Audio compression changed")
                     connection.sendSetFormat(it)
                 }
             }
@@ -230,7 +230,7 @@ internal class MainService : MediaBrowserServiceCompat() {
             audioPipe.state != PIPE_PLAYING
         ) {
             if (requestAudioFocus()) {
-                Log.i(TAG, "Starting playback")
+                Timber.i("Starting playback")
                 audioPipe.start()
                 val noisyFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
                 registerReceiver(becomingNoisyReceiver, noisyFilter)
@@ -243,7 +243,7 @@ internal class MainService : MediaBrowserServiceCompat() {
             }
         } else {
             if (audioPipe.state != PIPE_PLAYING) return
-            Log.i(TAG, "Stopping playback")
+            Timber.i("Stopping playback")
             connection.processAudio.set(false)
             unregisterReceiver(becomingNoisyReceiver)
             abandonAudioFocus()
@@ -293,21 +293,21 @@ internal class MainService : MediaBrowserServiceCompat() {
     private val afChangeListener = OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
             AudioManager.AUDIOFOCUS_GAIN -> {
-                Log.i(TAG, "Focus gain")
+                Timber.i("Focus gain")
             }
 
             AudioManager.AUDIOFOCUS_LOSS -> {
-                Log.i(TAG, "Focus loss")
+                Timber.i("Focus loss")
                 setMuted(true)
             }
 
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                Log.i(TAG, "Focus loss: transient")
+                Timber.i("Focus loss: transient")
                 setMuted(true)
             }
 
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                Log.i(TAG, "Focus loss: transient, can duck")
+                Timber.i("Focus loss: transient, can duck")
                 setMuted(true)
             }
         }
@@ -356,7 +356,7 @@ internal class MainService : MediaBrowserServiceCompat() {
     private val becomingNoisyReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
-                Log.i(TAG, "Becoming noisy")
+                Timber.i("Becoming noisy")
                 setMuted(true)
             }
         }
@@ -407,7 +407,7 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     private inner class MediaCallback : MediaSessionCompat.Callback() {
         override fun onPlay() {
-            Log.i(TAG, "MediaSession Play")
+            Timber.i("MediaSession Play")
             super.onPlay()
             sendKey(Key.MEDIA_PLAY_PAUSE.keyCode)
             // Update playback state to change button in media notification
@@ -415,13 +415,13 @@ internal class MainService : MediaBrowserServiceCompat() {
         }
 
         override fun onStop() {
-            Log.i(TAG, "MediaSession Stop")
+            Timber.i("MediaSession Stop")
             super.onStop()
             sendKey(Key.MEDIA_STOP.keyCode)
         }
 
         override fun onPause() {
-            Log.i(TAG, "MediaSession Pause")
+            Timber.i("MediaSession Pause")
             super.onPause()
             sendKey(Key.MEDIA_PLAY_PAUSE.keyCode)
             // Update playback state to change button in media notification
@@ -429,19 +429,19 @@ internal class MainService : MediaBrowserServiceCompat() {
         }
 
         override fun onSkipToNext() {
-            Log.i(TAG, "MediaSession Next")
+            Timber.i("MediaSession Next")
             super.onSkipToNext()
             sendKey(Key.MEDIA_NEXT.keyCode)
         }
 
         override fun onSkipToPrevious() {
-            Log.i(TAG, "MediaSession Previous")
+            Timber.i("MediaSession Previous")
             super.onSkipToPrevious()
             sendKey(Key.MEDIA_PREV.keyCode)
         }
 
         override fun onCustomAction(action: String?, extras: Bundle?) {
-            Log.i(TAG, "MediaSession $action")
+            Timber.i("MediaSession $action")
             when (action) {
                 NOTIFICATION_ACTION_CLOSE -> {
                     Intent(ACTION_CLOSE).also { intent ->
@@ -564,7 +564,7 @@ internal class MainService : MediaBrowserServiceCompat() {
                     Manifest.permission.READ_PHONE_STATE
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                Log.i(TAG, "Call state: PERMISSION DENIED")
+                Timber.i("Call state: PERMISSION DENIED")
                 return
             }
             callStateListener = object : TelephonyCallback(), TelephonyCallback.CallStateListener {
@@ -594,7 +594,7 @@ internal class MainService : MediaBrowserServiceCompat() {
     private fun onCallStateEvent(state: Int) {
         when (state) {
             TelephonyManager.CALL_STATE_IDLE -> {
-                Log.i(TAG, "Call state: IDLE")
+                Timber.i("Call state: IDLE")
                 scope.launch {
                     eventActionRepository.getById(Event.CALL_END.id)
                         ?.let { executeAction(it.action) }
@@ -602,14 +602,14 @@ internal class MainService : MediaBrowserServiceCompat() {
             }
 
             TelephonyManager.CALL_STATE_RINGING -> {
-                Log.i(TAG, "Call state: RINGING")
+                Timber.i("Call state: RINGING")
                 scope.launch {
                     eventActionRepository.getById(Event.CALL_BEGIN.id)
                         ?.let { executeAction(it.action) }
                 }
             }
 
-            TelephonyManager.CALL_STATE_OFFHOOK -> Log.i(TAG, "Call state: OFFHOOK")
+            TelephonyManager.CALL_STATE_OFFHOOK -> Timber.i("Call state: OFFHOOK")
         }
     }
 
@@ -661,7 +661,7 @@ internal class MainService : MediaBrowserServiceCompat() {
             sd.stop()
             shakeDetector = null
             shakeListener = null
-            Log.i(TAG, "Shake detection stopped")
+            Timber.i("Shake detection stopped")
         }
     }
 
@@ -672,11 +672,11 @@ internal class MainService : MediaBrowserServiceCompat() {
         shakeDetector = ShakeDetector(shakeListener).apply {
             start(sensorManager, SensorManager.SENSOR_DELAY_GAME)
         }
-        Log.i(TAG, "Shake detection started")
+        Timber.i("Shake detection started")
     }
 
     private fun getShakeListener() = ShakeDetector.Listener {
-        Log.i(TAG, "Shake detected")
+        Timber.i("Shake detected")
         scope.launch {
             eventActionRepository.getById(Event.SHAKE.id)?.let {
                 executeAction(it.action)
@@ -685,7 +685,6 @@ internal class MainService : MediaBrowserServiceCompat() {
     }
 
     companion object {
-        private val TAG = MainService::class.java.simpleName
         private const val NOTIFICATION_ID = 389
         private const val NOTIFICATION_CHANNEL_ID = "sound_remote_channel_id"
         private const val NOTIFICATION_CHANNEL_NAME = "SoundRemote audio service"

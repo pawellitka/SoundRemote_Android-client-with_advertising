@@ -79,14 +79,8 @@ internal fun AboutScreen(
             showLicense = true
         }
         Credit(
-            name = "Opus",
-            url = "https://opus-codec.org",
-            onShowLicense = { loadLicense(opusFile) },
-            context = context,
-        )
-        Credit(
-            name = "Hilt",
-            url = "https://dagger.dev/hilt/",
+            name = "Accompanist",
+            url = "https://google.github.io/accompanist",
             onShowLicense = { loadLicense(apache2File) },
             context = context,
         )
@@ -97,14 +91,26 @@ internal fun AboutScreen(
             context = context,
         )
         Credit(
-            name = "Accompanist",
-            url = "https://google.github.io/accompanist",
+            name = "Hilt",
+            url = "https://dagger.dev/hilt/",
             onShowLicense = { loadLicense(apache2File) },
+            context = context,
+        )
+        Credit(
+            name = "Opus",
+            url = "https://opus-codec.org",
+            onShowLicense = { loadLicense(opusFile) },
             context = context,
         )
         Credit(
             name = "Seismic",
             url = "https://github.com/square/seismic",
+            onShowLicense = { loadLicense(apache2File) },
+            context = context,
+        )
+        Credit(
+            name = "Timber",
+            url = "https://github.com/JakeWharton/timber",
             onShowLicense = { loadLicense(apache2File) },
             context = context,
         )
