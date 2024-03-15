@@ -5,6 +5,7 @@ import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.Mods
 import com.fake.soundremote.util.Net
+import com.fake.soundremote.util.Net.calculateGap
 import com.fake.soundremote.util.Net.uInt
 import com.fake.soundremote.util.PacketProtocolType
 import com.fake.soundremote.util.SystemMessage
@@ -248,13 +249,12 @@ internal class Connection(
             audioSequenceNumber = current
             return
         }
-        val d: Long = current.toLong() - previous.toLong()
-        if (d == 1L) {
+        val gap = calculateGap(previous, current)
+        if (gap == 0) {
             audioSequenceNumber = current
-        } else if (d > 1L) {
-            val lost = d.toInt() - 1
-            Timber.i("Audio packets loss: $lost ($previous -> $current)")
-            packetLosses.send(lost)
+        } else if (gap > 0) {
+            Timber.i("Audio packets loss: $gap ($previous -> $current)")
+            packetLosses.send(gap)
             audioSequenceNumber = current
         } else {
             Timber.i("Audio packets invalid order: $audioSequenceNumber -> $current")
