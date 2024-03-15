@@ -248,12 +248,12 @@ internal class Connection(
             audioSequenceNumber = current
             return
         }
-        val d = current - previous
-        if (d == 1u) {
+        val d: Long = current.toLong() - previous.toLong()
+        if (d == 1L) {
             audioSequenceNumber = current
-        } else if (d > 1u) {
-            val lost = (d - 1u).toInt()
-            Timber.i("Audio packets loss: $lost ($previous $current)")
+        } else if (d > 1L) {
+            val lost = d.toInt() - 1
+            Timber.i("Audio packets loss: $lost ($previous -> $current)")
             packetLosses.send(lost)
             audioSequenceNumber = current
         } else {
