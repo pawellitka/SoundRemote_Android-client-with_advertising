@@ -141,4 +141,18 @@ object Net {
         keepAlivePacket.rewind()
         return keepAlivePacket
     }
+
+    /**
+     * Calculates gap between two [UInt]s that are supposed to be contiguous. Due to [Int] return
+     * type, should not be used if the gap can reach [Int.MAX_VALUE].
+     *
+     * @param previous preceding number
+     * @param current subsequent number
+     *
+     * @return count of numbers missing between [previous] and [current], can be negative if
+     * [previous] >= [current].
+     */
+    fun calculateGap(previous: UInt, current: UInt): Int {
+        return (current - previous).toInt() - 1
+    }
 }

@@ -9,6 +9,7 @@ import com.fake.soundremote.network.SetFormatData
 import com.fake.soundremote.util.Net.COMPRESSION_256
 import com.fake.soundremote.util.Net.COMPRESSION_320
 import com.fake.soundremote.util.Net.PROTOCOL_VERSION
+import com.fake.soundremote.util.Net.calculateGap
 import com.fake.soundremote.util.Net.getConnectPacket
 import com.fake.soundremote.util.Net.getDisconnectPacket
 import com.fake.soundremote.util.Net.getKeepAlivePacket
@@ -21,6 +22,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import java.nio.ByteBuffer
 
 @DisplayName("Network utils")
@@ -185,5 +188,21 @@ internal class NetworkTest {
         assertEquals(actual.uShort, Net.PROTOCOL_SIGNATURE)
         assertEquals(actual.uByte, Net.PacketCategory.DISCONNECT.value)
         assertEquals(actual.uShort, expectedSize.toUShort())
+    }
+
+    @ParameterizedTest(name = "gap from {0} to {1} = {2}")
+    @DisplayName("calculateGap() returns correct result")
+    @CsvSource(
+        "3, 4, 0",
+        "0, 5, 4",
+        "100, 98, -3",
+        "0xF1_00_00_00, 0xF1_00_00_02, 1",
+        "0x40_00_00_00, 0x80_00_00_01, 0x40_00_00_00",
+        "1, 0x40_00_00_02, 0x40_00_00_00",
+    )
+    fun calculateGap_returnsCorrectResult(previous: Long, current: Long, expected: Int) {
+        val actual = calculateGap(previous.toUInt(), current.toUInt())
+
+        assertEquals(expected, actual)
     }
 }
