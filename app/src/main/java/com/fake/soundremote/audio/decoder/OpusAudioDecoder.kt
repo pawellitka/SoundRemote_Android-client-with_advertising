@@ -2,6 +2,9 @@ package com.fake.soundremote.audio.decoder
 
 import com.fake.jopus.OPUS_OK
 import com.fake.jopus.Opus
+import com.fake.soundremote.util.Audio.CHANNELS
+import com.fake.soundremote.util.Audio.SAMPLE_RATE
+import com.fake.soundremote.util.Audio.SAMPLE_SIZE
 
 /**
  * Creates new OpusAudioDecoder
@@ -9,10 +12,10 @@ import com.fake.jopus.Opus
  * @param channels   Number of channels, must be 1 or 2
  */
 class OpusAudioDecoder(
-    private val sampleRate: Int = DEFAULT_SAMPLE_RATE,
-    private val channels: Int = DEFAULT_CHANNELS
+    private val sampleRate: Int = SAMPLE_RATE,
+    private val channels: Int = CHANNELS
 ) {
-    private var sampleSize = DEFAULT_SAMPLE_SIZE
+    private var sampleSize = SAMPLE_SIZE
     private val opus = Opus()
 
     fun outBufferSize(): Int {
@@ -42,12 +45,6 @@ class OpusAudioDecoder(
     }
 
     companion object {
-        private const val DEFAULT_SAMPLE_RATE = 48000
-        private const val DEFAULT_CHANNELS = 2
-
-        // Sample size in bytes (16 bit signed)
-        private const val DEFAULT_SAMPLE_SIZE = 2
-
         // Maximum number of samples per channel in output buffer (120ms; 48khz)
         private const val MAX_SAMPLES_PER_PACKET = 5760
     }

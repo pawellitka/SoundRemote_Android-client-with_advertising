@@ -7,12 +7,11 @@ import android.media.AudioTrack
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.fake.soundremote.BuildConfig
+import com.fake.soundremote.util.Audio.CHANNEL_CONFIG
+import com.fake.soundremote.util.Audio.FRAME_SIZE
+import com.fake.soundremote.util.Audio.SAMPLE_ENCODING
+import com.fake.soundremote.util.Audio.SAMPLE_RATE
 import timber.log.Timber
-
-private const val SAMPLE_RATE = 48_000
-private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO
-private const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
-private const val FRAME_SIZE = 4
 
 /** Multiplication factor to apply to the minimum buffer size requested. */
 private const val PCM_BUFFER_MULTIPLICATION_FACTOR = 4
@@ -73,7 +72,8 @@ class PlaybackSink {
     }
 
     private fun createTrack(): AudioTrack {
-        val minBufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, ENCODING)
+        val minBufferSize =
+            AudioTrack.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, SAMPLE_ENCODING)
         val bufferSize = getBufferSizeInBytes(minBufferSize)
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -81,7 +81,7 @@ class PlaybackSink {
             .build()
         val audioFormat = AudioFormat.Builder()
             .setSampleRate(SAMPLE_RATE)
-            .setEncoding(ENCODING)
+            .setEncoding(SAMPLE_ENCODING)
             .setChannelMask(CHANNEL_CONFIG)
             .build()
 
