@@ -9,4 +9,5 @@ object Audio {
     const val SAMPLE_ENCODING = AudioFormat.ENCODING_PCM_16BIT
     const val SAMPLE_SIZE = 2
     const val FRAME_SIZE = CHANNELS * SAMPLE_SIZE
+    const val FRAME_DURATION = 10_000
 }

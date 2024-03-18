@@ -22,7 +22,7 @@ class AudioPipe(
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val decoder = OpusAudioDecoder()
     private val playback = PlaybackSink()
-    private val decodedData = ByteArray(decoder.outBufferSize())
+    private val decodedData = ByteArray(decoder.outBufferSize)
 
     // 1 audio packet worth of silence
     private val silence = ByteArray(PACKET_AUDIO_DATA_BYTES)
