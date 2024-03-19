@@ -5,6 +5,7 @@ import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.Mods
 import com.fake.soundremote.util.Net
+import com.fake.soundremote.util.Net.calculateGap
 import com.fake.soundremote.util.Net.uInt
 import com.fake.soundremote.util.PacketProtocolType
 import com.fake.soundremote.util.SystemMessage
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.StandardSocketOptions
@@ -35,6 +37,7 @@ import kotlin.random.Random
 internal class Connection(
     private val uncompressedAudio: SendChannel<ByteArray>,
     private val opusAudio: SendChannel<ByteArray>,
+    private val packetLosses: SendChannel<Int>,
     private val connectionMessages: SendChannel<SystemMessage>,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) {
@@ -62,6 +65,7 @@ internal class Connection(
         }
 
     var processAudio = AtomicBoolean(true)
+    private var audioSequenceNumber: UInt? = null
 
     suspend fun connect(
         address: String,
@@ -130,6 +134,7 @@ internal class Connection(
             // from closed or null channel
             releaseChannels()
             currentStatus = ConnectionStatus.DISCONNECTED
+            audioSequenceNumber = null
         }
     }
 
@@ -224,7 +229,10 @@ internal class Connection(
 
     private suspend fun processAudioData(buffer: ByteBuffer, compressed: Boolean) {
         if (currentStatus != ConnectionStatus.CONNECTED || !processAudio.get()) return
-        buffer.uInt    // sequence number
+
+        val sequenceNumber = buffer.uInt
+        processAudioSequenceNumber(sequenceNumber)
+
         val packetData = ByteArray(buffer.remaining())
         buffer.get(packetData)
         if (compressed) {
@@ -233,6 +241,24 @@ internal class Connection(
             uncompressedAudio.send(packetData)
         }
         updateServerLastContact()
+    }
+
+    private suspend fun processAudioSequenceNumber(current: UInt) {
+        val previous = audioSequenceNumber
+        if (previous == null) {
+            audioSequenceNumber = current
+            return
+        }
+        val gap = calculateGap(previous, current)
+        if (gap == 0) {
+            audioSequenceNumber = current
+        } else if (gap > 0) {
+            Timber.i("Audio packets loss: $gap ($previous -> $current)")
+            packetLosses.send(gap)
+            audioSequenceNumber = current
+        } else {
+            Timber.i("Audio packets invalid order: $audioSequenceNumber -> $current")
+        }
     }
 
     private fun processAck(buffer: ByteBuffer) = synchronized(pendingRequestsLock) {

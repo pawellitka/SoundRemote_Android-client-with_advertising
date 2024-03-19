@@ -58,6 +58,9 @@ internal class ConnectionTest {
     private lateinit var audioChannel: SendChannel<ByteArray>
 
     @MockK
+    private lateinit var lossesChannel: SendChannel<Int>
+
+    @MockK
     private lateinit var messageChannel: SendChannel<SystemMessage>
 
     @BeforeAll
@@ -101,7 +104,7 @@ internal class ConnectionTest {
         assertEquals(ConnectionStatus.DISCONNECTED, connection.connectionStatus.value)
         val expected = ConnectionStatus.CONNECTING
 
-        connection.connect(address, serverPort, localPort, compression)
+        connection.connect(ADDRESS, SERVER_PORT, LOCAL_PORT, COMPRESSION)
         val actual = connection.connectionStatus.value
 
         assertEquals(expected, actual)
@@ -112,7 +115,7 @@ internal class ConnectionTest {
     fun disconnect_ChangesStatusToDisconnected() = runTest {
         val connection = createConnection(this.backgroundScope)
         assertEquals(ConnectionStatus.DISCONNECTED, connection.connectionStatus.value)
-        connection.connect(address, serverPort, localPort, compression)
+        connection.connect(ADDRESS, SERVER_PORT, LOCAL_PORT, COMPRESSION)
         assertEquals(ConnectionStatus.CONNECTING, connection.connectionStatus.value)
         val expected = ConnectionStatus.DISCONNECTED
 
@@ -128,7 +131,7 @@ internal class ConnectionTest {
     fun connect_SendsDatagram() = runTest {
         val connection = createConnection(this)
 
-        connection.connect(address, serverPort, localPort, compression)
+        connection.connect(ADDRESS, SERVER_PORT, LOCAL_PORT, COMPRESSION)
         advanceUntilIdle()
 
         verify(exactly = 3) { sendChannel.send(any(ByteBuffer::class), serverAddress) }
@@ -182,13 +185,13 @@ internal class ConnectionTest {
                 }
             }
         }
-        connection.connect(address, serverPort, localPort, compression)
+        connection.connect(ADDRESS, SERVER_PORT, LOCAL_PORT, COMPRESSION)
         advanceUntilIdle()
     }
 
     // Utility
     private fun createConnection(scope: CoroutineScope): Connection {
-        return Connection(audioChannel, audioChannel, messageChannel, scope)
+        return Connection(audioChannel, audioChannel, lossesChannel, messageChannel, scope)
     }
 
     private fun getConnectRequestId(source: ByteBuffer): PacketRequestIdType? {
@@ -213,11 +216,11 @@ internal class ConnectionTest {
 
     companion object {
         @Net.Compression
-        private const val compression = Net.COMPRESSION_320
-        private const val address = "123.45.67.89"
-        private const val serverPort = 30_000
-        private const val localPort = 40_000
-        private val bindAddress = InetSocketAddress(localPort)
-        private val serverAddress = InetSocketAddress(address, serverPort)
+        private const val COMPRESSION = Net.COMPRESSION_320
+        private const val ADDRESS = "123.45.67.89"
+        private const val SERVER_PORT = 30_000
+        private const val LOCAL_PORT = 40_000
+        private val bindAddress = InetSocketAddress(LOCAL_PORT)
+        private val serverAddress = InetSocketAddress(ADDRESS, SERVER_PORT)
     }
 }

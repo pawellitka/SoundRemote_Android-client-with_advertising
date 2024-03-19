@@ -31,6 +31,7 @@ object Net {
      *  Audio is send in 10 milliseconds intervals of 48khz, 2 byte per sample, 2 channels signal,
      *  which is 1920 bytes if uncompressed.
      */
+    const val PACKET_AUDIO_DATA_BYTES = 1920
     const val RECEIVE_BUFFER_CAPACITY = 2048
     const val SERVER_TIMEOUT_SECONDS = 5
 
@@ -139,5 +140,19 @@ object Net {
     fun getKeepAlivePacket(): ByteBuffer {
         keepAlivePacket.rewind()
         return keepAlivePacket
+    }
+
+    /**
+     * Calculates gap between two [UInt]s that are supposed to be contiguous. Due to [Int] return
+     * type, should not be used if the gap can reach [Int.MAX_VALUE].
+     *
+     * @param previous preceding number
+     * @param current subsequent number
+     *
+     * @return count of numbers missing between [previous] and [current], can be negative if
+     * [previous] >= [current].
+     */
+    fun calculateGap(previous: UInt, current: UInt): Int {
+        return (current - previous).toInt() - 1
     }
 }

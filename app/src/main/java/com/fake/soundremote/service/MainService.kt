@@ -88,10 +88,13 @@ internal class MainService : MediaBrowserServiceCompat() {
     private val _systemMessages: Channel<SystemMessage> = Channel(5, BufferOverflow.DROP_OLDEST)
     val systemMessages: ReceiveChannel<SystemMessage>
         get() = _systemMessages
-    private var uncompressedAudio = Channel<ByteArray>(5, BufferOverflow.DROP_OLDEST)
-    private var opusAudio = Channel<ByteArray>(5, BufferOverflow.DROP_OLDEST)
-    private val connection = Connection(uncompressedAudio, opusAudio, _systemMessages)
-    private val audioPipe = AudioPipe(uncompressedAudio, opusAudio)
+
+    private val uncompressedAudio = Channel<ByteArray>(5, BufferOverflow.SUSPEND)
+    private val opusAudio = Channel<ByteArray>(5, BufferOverflow.SUSPEND)
+    private val packetLosses = Channel<Int>(5, BufferOverflow.SUSPEND)
+
+    private val connection = Connection(uncompressedAudio, opusAudio, packetLosses, _systemMessages)
+    private val audioPipe = AudioPipe(uncompressedAudio, opusAudio, packetLosses)
     val connectionStatus = connection.connectionStatus
     private var _isMuted = MutableStateFlow(false)
     val isMuted: StateFlow<Boolean>
