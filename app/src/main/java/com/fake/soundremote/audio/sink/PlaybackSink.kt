@@ -29,6 +29,8 @@ private const val MIN_BUFFER_SIZE = MIN_PCM_BUFFER_DURATION * SAMPLE_RATE * FRAM
 /** Maximum size for the AudioTrack buffer, in bytes. */
 private const val MAX_BUFFER_SIZE = MAX_PCM_BUFFER_DURATION * SAMPLE_RATE * FRAME_SIZE / 1000
 
+private const val AUDIO_QUEUE_LIMIT = 10
+
 class PlaybackSink {
     private val sessionId = AudioManager.AUDIO_SESSION_ID_GENERATE
     private val audioTrack = createTrack()
@@ -40,6 +42,10 @@ class PlaybackSink {
     }
 
     fun play(audioData: ByteBuffer) {
+        if (audioQueue.size > AUDIO_QUEUE_LIMIT) {
+            audioQueue.clear()
+            Timber.i("AudioQueue reset")
+        }
         if (audioData.hasRemaining()) {
             audioQueue.addLast(audioData)
         }
