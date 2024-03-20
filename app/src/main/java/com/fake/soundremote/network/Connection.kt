@@ -71,6 +71,9 @@ internal class Connection(
         }
         set(value) {
             _processAudio.set(value)
+            if (!value) {
+                audioSequenceNumber = null
+            }
         }
 
     private var audioSequenceNumber: UInt? = null
