@@ -64,7 +64,15 @@ internal class Connection(
             _connectionStatus.value = value
         }
 
-    var processAudio = AtomicBoolean(true)
+    private val _processAudio = AtomicBoolean(true)
+    var processAudio: Boolean
+        get() {
+            return _processAudio.get()
+        }
+        set(value) {
+            _processAudio.set(value)
+        }
+
     private var audioSequenceNumber: UInt? = null
 
     suspend fun connect(
@@ -227,7 +235,7 @@ internal class Connection(
     }
 
     private suspend fun processAudioData(buffer: ByteBuffer, compressed: Boolean) {
-        if (currentStatus != ConnectionStatus.CONNECTED || !processAudio.get()) return
+        if (currentStatus != ConnectionStatus.CONNECTED || !processAudio) return
 
         val sequenceNumber = buffer.uInt
         processAudioSequenceNumber(sequenceNumber)
