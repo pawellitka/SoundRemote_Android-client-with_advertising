@@ -33,19 +33,29 @@ class PlaybackSink {
     private val sessionId = AudioManager.AUDIO_SESSION_ID_GENERATE
     private val audioTrack = createTrack()
     private var underruns = 0
+    private val audioQueue = ArrayDeque<ByteBuffer>()
 
     fun start() {
         audioTrack.play()
     }
 
     fun play(audioData: ByteBuffer) {
-        val remaining = audioData.remaining()
-        val writeResult = audioTrack.write(audioData, remaining, AudioTrack.WRITE_NON_BLOCKING)
-        if (writeResult < 0) {
-            throw IllegalStateException("AudioTrack write error: $writeResult")
+        if (audioData.hasRemaining()) {
+            audioQueue.addLast(audioData)
         }
-        if (BuildConfig.DEBUG && writeResult != remaining) {
-            Timber.i("AudioTrack underwrite: $writeResult written out of $remaining")
+        var bufferOverflow = false
+        while (audioQueue.isNotEmpty() && !bufferOverflow) {
+            val data = audioQueue.first()
+            val bytesRemaining = data.remaining()
+            val writeResult = audioTrack.write(data, bytesRemaining, AudioTrack.WRITE_NON_BLOCKING)
+            check(writeResult >= 0) { "AudioTrack write error: $writeResult" }
+            val bytesWritten: Int = writeResult
+            if (bytesWritten == bytesRemaining) {
+                audioQueue.removeFirst()
+            } else {
+                bufferOverflow = true
+//                Timber.i("AudioTrack underwrite: $bytesWritten written out of $bytesRemaining")
+            }
         }
         if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val currentUnderruns = audioTrack.underrunCount
