@@ -12,6 +12,7 @@ import com.fake.soundremote.util.Audio.FRAME_SIZE
 import com.fake.soundremote.util.Audio.SAMPLE_ENCODING
 import com.fake.soundremote.util.Audio.SAMPLE_RATE
 import timber.log.Timber
+import java.nio.ByteBuffer
 
 /** Multiplication factor to apply to the minimum buffer size requested. */
 private const val PCM_BUFFER_MULTIPLICATION_FACTOR = 4
@@ -37,17 +38,14 @@ class PlaybackSink {
         audioTrack.play()
     }
 
-    fun play(audioData: ByteArray, dataSize: Int) {
-        val writeResult = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            audioTrack.write(audioData, 0, dataSize, AudioTrack.WRITE_NON_BLOCKING)
-        } else {
-            audioTrack.write(audioData, 0, dataSize)
-        }
+    fun play(audioData: ByteBuffer) {
+        val remaining = audioData.remaining()
+        val writeResult = audioTrack.write(audioData, remaining, AudioTrack.WRITE_NON_BLOCKING)
         if (writeResult < 0) {
             throw IllegalStateException("AudioTrack write error: $writeResult")
         }
-        if (BuildConfig.DEBUG && writeResult != dataSize) {
-            Timber.i("AudioTrack underwrite: $writeResult written out of $dataSize")
+        if (BuildConfig.DEBUG && writeResult != remaining) {
+            Timber.i("AudioTrack underwrite: $writeResult written out of $remaining")
         }
         if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val currentUnderruns = audioTrack.underrunCount

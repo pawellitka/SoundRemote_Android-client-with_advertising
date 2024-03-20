@@ -35,8 +35,8 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 internal class Connection(
-    private val uncompressedAudio: SendChannel<ByteArray>,
-    private val opusAudio: SendChannel<ByteArray>,
+    private val uncompressedAudio: SendChannel<ByteBuffer>,
+    private val opusAudio: SendChannel<ByteBuffer>,
     private val packetLosses: SendChannel<Int>,
     private val connectionMessages: SendChannel<SystemMessage>,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -152,10 +152,9 @@ internal class Connection(
      * Always runs on Dispatchers.IO
      */
     private fun receive() = scope.launch(CoroutineName("Receive") + Dispatchers.IO) {
-        val buf = Net.createPacketBuffer(Net.RECEIVE_BUFFER_CAPACITY)
         try {
             while (isActive) {
-                buf.clear()
+                val buf = Net.createPacketBuffer(Net.RECEIVE_BUFFER_CAPACITY)
                 dataChannel?.receive(buf)
                 buf.flip()
                 val header: PacketHeader? = PacketHeader.read(buf)
@@ -233,12 +232,10 @@ internal class Connection(
         val sequenceNumber = buffer.uInt
         processAudioSequenceNumber(sequenceNumber)
 
-        val packetData = ByteArray(buffer.remaining())
-        buffer.get(packetData)
         if (compressed) {
-            opusAudio.send(packetData)
+            opusAudio.send(buffer)
         } else {
-            uncompressedAudio.send(packetData)
+            uncompressedAudio.send(buffer)
         }
         updateServerLastContact()
     }

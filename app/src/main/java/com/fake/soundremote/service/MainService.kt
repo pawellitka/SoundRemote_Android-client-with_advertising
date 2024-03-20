@@ -63,6 +63,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.nio.ByteBuffer
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
@@ -89,8 +90,8 @@ internal class MainService : MediaBrowserServiceCompat() {
     val systemMessages: ReceiveChannel<SystemMessage>
         get() = _systemMessages
 
-    private val uncompressedAudio = Channel<ByteArray>(5, BufferOverflow.SUSPEND)
-    private val opusAudio = Channel<ByteArray>(5, BufferOverflow.SUSPEND)
+    private val uncompressedAudio = Channel<ByteBuffer>(5, BufferOverflow.SUSPEND)
+    private val opusAudio = Channel<ByteBuffer>(5, BufferOverflow.SUSPEND)
     private val packetLosses = Channel<Int>(5, BufferOverflow.SUSPEND)
 
     private val connection = Connection(uncompressedAudio, opusAudio, packetLosses, _systemMessages)

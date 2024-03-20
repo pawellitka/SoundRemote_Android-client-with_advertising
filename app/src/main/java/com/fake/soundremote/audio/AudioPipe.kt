@@ -13,19 +13,19 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
+import java.nio.ByteBuffer
 
 class AudioPipe(
-    private val uncompressedAudio: ReceiveChannel<ByteArray>,
-    private val opusAudio: ReceiveChannel<ByteArray>,
+    private val uncompressedAudio: ReceiveChannel<ByteBuffer>,
+    private val opusAudio: ReceiveChannel<ByteBuffer>,
     private val packetLosses: ReceiveChannel<Int>,
 ) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val decoder = OpusAudioDecoder()
     private val playback = PlaybackSink()
-    private val decodedData = ByteArray(decoder.outBufferSize)
 
     // 1 audio packet worth of silence
-    private val silence = ByteArray(PACKET_AUDIO_DATA_BYTES)
+    private val silence = ByteBuffer.allocate(PACKET_AUDIO_DATA_BYTES)
 
     private var playJob: Job? = null
     private var stopJob: Job? = null
@@ -49,15 +49,19 @@ class AudioPipe(
                 while (isActive) {
                     select {
                         uncompressedAudio.onReceive { audio ->
-                            playback.play(audio, audio.size)
+                            playback.play(audio)
                         }
                         opusAudio.onReceive { audio ->
-                            val decodedBytes = decoder.decode(audio, decodedData)
-                            playback.play(decodedData, decodedBytes)
+                            val encoded = ByteArray(audio.remaining())
+                            audio.get(encoded)
+                            val decoded = ByteBuffer.allocate(decoder.outBufferSize)
+                            val decodedBytes = decoder.decode(encoded, decoded.array())
+                            decoded.limit(decodedBytes)
+                            playback.play(decoded)
                         }
                         packetLosses.onReceive { lost ->
                             repeat(lost) {
-                                playback.play(silence, PACKET_AUDIO_DATA_BYTES)
+                                playback.play(silence.duplicate())
                             }
                         }
                     }
