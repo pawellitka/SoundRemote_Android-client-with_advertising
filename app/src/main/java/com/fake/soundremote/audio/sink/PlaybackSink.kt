@@ -67,16 +67,14 @@ class PlaybackSink {
     }
 
     fun stop() {
-        audioTrack.stop()
+        audioTrack.pause()
+        audioTrack.flush()
+        audioQueue.clear()
     }
 
     fun release() {
-        try {
-            audioTrack.pause()
-            audioTrack.flush()
-        } finally {
-            audioTrack.release()
-        }
+        audioTrack.flush()
+        audioTrack.release()
     }
 
     private fun createTrack(): AudioTrack {
