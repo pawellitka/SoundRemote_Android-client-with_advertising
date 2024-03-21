@@ -31,7 +31,6 @@ object Net {
      *  Audio is send in 10 milliseconds intervals of 48khz, 2 byte per sample, 2 channels signal,
      *  which is 1920 bytes if uncompressed.
      */
-    const val PACKET_AUDIO_DATA_BYTES = 1920
     const val RECEIVE_BUFFER_CAPACITY = 2048
     const val SERVER_TIMEOUT_SECONDS = 5
 

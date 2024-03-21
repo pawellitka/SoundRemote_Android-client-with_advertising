@@ -68,7 +68,7 @@ internal class OpusAudioDecoderTest {
         @Test
         fun test() {
             val decoder = OpusAudioDecoder(rate, channels, duration)
-            val actual = decoder.outBufferSize
+            val actual = decoder.bytesPerPacket
 
             assertThat(actual, equalTo(expected))
         }

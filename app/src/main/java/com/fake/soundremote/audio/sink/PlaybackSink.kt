@@ -7,8 +7,8 @@ import android.media.AudioTrack
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.fake.soundremote.BuildConfig
+import com.fake.soundremote.util.Audio
 import com.fake.soundremote.util.Audio.CHANNEL_CONFIG
-import com.fake.soundremote.util.Audio.FRAME_SIZE
 import com.fake.soundremote.util.Audio.SAMPLE_ENCODING
 import com.fake.soundremote.util.Audio.SAMPLE_RATE
 import timber.log.Timber
@@ -23,11 +23,13 @@ private const val MIN_PCM_BUFFER_DURATION = 250
 /** Maximum length for the AudioTrack buffer, in milliseconds. */
 private const val MAX_PCM_BUFFER_DURATION = 750
 
+private const val BYTES_PER_SECOND = SAMPLE_RATE * Audio.CHANNELS * Audio.SAMPLE_SIZE
+
 /** Minimum size for the AudioTrack buffer, in bytes. */
-private const val MIN_BUFFER_SIZE = MIN_PCM_BUFFER_DURATION * SAMPLE_RATE * FRAME_SIZE / 1000
+private const val MIN_BUFFER_SIZE = BYTES_PER_SECOND * MIN_PCM_BUFFER_DURATION / 1000
 
 /** Maximum size for the AudioTrack buffer, in bytes. */
-private const val MAX_BUFFER_SIZE = MAX_PCM_BUFFER_DURATION * SAMPLE_RATE * FRAME_SIZE / 1000
+private const val MAX_BUFFER_SIZE = BYTES_PER_SECOND * MAX_PCM_BUFFER_DURATION / 1000
 
 private const val AUDIO_QUEUE_LIMIT = 10
 

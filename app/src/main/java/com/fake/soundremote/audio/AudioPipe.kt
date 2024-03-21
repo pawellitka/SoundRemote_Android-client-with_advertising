@@ -3,7 +3,6 @@ package com.fake.soundremote.audio
 import androidx.annotation.IntDef
 import com.fake.soundremote.audio.decoder.OpusAudioDecoder
 import com.fake.soundremote.audio.sink.PlaybackSink
-import com.fake.soundremote.util.Net.PACKET_AUDIO_DATA_BYTES
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,8 +24,8 @@ class AudioPipe(
     private val decoder = OpusAudioDecoder()
     private val playback = PlaybackSink()
 
-    // 1 audio packet worth of silence
-    private val silence = ByteBuffer.allocate(PACKET_AUDIO_DATA_BYTES)
+    // An audio packet worth of silence
+    private val silencePacket = ByteBuffer.allocate(decoder.bytesPerPacket)
 
     private var playJob: Job? = null
     private var stopJob: Job? = null
@@ -51,17 +50,17 @@ class AudioPipe(
                     select {
                         uncompressedAudio.onReceive { audio ->
                             repeat(packetsLost.getAndSet(0)) {
-                                playback.play(silence.duplicate())
+                                playback.play(silencePacket.duplicate())
                             }
                             playback.play(audio)
                         }
                         opusAudio.onReceive { audio ->
                             repeat(packetsLost.getAndSet(0)) {
-                                playback.play(silence.duplicate())
+                                playback.play(silencePacket.duplicate())
                             }
                             val encoded = ByteArray(audio.remaining())
                             audio.get(encoded)
-                            val decoded = ByteBuffer.allocate(decoder.outBufferSize)
+                            val decoded = ByteBuffer.allocate(decoder.bytesPerPacket)
                             val decodedBytes = decoder.decode(encoded, decoded.array())
                             decoded.limit(decodedBytes)
                             playback.play(decoded)

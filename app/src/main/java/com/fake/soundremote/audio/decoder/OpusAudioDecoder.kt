@@ -3,7 +3,7 @@ package com.fake.soundremote.audio.decoder
 import com.fake.jopus.OPUS_OK
 import com.fake.jopus.Opus
 import com.fake.soundremote.util.Audio.CHANNELS
-import com.fake.soundremote.util.Audio.FRAME_DURATION
+import com.fake.soundremote.util.Audio.PACKET_DURATION
 import com.fake.soundremote.util.Audio.SAMPLE_RATE
 import com.fake.soundremote.util.Audio.SAMPLE_SIZE
 
@@ -11,24 +11,23 @@ import com.fake.soundremote.util.Audio.SAMPLE_SIZE
  * Creates new OpusAudioDecoder
  * @param sampleRate sample rate in Hz, must be 8/12/16/24/48 KHz
  * @param channels number of channels, must be 1 or 2
- * @param frameDuration frame duration in microseconds, must be a multiple of 2.5ms from 2.5ms to 60ms
+ * @param packetDuration packet duration in microseconds, must be a multiple of 2.5ms from 2.5ms to 60ms
  */
 class OpusAudioDecoder(
     private val sampleRate: Int = SAMPLE_RATE,
     private val channels: Int = CHANNELS,
-    private val frameDuration: Int = FRAME_DURATION,
+    private val packetDuration: Int = PACKET_DURATION,
 ) {
     private val opus = Opus()
-    private val sampleSize = SAMPLE_SIZE
 
-    /** Number of samples per channel in one frame */
-    private val frameSize = (sampleRate.toLong() * frameDuration / 1_000_000).toInt()
+    /** Number of samples per channel (frames) in one packet */
+    private val framesPerPacket = (sampleRate.toLong() * packetDuration / 1_000_000).toInt()
 
-    /** Number of bytes per decoded frame */
-    val outBufferSize = samplesToBytes(frameSize)
+    /** Number of bytes per PCM audio packet */
+    val bytesPerPacket = framesToBytes(framesPerPacket)
 
     init {
-        check(frameDuration in 2_500..60_000) { "Opus decoder frame duration must be from from 2.5 ms to 60 ms" }
+        check(packetDuration in 2_500..60_000) { "Opus decoder packet duration must be from from 2.5 ms to 60 ms" }
         val initResult = opus.initDecoder(sampleRate, channels)
         if (initResult != OPUS_OK) {
             val errorString = opus.strerror(initResult)
@@ -40,17 +39,18 @@ class OpusAudioDecoder(
         opus.releaseDecoder()
     }
 
-    fun decode(encodedData: ByteArray, outPcm: ByteArray): Int {
-        val dataSize = encodedData.size
-        val samplesDecoded = opus.decode(encodedData, dataSize, outPcm, frameSize, 0)
-        if (samplesDecoded < 0) {
-            val errorString = opus.strerror(samplesDecoded)
+    fun decode(encodedData: ByteArray, decodedData: ByteArray): Int {
+        val encodedBytes = encodedData.size
+        val framesDecodedOrError =
+            opus.decode(encodedData, encodedBytes, decodedData, framesPerPacket, 0)
+        if (framesDecodedOrError < 0) {
+            val errorString = opus.strerror(framesDecodedOrError)
             throw DecoderException("Opus decode error: $errorString")
         }
-        return samplesToBytes(samplesDecoded)
+        return framesToBytes(framesDecodedOrError)
     }
 
-    private fun samplesToBytes(samples: Int): Int {
-        return samples * channels * sampleSize
+    private fun framesToBytes(frames: Int): Int {
+        return frames * channels * SAMPLE_SIZE
     }
 }
