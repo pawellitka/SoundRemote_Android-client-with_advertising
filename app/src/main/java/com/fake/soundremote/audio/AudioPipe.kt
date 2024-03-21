@@ -14,11 +14,12 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
 import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicInteger
 
 class AudioPipe(
     private val uncompressedAudio: ReceiveChannel<ByteBuffer>,
     private val opusAudio: ReceiveChannel<ByteBuffer>,
-    private val packetLosses: ReceiveChannel<Int>,
+    private val packetsLost: AtomicInteger,
 ) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val decoder = OpusAudioDecoder()
@@ -49,20 +50,21 @@ class AudioPipe(
                 while (isActive) {
                     select {
                         uncompressedAudio.onReceive { audio ->
+                            repeat(packetsLost.getAndSet(0)) {
+                                playback.play(silence.duplicate())
+                            }
                             playback.play(audio)
                         }
                         opusAudio.onReceive { audio ->
+                            repeat(packetsLost.getAndSet(0)) {
+                                playback.play(silence.duplicate())
+                            }
                             val encoded = ByteArray(audio.remaining())
                             audio.get(encoded)
                             val decoded = ByteBuffer.allocate(decoder.outBufferSize)
                             val decodedBytes = decoder.decode(encoded, decoded.array())
                             decoded.limit(decodedBytes)
                             playback.play(decoded)
-                        }
-                        packetLosses.onReceive { lost ->
-                            repeat(lost) {
-                                playback.play(silence.duplicate())
-                            }
                         }
                     }
                 }
