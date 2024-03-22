@@ -49,15 +49,16 @@ class AudioPipe(
                 while (isActive) {
                     select {
                         uncompressedAudio.onReceive { audio ->
-                            repeat(packetsLost.getAndSet(0)) {
+                            val packetsToConceal = packetsLost.getAndSet(0)
+                            repeat(packetsToConceal) {
                                 playback.play(silencePacket.duplicate())
                             }
+
                             playback.play(audio)
                         }
                         opusAudio.onReceive { audio ->
-                            repeat(packetsLost.getAndSet(0)) {
-                                playback.play(silencePacket.duplicate())
-                            }
+                            concealLosses()
+
                             val encoded = ByteArray(audio.remaining())
                             audio.get(encoded)
                             val decoded = ByteBuffer.allocate(decoder.bytesPerPacket)
@@ -68,6 +69,18 @@ class AudioPipe(
                     }
                 }
             }
+        }
+    }
+
+    private fun concealLosses() {
+        var packetsToConceal = packetsLost.getAndSet(0)
+        while (packetsToConceal > 0) {
+            val packets = packetsToConceal.coerceAtMost(decoder.maxPacketsPerPlc)
+            val decodedData = ByteBuffer.allocate(decoder.bytesPerPacket * packets)
+            val decodedBytes = decoder.plc(decodedData.array(), decoder.framesPerPacket * packets)
+            decodedData.limit(decodedBytes)
+            playback.play(decodedData)
+            packetsToConceal -= packets
         }
     }
 

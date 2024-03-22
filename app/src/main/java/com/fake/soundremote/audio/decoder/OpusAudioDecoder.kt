@@ -21,13 +21,18 @@ class OpusAudioDecoder(
     private val opus = Opus()
 
     /** Number of samples per channel (frames) in one packet */
-    private val framesPerPacket = (sampleRate.toLong() * packetDuration / 1_000_000).toInt()
+    val framesPerPacket = (sampleRate.toLong() * packetDuration / 1_000_000).toInt()
 
     /** Number of bytes per PCM audio packet */
     val bytesPerPacket = framesToBytes(framesPerPacket)
 
+    // 60ms is the maximum packet duration
+    val maxPacketsPerPlc = 60_000 / packetDuration
+
     init {
-        check(packetDuration in 2_500..60_000) { "Opus decoder packet duration must be from from 2.5 ms to 60 ms" }
+        check(packetDuration in 2_500..60_000) {
+            "Opus decoder packet duration must be from from 2.5 ms to 60 ms"
+        }
         val initResult = opus.initDecoder(sampleRate, channels)
         if (initResult != OPUS_OK) {
             val errorString = opus.strerror(initResult)
