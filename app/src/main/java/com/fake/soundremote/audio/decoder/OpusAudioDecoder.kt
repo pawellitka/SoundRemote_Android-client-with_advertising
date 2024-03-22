@@ -11,7 +11,7 @@ import com.fake.soundremote.util.Audio.SAMPLE_SIZE
  * Creates new OpusAudioDecoder
  * @param sampleRate sample rate in Hz, must be 8/12/16/24/48 KHz
  * @param channels number of channels, must be 1 or 2
- * @param packetDuration packet duration in microseconds, must be a multiple of 2.5ms from 2.5ms to 60ms
+ * @param packetDuration packet duration in microseconds, must be a multiple of 2.5ms, maximum 60ms
  */
 class OpusAudioDecoder(
     private val sampleRate: Int = SAMPLE_RATE,
@@ -46,6 +46,24 @@ class OpusAudioDecoder(
         if (framesDecodedOrError < 0) {
             val errorString = opus.strerror(framesDecodedOrError)
             throw DecoderException("Opus decode error: $errorString")
+        }
+        return framesToBytes(framesDecodedOrError)
+    }
+
+    /**
+     * Generates audio to fill for missing packets with Opus packet loss concealment (PLC)
+     *
+     * @param decodedData generated PCM audio
+     * @param decodedFrames number of frames of available space in [decodedData]. Needs to be
+     * exactly the duration of audio that is missing. Duration must be a multiple of 2.5 ms.
+     *
+     * @return number of frames generated
+     */
+    fun plc(decodedData: ByteArray, decodedFrames: Int): Int {
+        val framesDecodedOrError = opus.plc(decodedData, decodedFrames, 0)
+        if (framesDecodedOrError < 0) {
+            val errorString = opus.strerror(framesDecodedOrError)
+            throw DecoderException("Opus PLC error: $errorString")
         }
         return framesToBytes(framesDecodedOrError)
     }
