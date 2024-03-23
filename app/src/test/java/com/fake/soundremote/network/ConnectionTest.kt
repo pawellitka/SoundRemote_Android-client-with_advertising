@@ -42,6 +42,7 @@ import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.DatagramChannel
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 // TODO: Check unnecessary stubbing
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -55,10 +56,9 @@ internal class ConnectionTest {
     private lateinit var receiveChannel: DatagramChannel
 
     @MockK
-    private lateinit var audioChannel: SendChannel<ByteArray>
+    private lateinit var audioChannel: SendChannel<ByteBuffer>
 
-    @MockK
-    private lateinit var lossesChannel: SendChannel<Int>
+    private val losses = AtomicInteger()
 
     @MockK
     private lateinit var messageChannel: SendChannel<SystemMessage>
@@ -191,7 +191,7 @@ internal class ConnectionTest {
 
     // Utility
     private fun createConnection(scope: CoroutineScope): Connection {
-        return Connection(audioChannel, audioChannel, lossesChannel, messageChannel, scope)
+        return Connection(audioChannel, audioChannel, losses, messageChannel, scope)
     }
 
     private fun getConnectRequestId(source: ByteBuffer): PacketRequestIdType? {
