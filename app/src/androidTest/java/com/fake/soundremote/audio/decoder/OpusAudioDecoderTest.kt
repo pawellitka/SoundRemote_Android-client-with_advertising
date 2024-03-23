@@ -47,7 +47,7 @@ internal class OpusAudioDecoderTest {
     }
 
     @RunWith(Parameterized::class)
-    internal class OutBuferSize_CalculatedCorrectly(
+    internal class BytesPerPacket_CalculatedCorrectly(
         private val rate: Int,
         private val channels: Int,
         private val duration: Int,
@@ -55,7 +55,7 @@ internal class OpusAudioDecoderTest {
     ) {
         companion object {
             @JvmStatic
-            @Parameters(name = "{0} Hz, {1} channel(s), {2} frame duration")
+            @Parameters(name = "{0} Hz, {1} channel(s), {2} packet duration")
             fun data(): Collection<Array<Any>> {
                 return listOf(
                     arrayOf(8_000, 1, 5_000, 80),
@@ -68,7 +68,63 @@ internal class OpusAudioDecoderTest {
         @Test
         fun test() {
             val decoder = OpusAudioDecoder(rate, channels, duration)
-            val actual = decoder.outBufferSize
+            val actual = decoder.bytesPerPacket
+
+            assertThat(actual, equalTo(expected))
+        }
+    }
+
+    @RunWith(Parameterized::class)
+    internal class FramesPerPacket_CalculatedCorrectly(
+        private val rate: Int,
+        private val channels: Int,
+        private val duration: Int,
+        private val expected: Int,
+    ) {
+        companion object {
+            @JvmStatic
+            @Parameters(name = "{0} Hz, {1} channel(s), {2} packet duration")
+            fun data(): Collection<Array<Any>> {
+                return listOf(
+                    arrayOf(8_000, 1, 5_000, 40),
+                    arrayOf(24_000, 1, 20_000, 480),
+                    arrayOf(48_000, 2, 10_000, 480),
+                )
+            }
+        }
+
+        @Test
+        fun test() {
+            val decoder = OpusAudioDecoder(rate, channels, duration)
+            val actual = decoder.framesPerPacket
+
+            assertThat(actual, equalTo(expected))
+        }
+    }
+
+    @RunWith(Parameterized::class)
+    internal class MaxPacketsPerPlc_CalculatedCorrectly(
+        private val rate: Int,
+        private val channels: Int,
+        private val duration: Int,
+        private val expected: Int,
+    ) {
+        companion object {
+            @JvmStatic
+            @Parameters(name = "{0} Hz, {1} channel(s), {2} packet duration")
+            fun data(): Collection<Array<Any>> {
+                return listOf(
+                    arrayOf(8_000, 1, 5_000, 12),
+                    arrayOf(24_000, 1, 20_000, 3),
+                    arrayOf(48_000, 2, 10_000, 6),
+                )
+            }
+        }
+
+        @Test
+        fun test() {
+            val decoder = OpusAudioDecoder(rate, channels, duration)
+            val actual = decoder.maxPacketsPerPlc
 
             assertThat(actual, equalTo(expected))
         }

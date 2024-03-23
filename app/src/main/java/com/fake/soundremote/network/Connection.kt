@@ -31,13 +31,14 @@ import java.nio.channels.AsynchronousCloseException
 import java.nio.channels.DatagramChannel
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 internal class Connection(
     private val uncompressedAudio: SendChannel<ByteBuffer>,
     private val opusAudio: SendChannel<ByteBuffer>,
-    private val packetLosses: SendChannel<Int>,
+    private val packetsLost: AtomicInteger,
     private val connectionMessages: SendChannel<SystemMessage>,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) {
@@ -251,7 +252,7 @@ internal class Connection(
         updateServerLastContact()
     }
 
-    private suspend fun processAudioSequenceNumber(current: UInt) {
+    private fun processAudioSequenceNumber(current: UInt) {
         val previous = audioSequenceNumber
         if (previous == null) {
             audioSequenceNumber = current
@@ -262,7 +263,7 @@ internal class Connection(
             audioSequenceNumber = current
         } else if (gap > 0) {
             Timber.i("Audio packets loss: $gap ($previous -> $current)")
-            packetLosses.send(gap)
+            packetsLost.addAndGet(gap)
             audioSequenceNumber = current
         } else {
             Timber.i("Audio packets invalid order: $audioSequenceNumber -> $current")

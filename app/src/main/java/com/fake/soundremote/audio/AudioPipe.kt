@@ -3,7 +3,6 @@ package com.fake.soundremote.audio
 import androidx.annotation.IntDef
 import com.fake.soundremote.audio.decoder.OpusAudioDecoder
 import com.fake.soundremote.audio.sink.PlaybackSink
-import com.fake.soundremote.util.Net.PACKET_AUDIO_DATA_BYTES
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,18 +13,19 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
 import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicInteger
 
 class AudioPipe(
     private val uncompressedAudio: ReceiveChannel<ByteBuffer>,
     private val opusAudio: ReceiveChannel<ByteBuffer>,
-    private val packetLosses: ReceiveChannel<Int>,
+    private val packetsLost: AtomicInteger,
 ) {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val decoder = OpusAudioDecoder()
     private val playback = PlaybackSink()
 
-    // 1 audio packet worth of silence
-    private val silence = ByteBuffer.allocate(PACKET_AUDIO_DATA_BYTES)
+    // An audio packet worth of silence
+    private val silencePacket = ByteBuffer.allocate(decoder.bytesPerPacket)
 
     private var playJob: Job? = null
     private var stopJob: Job? = null
@@ -49,24 +49,38 @@ class AudioPipe(
                 while (isActive) {
                     select {
                         uncompressedAudio.onReceive { audio ->
+                            val packetsToConceal = packetsLost.getAndSet(0)
+                            repeat(packetsToConceal) {
+                                playback.play(silencePacket.duplicate())
+                            }
+
                             playback.play(audio)
                         }
                         opusAudio.onReceive { audio ->
+                            concealLosses()
+
                             val encoded = ByteArray(audio.remaining())
                             audio.get(encoded)
-                            val decoded = ByteBuffer.allocate(decoder.outBufferSize)
+                            val decoded = ByteBuffer.allocate(decoder.bytesPerPacket)
                             val decodedBytes = decoder.decode(encoded, decoded.array())
                             decoded.limit(decodedBytes)
                             playback.play(decoded)
                         }
-                        packetLosses.onReceive { lost ->
-                            repeat(lost) {
-                                playback.play(silence.duplicate())
-                            }
-                        }
                     }
                 }
             }
+        }
+    }
+
+    private fun concealLosses() {
+        var packetsToConceal = packetsLost.getAndSet(0)
+        while (packetsToConceal > 0) {
+            val packets = packetsToConceal.coerceAtMost(decoder.maxPacketsPerPlc)
+            val decodedData = ByteBuffer.allocate(decoder.bytesPerPacket * packets)
+            val decodedBytes = decoder.plc(decodedData.array(), decoder.framesPerPacket * packets)
+            decodedData.limit(decodedBytes)
+            playback.play(decodedData)
+            packetsToConceal -= packets
         }
     }
 

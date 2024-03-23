@@ -65,6 +65,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.nio.ByteBuffer
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -92,10 +93,10 @@ internal class MainService : MediaBrowserServiceCompat() {
 
     private val uncompressedAudio = Channel<ByteBuffer>(5, BufferOverflow.SUSPEND)
     private val opusAudio = Channel<ByteBuffer>(5, BufferOverflow.SUSPEND)
-    private val packetLosses = Channel<Int>(5, BufferOverflow.SUSPEND)
+    private val packetsLost = AtomicInteger()
 
-    private val connection = Connection(uncompressedAudio, opusAudio, packetLosses, _systemMessages)
-    private val audioPipe = AudioPipe(uncompressedAudio, opusAudio, packetLosses)
+    private val connection = Connection(uncompressedAudio, opusAudio, packetsLost, _systemMessages)
+    private val audioPipe = AudioPipe(uncompressedAudio, opusAudio, packetsLost)
     val connectionStatus = connection.connectionStatus
     private var _isMuted = MutableStateFlow(false)
     val isMuted: StateFlow<Boolean>
