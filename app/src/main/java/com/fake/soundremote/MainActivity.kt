@@ -17,8 +17,6 @@ import com.fake.soundremote.ui.SoundRemoteApp
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.ACTION_CLOSE
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
-import timber.log.Timber.DebugTree
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -34,9 +32,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        if (BuildConfig.DEBUG) {
-            Timber.plant(DebugTree())
-        }
         setContent {
             SoundRemoteTheme {
                 SoundRemoteApp(calculateWindowSizeClass(this))
