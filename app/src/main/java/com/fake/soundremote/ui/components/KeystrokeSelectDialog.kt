@@ -34,6 +34,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fake.soundremote.R
+import com.fake.soundremote.util.KeystrokeDescription
 
 @Composable
 internal fun KeystrokeSelectDialog(
@@ -134,7 +135,7 @@ private fun KeystrokeList(
         ) { keystroke ->
             KeystrokeItem(
                 name = keystroke.name,
-                description = keystroke.description,
+                description = keystroke.description.asString(),
                 selected = keystroke.id == selectedKeystrokeId,
                 onClick = { onSelect(keystroke.id) }
             )
@@ -205,7 +206,11 @@ private fun KeystrokeDialogPreview() {
     KeystrokeSelectDialog(
         title = "Select keystroke",
         items = List(10) {
-            KeystrokeInfoUIState(it, "Keystroke $it", "Ctrl + Shift + $it")
+            KeystrokeInfoUIState(
+                it,
+                "Keystroke $it",
+                KeystrokeDescription.WithString("Ctrl + Shift + $it")
+            )
         },
         initialKeystrokeId = 9,
         onConfirm = {},

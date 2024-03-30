@@ -43,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
@@ -71,13 +72,19 @@ internal fun KeystrokeScreen(
     onAltChange: (Boolean) -> Unit,
     onNameChange: (String) -> Unit,
     checkCanSave: () -> Boolean,
-    onSave: () -> Unit,
+    onSave: (keyLabel: String) -> Unit,
     onClose: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
     compactHeight: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val invalidKeyError = stringResource(R.string.error_invalid_key)
+    val context = LocalContext.current
+
+    fun getKeyLabel(keyCode: KeyCode): String {
+        keyCode.toLetterOrDigitString()?.let { return it }
+        return context.getString(keyCode.keyLabelId()!!)
+    }
 
     Column {
         TopAppBar(
@@ -97,7 +104,8 @@ internal fun KeystrokeScreen(
                 IconButton(
                     onClick = {
                         if (checkCanSave()) {
-                            onSave()
+                            val keyLabel = getKeyLabel(state.keyCode!!)
+                            onSave(keyLabel)
                             onClose()
                         } else {
                             showSnackbar(invalidKeyError, SnackbarDuration.Short)
@@ -287,8 +295,10 @@ private fun KeySelectCombobox(
     var expanded by rememberSaveable { mutableStateOf(false) }
     val keyCaption: String = when {
         keys.isEmpty() -> ""
-        selectedKeyCode == null -> keys[0].label
-        else -> keys.find { it.keyCode == selectedKeyCode }?.label ?: ""
+        selectedKeyCode == null -> stringResource(keys[0].labelId)
+        else -> keys.find { it.keyCode == selectedKeyCode }
+            ?.let { stringResource(it.labelId) }
+            ?: ""
     }
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -319,7 +329,7 @@ private fun KeySelectCombobox(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(text = key.label)
+                            Text(stringResource(key.labelId))
                             if (key.descriptionStringId != null) {
                                 Text(text = stringResource(key.descriptionStringId))
                             }

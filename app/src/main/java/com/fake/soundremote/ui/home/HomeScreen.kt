@@ -66,6 +66,7 @@ import com.fake.soundremote.ui.components.ListItemSupport
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Key
+import com.fake.soundremote.util.KeystrokeDescription
 
 private val paddingMod = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp)
 private val keystrokeItemModifier = Modifier
@@ -204,7 +205,7 @@ internal fun HomeScreen(
             items(items = uiState.keystrokes, key = { it.id }) { keystroke ->
                 KeystrokeItem(
                     name = keystroke.name,
-                    description = keystroke.description,
+                    description = keystroke.description.asString(),
                     onClick = { onSendKeystroke(keystroke.id) },
                     onLongClick = { onNavigateToEditKeystroke(keystroke.id) },
                 )
@@ -450,8 +451,16 @@ private fun HomePreview(compactHeight: Boolean) {
             uiState = HomeUIState(
                 serverAddress = "192.168.0.1",
                 keystrokes = listOf(
-                    HomeKeystrokeUIState(++id, "Pause", "Media Pause"),
-                    HomeKeystrokeUIState(++id, "Volume up", "Volume Up"),
+                    HomeKeystrokeUIState(
+                        ++id,
+                        "X",
+                        KeystrokeDescription.WithString("X")
+                    ),
+                    HomeKeystrokeUIState(
+                        ++id,
+                        "Volume up",
+                        KeystrokeDescription.WithLabelId("Ctrl + Alt + ", R.string.key_delete)
+                    ),
                 ),
                 connectionStatus = status,
                 isMuted = true,

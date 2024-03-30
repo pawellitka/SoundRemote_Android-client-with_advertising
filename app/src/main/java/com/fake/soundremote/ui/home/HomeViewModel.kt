@@ -12,6 +12,7 @@ import com.fake.soundremote.data.preferences.PreferencesRepository
 import com.fake.soundremote.service.ServiceManager
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Key
+import com.fake.soundremote.util.KeystrokeDescription
 import com.fake.soundremote.util.generateDescription
 import com.google.common.net.InetAddresses
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,7 +34,7 @@ data class HomeUIState(
 data class HomeKeystrokeUIState(
     val id: Int,
     val name: String,
-    val description: String,
+    val description: KeystrokeDescription,
 )
 
 @HiltViewModel

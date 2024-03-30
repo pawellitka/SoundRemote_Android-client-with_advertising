@@ -91,7 +91,7 @@ internal class KeystrokeViewModel @Inject constructor(
         return keystrokeScreenState.value.keyCode != null
     }
 
-    fun saveKeystroke() {
+    fun saveKeystroke(keyLabel: String) {
         keystrokeScreenState.value.let { currentState ->
             val currentKeyCode = currentState.keyCode ?: return@let
             val mods = Mods(
@@ -100,8 +100,8 @@ internal class KeystrokeViewModel @Inject constructor(
                 shift = currentState.shift,
                 alt = currentState.alt,
             )
-            val name = currentState.name.ifBlank {
-                generateDescription(currentKeyCode, mods)
+            val name: String = currentState.name.ifBlank {
+                generateDescription(keyLabel, mods)
             }
             val keystrokeToUpdate = initialKeystroke
             if (keystrokeToUpdate == null) {

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fake.soundremote.data.KeystrokeOrder
 import com.fake.soundremote.data.KeystrokeRepository
+import com.fake.soundremote.util.KeystrokeDescription
 import com.fake.soundremote.util.generateDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,7 +17,7 @@ import javax.inject.Inject
 data class KeystrokeUIState(
     val id: Int,
     val name: String,
-    val description: String,
+    val description: KeystrokeDescription,
     val favoured: Boolean
 )
 

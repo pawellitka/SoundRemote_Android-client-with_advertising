@@ -134,7 +134,7 @@ private fun KeystrokeList(
         ) { index, keystrokeState ->
             KeystrokeItem(
                 name = keystrokeState.name,
-                description = keystrokeState.description,
+                description = keystrokeState.description.asString(),
                 favoured = keystrokeState.favoured,
                 onChangeFavoured = { onChangeFavoured(keystrokeState.id, it) },
                 onEdit = { onEdit(keystrokeState.id) },
