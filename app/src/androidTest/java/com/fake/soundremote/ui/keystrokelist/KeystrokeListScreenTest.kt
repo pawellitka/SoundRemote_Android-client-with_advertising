@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import com.fake.soundremote.R
 import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
+import com.fake.soundremote.util.KeystrokeDescription
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -43,7 +44,7 @@ internal class KeystrokeListScreenTest {
     fun keystroke_isDisplayed() {
         val name = "Test name"
         val desc = "Test description"
-        val keystrokeState = KeystrokeUIState(1, name, desc, false)
+        val keystrokeState = KeystrokeUIState(1, name, KeystrokeDescription.WithString(desc), false)
         composeTestRule.setContent {
             CreateKeystrokeListScreen(state = KeystrokeListUIState(listOf(keystrokeState)))
         }
@@ -56,7 +57,7 @@ internal class KeystrokeListScreenTest {
     @Test
     fun favouredSwitch_isDisplayed() {
         val name = "Test name"
-        val desc = "Test description"
+        val desc = KeystrokeDescription.WithString("Test description")
         val keystrokeState = KeystrokeUIState(1, name, desc, true)
         composeTestRule.setContent {
             CreateKeystrokeListScreen(state = KeystrokeListUIState(listOf(keystrokeState)))
@@ -69,7 +70,7 @@ internal class KeystrokeListScreenTest {
     @Test
     fun favouredSwitch_keystrokeIsFavoured_isOn() {
         val name = "Test name"
-        val desc = "Test description"
+        val desc = KeystrokeDescription.WithString("Test description")
         val keystrokeState = KeystrokeUIState(1, name, desc, true)
         composeTestRule.setContent {
             CreateKeystrokeListScreen(state = KeystrokeListUIState(listOf(keystrokeState)))
@@ -82,7 +83,7 @@ internal class KeystrokeListScreenTest {
     @Test
     fun favouredSwitch_keystrokeIsNotFavoured_isOff() {
         val name = "Test name"
-        val desc = "Test description"
+        val desc = KeystrokeDescription.WithString("Test description")
         val keystrokeState = KeystrokeUIState(1, name, desc, false)
         composeTestRule.setContent {
             CreateKeystrokeListScreen(state = KeystrokeListUIState(listOf(keystrokeState)))
@@ -94,7 +95,8 @@ internal class KeystrokeListScreenTest {
     // Keystroke actions menu is displayed on actions menu button click
     @Test
     fun keystrokeActionsButton_onClick_displaysMenu() {
-        val keystrokeState = KeystrokeUIState(1, "Name", "Desc", false)
+        val desc = KeystrokeDescription.WithString("Desc")
+        val keystrokeState = KeystrokeUIState(1, "Name", desc, false)
         composeTestRule.setContent {
             CreateKeystrokeListScreen(state = KeystrokeListUIState(listOf(keystrokeState)))
         }
@@ -110,7 +112,8 @@ internal class KeystrokeListScreenTest {
     @Test
     fun keystrokeActionEdit_onClick_callsEdit() {
         val id = 42
-        val keystrokeState = KeystrokeUIState(id, "Name", "Desc", false)
+        val desc = KeystrokeDescription.WithString("Desc")
+        val keystrokeState = KeystrokeUIState(id, "Name", desc, false)
         var actualId = -1
         composeTestRule.setContent {
             CreateKeystrokeListScreen(
@@ -129,7 +132,8 @@ internal class KeystrokeListScreenTest {
     @Test
     fun keystrokeActionDelete_onClick_showsConfirmationDialog() {
         val name = "Test name"
-        val keystrokeState = KeystrokeUIState(1, name, "Desc", false)
+        val desc = KeystrokeDescription.WithString("Desc")
+        val keystrokeState = KeystrokeUIState(1, name, desc, false)
         composeTestRule.setContent {
             CreateKeystrokeListScreen(
                 state = KeystrokeListUIState(listOf(keystrokeState)),
@@ -149,7 +153,8 @@ internal class KeystrokeListScreenTest {
     @Test
     fun deleteConfirmationDialog_onClickDelete_callsDelete() {
         val id = 42
-        val keystrokeState = KeystrokeUIState(id, "Test name", "Desc", false)
+        val desc = KeystrokeDescription.WithString("Desc")
+        val keystrokeState = KeystrokeUIState(id, "Test name", desc, false)
         var actualId = -1
         composeTestRule.setContent {
             CreateKeystrokeListScreen(
@@ -174,7 +179,8 @@ internal class KeystrokeListScreenTest {
     fun keystroke_onClick_callsEdit() {
         val id = 42
         val name = "Test name"
-        val keystrokeState = KeystrokeUIState(id, name, "Desc", false)
+        val desc = KeystrokeDescription.WithString("Desc")
+        val keystrokeState = KeystrokeUIState(id, name, desc, false)
         var actualId = -1
         composeTestRule.setContent {
             CreateKeystrokeListScreen(

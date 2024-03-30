@@ -31,6 +31,7 @@ internal class KeystrokeScreenTest {
     private val navigateUp by composeTestRule.stringResource(R.string.navigate_up)
     private val name by composeTestRule.stringResource(R.string.keystroke_name_edit_label)
     private val keyEdit by composeTestRule.stringResource(R.string.keystroke_key_edit_label)
+    private val keyF12 by composeTestRule.stringResource(Key.F12.labelId)
 
     // Keystroke screen should contain navigate up arrow
     @Test
@@ -193,7 +194,7 @@ internal class KeystrokeScreenTest {
         }
 
         composeTestRule.onNodeWithText(keyEdit).performClick()
-        composeTestRule.onNodeWithText(Key.F12.label).apply {
+        composeTestRule.onNodeWithText(keyF12).apply {
             performScrollTo()
             performClick()
         }
@@ -213,7 +214,7 @@ internal class KeystrokeScreenTest {
         onAltChange: (Boolean) -> Unit = {},
         onNameChange: (String) -> Unit = {},
         checkCanSave: () -> Boolean = { false },
-        onSave: () -> Unit = {},
+        onSave: (String) -> Unit = {},
         onClose: () -> Unit = {},
         showSnackbar: (String, SnackbarDuration) -> Unit = { _, _ -> },
         compactHeight: Boolean = false,
