@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Media-->
+    <string name="key_media_play_pause">Воспроизведение/Пауза</string>
+    <string name="key_media_next">Следующий трек</string>
+    <string name="key_media_prev">Предыдущий трек</string>
+    <string name="key_media_stop">Стоп</string>
+    <string name="key_media_volume_mute">Отключить звук</string>
+    <string name="key_media_volume_down">Уменьшить громкость</string>
+    <string name="key_media_volume_up">Увеличить громкость</string>
+    <!--Control-->
+    <string name="key_space">Пробел</string>
+</resources>
