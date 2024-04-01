@@ -27,25 +27,25 @@ fun MediaBar(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
     ) {
-        MediaButton(R.drawable.ic_play_pause, R.string.media_play_pause) {
+        MediaButton(R.drawable.ic_play_pause, R.string.key_media_play_pause) {
             onKeyPress(Key.MEDIA_PLAY_PAUSE)
         }
-        MediaButton(R.drawable.ic_stop, R.string.media_stop) {
+        MediaButton(R.drawable.ic_stop, R.string.key_media_stop) {
             onKeyPress(Key.MEDIA_STOP)
         }
-        MediaButton(R.drawable.ic_skip_previous, R.string.media_previous) {
+        MediaButton(R.drawable.ic_skip_previous, R.string.key_media_prev) {
             onKeyPress(Key.MEDIA_PREV)
         }
-        MediaButton(R.drawable.ic_skip_next, R.string.media_next) {
+        MediaButton(R.drawable.ic_skip_next, R.string.key_media_next) {
             onKeyPress(Key.MEDIA_NEXT)
         }
-        MediaButton(R.drawable.ic_volume_mute, R.string.media_mute) {
+        MediaButton(R.drawable.ic_volume_mute, R.string.key_media_volume_mute) {
             onKeyPress(Key.MEDIA_VOLUME_MUTE)
         }
-        MediaButton(R.drawable.ic_volume_down, R.string.media_volume_down) {
+        MediaButton(R.drawable.ic_volume_down, R.string.key_media_volume_down) {
             onKeyPress(Key.MEDIA_VOLUME_DOWN)
         }
-        MediaButton(R.drawable.ic_volume_up, R.string.media_volume_up) {
+        MediaButton(R.drawable.ic_volume_up, R.string.key_media_volume_up) {
             onKeyPress(Key.MEDIA_VOLUME_UP)
         }
     }

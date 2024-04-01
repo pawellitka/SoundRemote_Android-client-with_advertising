@@ -38,7 +38,7 @@ internal class HomeScreenTest {
     private val disconnect by composeTestRule.stringResource(R.string.disconnect_caption)
     private val showRecentServers by composeTestRule.stringResource(R.string.action_recent_servers)
     private val recentServersTitle by composeTestRule.stringResource(R.string.recent_servers_title)
-    private val mediaStop by composeTestRule.stringResource(R.string.media_stop)
+    private val mediaStop by composeTestRule.stringResource(R.string.key_media_stop)
 
     // Home screen should not contain navigate up arrow
     @Test
