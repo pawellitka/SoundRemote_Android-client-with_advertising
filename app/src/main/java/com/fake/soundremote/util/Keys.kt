@@ -150,10 +150,10 @@ enum class Key(
     END(KeyCode(0x23), R.string.key_end, KeyGroup.NAVIGATION),
     PAGE_UP(KeyCode(0x21), R.string.key_page_up, KeyGroup.NAVIGATION),
     PAGE_DOWN(KeyCode(0x22), R.string.key_page_down, KeyGroup.NAVIGATION),
-    UP(KeyCode(0x26), R.string.key_up, KeyGroup.NAVIGATION),
-    LEFT(KeyCode(0x25), R.string.key_left, KeyGroup.NAVIGATION),
-    RIGHT(KeyCode(0x27), R.string.key_right, KeyGroup.NAVIGATION),
-    DOWN(KeyCode(0x28), R.string.key_down, KeyGroup.NAVIGATION),
+    UP(KeyCode(0x26), R.string.key_up, KeyGroup.NAVIGATION, R.string.key_desc_up),
+    LEFT(KeyCode(0x25), R.string.key_left, KeyGroup.NAVIGATION, R.string.key_desc_left),
+    RIGHT(KeyCode(0x27), R.string.key_right, KeyGroup.NAVIGATION, R.string.key_desc_right),
+    DOWN(KeyCode(0x28), R.string.key_down, KeyGroup.NAVIGATION, R.string.key_desc_down),
 
     // Numpad
     NUM_0(KeyCode(0x60), R.string.key_num_0, KeyGroup.NUM_PAD),

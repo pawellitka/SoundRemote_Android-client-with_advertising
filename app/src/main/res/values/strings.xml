@@ -116,7 +116,7 @@
     <string name="key_group_control">Control</string>
     <string name="key_group_function">Function</string>
 
-    <!--Typing keys descriptions-->
+    <!--Keys descriptions-->
     <string name="key_desc_tilde">Grave accent/Tilde</string>
     <string name="key_desc_minus">Minus/Underscore</string>
     <string name="key_desc_plus">Equals/Plus</string>
@@ -128,6 +128,10 @@
     <string name="key_desc_comma">Comma/Less-than sign</string>
     <string name="key_desc_period">Period/More-than sign</string>
     <string name="key_desc_slash">Slash/Question mark</string>
+    <string name="key_desc_up">Up arrow</string>
+    <string name="key_desc_down">Down arrow</string>
+    <string name="key_desc_right">Right arrow</string>
+    <string name="key_desc_left">Left arrow</string>
 
     <!--Compression-->
     <string name="compression_none">No compression</string>
