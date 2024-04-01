@@ -1,5 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--Key groups-->
+    <string name="key_group_letter_digit">Letter or digit</string>
+    <string name="key_group_typing">Typing</string>
+    <string name="key_group_media">Media</string>
+    <string name="key_group_navigation">Navigation</string>
+    <string name="key_group_numpad">Numpad</string>
+    <string name="key_group_control">Control</string>
+    <string name="key_group_function">Function</string>
+
+    <!--Keys descriptions-->
+    <string name="key_desc_tilde">Grave accent/Tilde</string>
+    <string name="key_desc_minus">Minus/Underscore</string>
+    <string name="key_desc_plus">Equals/Plus</string>
+    <string name="key_desc_bracket_left">Left square/curly bracket</string>
+    <string name="key_desc_bracket_right">Right square/curly bracket</string>
+    <string name="key_desc_semicolon">Semicolon/Colon</string>
+    <string name="key_desc_quote">Single/Double quote</string>
+    <string name="key_desc_backslash">Backslash/Vertical bar</string>
+    <string name="key_desc_comma">Comma/Less-than sign</string>
+    <string name="key_desc_period">Period/More-than sign</string>
+    <string name="key_desc_slash">Slash/Question mark</string>
+    <string name="key_desc_up">Up arrow</string>
+    <string name="key_desc_down">Down arrow</string>
+    <string name="key_desc_right">Right arrow</string>
+    <string name="key_desc_left">Left arrow</string>
+
     <!--Media-->
     <string name="key_media_play_pause">Play/Pause Media</string>
     <string name="key_media_next">Next Track</string>

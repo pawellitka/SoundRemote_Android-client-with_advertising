@@ -117,13 +117,13 @@ enum class Key(
         KeyCode(0xDB),
         R.string.key_square_bracket_left,
         KeyGroup.TYPING,
-        R.string.key_desc_bracket_open
+        R.string.key_desc_bracket_left
     ),
     SQUARE_BRACKET_RIGHT(
         KeyCode(0xDD),
         R.string.key_square_bracket_right,
         KeyGroup.TYPING,
-        R.string.key_desc_bracket_close
+        R.string.key_desc_bracket_right
     ),
     SEMICOLON(KeyCode(0xBA), R.string.key_semicolon, KeyGroup.TYPING, R.string.key_desc_semicolon),
     QUOTE(KeyCode(0xDE), R.string.key_quote, KeyGroup.TYPING, R.string.key_desc_quote),
