@@ -11,6 +11,7 @@ import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.KeyGroup
 import com.fake.soundremote.util.ModKey
 import com.fake.soundremote.util.Mods
+import com.fake.soundremote.util.generateDescription
 import com.fake.soundremote.util.isModActive
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.test.runTest
@@ -120,7 +121,7 @@ class KeystrokeViewModelTest {
             viewModel.updateMod(ModKey.CTRL, true)
             keystrokeRepository.setKeystrokes(emptyList())
 
-            viewModel.saveKeystroke()
+            viewModel.saveKeystroke("B")
 
             val savedKeystroke = keystrokeRepository.getAllOrdered().firstOrNull()?.firstOrNull()
             assertNotNull(savedKeystroke)
@@ -131,6 +132,35 @@ class KeystrokeViewModelTest {
             assertTrue(savedKeystroke.isModActive(ModKey.SHIFT))
             assertFalse(savedKeystroke.isModActive(ModKey.ALT))
             assertFalse(savedKeystroke.isModActive(ModKey.WIN))
+        }
+
+        @Test
+        @DisplayName("saveKeystroke() without name set saves new Keystroke with generated name")
+        fun saveKeystroke_blankName_createsNewKeystroke() = runTest {
+            // Letter/digit key
+            val expectedKeyCode = KeyCode(0x42)
+            val keyLabel = expectedKeyCode.toLetterOrDigitString()!!
+            val mods = Mods(win = false, ctrl = true, shift = true, alt = false)
+            val expectedName = generateDescription(keyLabel, mods)
+
+            for (mod in ModKey.entries) {
+                viewModel.updateMod(mod, mods.isModActive(mod))
+            }
+            viewModel.updateKeyCode(expectedKeyCode)
+            keystrokeRepository.setKeystrokes(emptyList())
+
+            viewModel.saveKeystroke(keyLabel)
+
+            val savedKeystroke = keystrokeRepository.getAllOrdered().firstOrNull()?.firstOrNull()
+            assertNotNull(savedKeystroke)
+            savedKeystroke!!
+            assertEquals(expectedName, savedKeystroke.name)
+            assertEquals(expectedKeyCode, savedKeystroke.keyCode)
+            for (mod in ModKey.entries) {
+                val expectedModValue = mods.isModActive(mod)
+                val actualModValue = savedKeystroke.isModActive(mod)
+                assertEquals(expectedModValue, actualModValue)
+            }
         }
     }
 
@@ -207,7 +237,7 @@ class KeystrokeViewModelTest {
             viewModel.updateKeyCode(expectedKeyCode)
             viewModel.updateMod(ModKey.SHIFT, true)
             viewModel.updateMod(ModKey.CTRL, true)
-            viewModel.saveKeystroke()
+            viewModel.saveKeystroke("B")
 
             val updatedKeystroke = keystrokeRepository.getById(id)
             assertNotNull(updatedKeystroke)

@@ -16,7 +16,7 @@ internal class KeysTest {
     @Nested
     inner class ToKeyCodeTests {
         @ParameterizedTest
-        @DisplayName("returns correct code for a digit or [a-z/A-Z] letter Char")
+        @DisplayName("returns the correct code for a digit or [a-z/A-Z] letter Char")
         @CsvSource("0, 48", "9, 57", "a, 65", "A, 65", "z, 90", "Z, 90")
         fun validChar_returnsCorrectCode(ch: Char, expected: Int) {
             val actual = ch.toKeyCode()
@@ -38,10 +38,32 @@ internal class KeysTest {
     @Nested
     inner class KeyCodeToCharTests {
         @ParameterizedTest
-        @DisplayName("returns correct Char for a digit or [a-z/A-Z] letter key code")
+        @DisplayName("returns the correct Char for a digit or [a-z/A-Z] letter key code")
         @CsvSource("48, 0", "57, 9", "65, a", "90, z")
         fun validCode_returnsCorrectChar(code: Int, expected: Char) {
             val actual = KeyCode(code).toLetterOrDigitChar()
+
+            assertEquals(expected, actual)
+        }
+
+        @ParameterizedTest
+        @DisplayName("returns null for a non digit or [a-z/A-Z] letter key code")
+        @ValueSource(ints = [-1, 0, 200, 500])
+        fun invalidCode_returnsNull(code: Int) {
+            val actual = KeyCode(code).toLetterOrDigitChar()
+
+            assertNull(actual)
+        }
+    }
+
+    @DisplayName("KeyCode.toLetterOrDigitString")
+    @Nested
+    inner class KeyCodeToStringTests {
+        @ParameterizedTest
+        @DisplayName("returns the correct (uppercase) String for a digit or [a-z/A-Z] letter key code")
+        @CsvSource("0x30, 0", "0x39, 9", "0x41, A", "0x5A, Z")
+        fun validCode_returnsCorrectChar(code: Int, expected: String) {
+            val actual = KeyCode(code).toLetterOrDigitString()
 
             assertEquals(expected, actual)
         }
@@ -60,39 +82,58 @@ internal class KeysTest {
     @Nested
     inner class GenerateDescriptionTests {
         @ParameterizedTest
-        @DisplayName("produces description without mod labels for a keystroke without mods")
+        @DisplayName("produces a description without mod key labels for a keystroke without mods")
         @EnumSource(ModKey::class)
         fun keystrokeWithoutMods_ContainsNoModLabel(mod: ModKey) {
-            val keystroke = getKeystroke(mods = Mods())
+            val keystroke = getKeystroke(keyCode = KeyCode('A'.code), mods = Mods())
 
             val description = generateDescription(keystroke)
 
-            val actual = description.lowercase().contains(mod.label.lowercase())
+            assertTrue(description is KeystrokeDescription.WithString)
+            description as KeystrokeDescription.WithString
+            val actual = description.text.lowercase().contains(mod.label.lowercase())
             assertFalse(actual)
         }
 
         @ParameterizedTest
-        @DisplayName("produces description with a mod label for a keystroke with mod")
+        @DisplayName("produces a description with a mod label for a keystroke with mod")
         @EnumSource(ModKey::class)
         fun keystrokeWithOneMod_ContainsCorrectModLabel(mod: ModKey) {
-            val keystroke = getKeystroke(mods = Mods(mod.bitField))
+            val keystroke = getKeystroke(keyCode = KeyCode('A'.code), mods = Mods(mod.bitField))
 
             val description = generateDescription(keystroke)
 
-            val actual = description.lowercase().contains(mod.label.lowercase())
+            assertTrue(description is KeystrokeDescription.WithString)
+            description as KeystrokeDescription.WithString
+            val actual = description.text.lowercase().contains(mod.label.lowercase())
             assertTrue(actual)
         }
 
         @ParameterizedTest
-        @DisplayName("produces description with a correct label for a passed key code")
-        @CsvSource("45, insert", "121, f10", "48, 0", "57, 9", "65, a", "90, Z")
+        @DisplayName("produces a description with the correct label for a letter/number key code")
+        @CsvSource("48, 0", "57, 9", "65, A", "90, z")
         fun keystroke_ContainsCorrectKeyLabel(code: Int, label: String) {
             val keystroke = getKeystroke(keyCode = KeyCode(code))
 
             val description = generateDescription(keystroke)
 
-            val actual = description.lowercase().contains(label.lowercase())
+            assertTrue(description is KeystrokeDescription.WithString)
+            description as KeystrokeDescription.WithString
+            val actual = description.text.lowercase().contains(label.lowercase())
             assertTrue(actual)
+        }
+
+        @ParameterizedTest
+        @EnumSource(names = ["TILDE", "F12", "DELETE"])
+        @DisplayName("produces a correct String resource description for a non letter/number key code")
+        fun keystroke_ContainsCorrectKeyLabelId(key: Key) {
+            val keystroke = getKeystroke(keyCode = key.keyCode)
+
+            val description = generateDescription(keystroke)
+
+            assertTrue(description is KeystrokeDescription.WithLabelId)
+            description as KeystrokeDescription.WithLabelId
+            assertEquals(key.labelId, description.labelId)
         }
     }
 }

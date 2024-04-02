@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">SoundRemote</string>
+    <string name="app_name" translatable="false">SoundRemote</string>
 
     <string name="delete">Delete</string>
     <string name="save">Save</string>
@@ -106,37 +106,6 @@
     <string name="about_title_template">About %s</string>
     <string name="show_license">license</string>
     <string name="open_homepage">homepage</string>
-
-    <!--Key groups-->
-    <string name="key_group_letter_digit">Letter or digit</string>
-    <string name="key_group_typing">Typing</string>
-    <string name="key_group_media">Media</string>
-    <string name="key_group_navigation">Navigation</string>
-    <string name="key_group_numpad">Numpad</string>
-    <string name="key_group_control">Control</string>
-    <string name="key_group_function">Function</string>
-
-    <!--Media keys-->
-    <string name="media_play_pause">Play/pause</string>
-    <string name="media_stop">Stop</string>
-    <string name="media_previous">Previous</string>
-    <string name="media_next">Next</string>
-    <string name="media_mute">Mute</string>
-    <string name="media_volume_up">Volume up</string>
-    <string name="media_volume_down">Volume down</string>
-
-    <!--Typing keys descriptions-->
-    <string name="key_desc_tilde">Grave accent/Tilde</string>
-    <string name="key_desc_minus">Minus/Underscore</string>
-    <string name="key_desc_plus">Equals/Plus</string>
-    <string name="key_desc_bracket_open">Square/Curly open bracket</string>
-    <string name="key_desc_bracket_close">Square/Curly close bracket</string>
-    <string name="key_desc_semicolon">Semicolon/Colon</string>
-    <string name="key_desc_quote">Single/Double quote</string>
-    <string name="key_desc_backslash">Backslash/Vertical bar</string>
-    <string name="key_desc_comma">Comma/Less-than sign</string>
-    <string name="key_desc_period">Period/More-than sign</string>
-    <string name="key_desc_slash">Slash/Question mark</string>
 
     <!--Compression-->
     <string name="compression_none">No compression</string>

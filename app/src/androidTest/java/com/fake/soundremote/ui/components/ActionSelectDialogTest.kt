@@ -13,6 +13,7 @@ import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.AppAction
 import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
+import com.fake.soundremote.util.KeystrokeDescription
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -104,7 +105,8 @@ class ActionSelectDialogTest {
         val keystrokes = buildList {
             repeat(count) {
                 val id = it + 1
-                add(KeystrokeInfoUIState(id, "Key $id", "Desc $id"))
+                val desc = KeystrokeDescription.WithString("Desc $id")
+                add(KeystrokeInfoUIState(id, "Key $id", desc))
             }
         }
         composeTestRule.setContent {
@@ -130,7 +132,8 @@ class ActionSelectDialogTest {
             val keystrokes = buildList {
                 repeat(count) {
                     val id = it + 1
-                    add(KeystrokeInfoUIState(id, "Key $id", "Desc $id"))
+                    val desc = KeystrokeDescription.WithString("Desc $id")
+                    add(KeystrokeInfoUIState(id, "Key $id", desc))
                 }
             }
             CreateActionSelectDialog(

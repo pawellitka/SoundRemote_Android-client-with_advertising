@@ -41,6 +41,7 @@ import com.fake.soundremote.R
 import com.fake.soundremote.data.Action
 import com.fake.soundremote.data.ActionType
 import com.fake.soundremote.data.AppAction
+import com.fake.soundremote.util.KeystrokeDescription
 
 @Composable
 internal fun ActionSelectDialog(
@@ -64,10 +65,10 @@ internal fun ActionSelectDialog(
 sealed interface ActionUIState {
     val id: Int
 
-    data class WithStrings(
+    data class WithKeystroke(
         override val id: Int,
         val name: String,
-        val description: String?,
+        val description: KeystrokeDescription,
     ) : ActionUIState
 
     data class WithStringIds(
@@ -125,7 +126,11 @@ internal fun ActionSelectDialog(
     }
     val keystrokeActions = rememberSaveable(keystrokes) {
         keystrokes.map { keystroke ->
-            ActionUIState.WithStrings(keystroke.id, keystroke.name, keystroke.description)
+            ActionUIState.WithKeystroke(
+                keystroke.id,
+                keystroke.name,
+                keystroke.description,
+            )
         }
     }
     val items = when (actionTypes[selectedActionTypeIndex]) {
@@ -218,8 +223,8 @@ private fun ActionList(
             key = { it.id }
         ) { action ->
             val (name, description) = when (action) {
-                is ActionUIState.WithStrings -> {
-                    action.name to action.description
+                is ActionUIState.WithKeystroke -> {
+                    action.name to action.description.asString()
                 }
 
                 is ActionUIState.WithStringIds -> {

@@ -2,7 +2,10 @@
 
 package com.fake.soundremote.util
 
+import android.content.Context
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import com.fake.soundremote.R
 import com.fake.soundremote.data.Keystroke
 import com.fake.soundremote.data.KeystrokeInfo
@@ -21,28 +24,50 @@ fun Char.toKeyCode(): KeyCode? {
     } else null
 }
 
+sealed interface KeystrokeDescription {
+    data class WithString(val text: String) : KeystrokeDescription
+    data class WithLabelId(val mods: String, @StringRes val labelId: Int) : KeystrokeDescription
+
+    @Composable
+    fun asString(): String =
+        asString(LocalContext.current)
+
+    fun asString(context: Context): String = when (this) {
+        is WithString -> text
+        is WithLabelId -> mods + context.getString(labelId)
+    }
+}
+
 /**
- * Generates a description for the keystroke, for example "Ctrl + Alt + Shift + Space"
+ * Generates a [KeystrokeDescription] for the [Keystroke]
  *
  * @param keystroke the source [Keystroke]
  * @return description
  */
-fun generateDescription(keystroke: Keystroke): String =
+fun generateDescription(keystroke: Keystroke): KeystrokeDescription =
     generateDescription(keystroke.keyCode, keystroke.mods)
 
-fun generateDescription(keystroke: KeystrokeInfo): String =
+fun generateDescription(keystroke: KeystrokeInfo): KeystrokeDescription =
     generateDescription(keystroke.keyCode, keystroke.mods)
 
 /**
- * Generates a description for the keystroke, for example "Ctrl + Alt + Shift + Space"
+ * Generates a [KeystrokeDescription] for the keystroke
  *
  * @param keyCode main key virtual-key code
  * @param mods mods bitfield
  * @return description
  */
-fun generateDescription(keyCode: KeyCode, mods: Mods): String = ModKey.entries
-    .filter { mods.isModActive(it) }
-    .fold("") { result, mod -> result + "${mod.label} + " } + keyCode.keyLabel()
+fun generateDescription(keyCode: KeyCode, mods: Mods): KeystrokeDescription {
+    keyCode.toLetterOrDigitString()?.let {
+        val desc = generateDescription(it, mods)
+        return KeystrokeDescription.WithString(desc)
+    }
+    val modsPrefix = mods.toPrefixString()
+    return KeystrokeDescription.WithLabelId(modsPrefix, keyCode.keyLabelId()!!)
+}
+
+fun generateDescription(keyLabel: String, mods: Mods): String =
+    mods.toPrefixString() + keyLabel
 
 // https://support.microsoft.com/en-us/windows/using-your-keyboard-18b2efc1-9e32-ba5a-0896-676f9f3b994f
 // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
@@ -63,95 +88,107 @@ enum class KeyGroup(val nameStringId: Int, val label: String) {
  * A keyboard key.
  *
  * @param keyCode Windows Virtual-Key code
- * @param label Key description
+ * @param labelId Key label resource string id
  * @param group [KeyGroup] this Key belongs to
  * @param descriptionStringId optional description resource string id
  */
 enum class Key(
     val keyCode: KeyCode,
-    val label: String,
+    @StringRes
+    val labelId: Int,
     val group: KeyGroup,
     @StringRes
     val descriptionStringId: Int? = null
 ) {
     // Media
-    MEDIA_PLAY_PAUSE(KeyCode(0xB3), "Play/Pause Media", KeyGroup.MEDIA),
-    MEDIA_NEXT(KeyCode(0xB0), "Next Track", KeyGroup.MEDIA),
-    MEDIA_PREV(KeyCode(0xB1), "Previous Track", KeyGroup.MEDIA),
-    MEDIA_STOP(KeyCode(0xB2), "Stop Media", KeyGroup.MEDIA),
-    MEDIA_VOLUME_MUTE(KeyCode(0xAD), "Volume Mute", KeyGroup.MEDIA),
-    MEDIA_VOLUME_DOWN(KeyCode(0xAE), "Volume Down", KeyGroup.MEDIA),
-    MEDIA_VOLUME_UP(KeyCode(0xAF), "Volume Up", KeyGroup.MEDIA),
+    MEDIA_PLAY_PAUSE(KeyCode(0xB3), R.string.key_media_play_pause, KeyGroup.MEDIA),
+    MEDIA_NEXT(KeyCode(0xB0), R.string.key_media_next, KeyGroup.MEDIA),
+    MEDIA_PREV(KeyCode(0xB1), R.string.key_media_prev, KeyGroup.MEDIA),
+    MEDIA_STOP(KeyCode(0xB2), R.string.key_media_stop, KeyGroup.MEDIA),
+    MEDIA_VOLUME_MUTE(KeyCode(0xAD), R.string.key_media_volume_mute, KeyGroup.MEDIA),
+    MEDIA_VOLUME_DOWN(KeyCode(0xAE), R.string.key_media_volume_down, KeyGroup.MEDIA),
+    MEDIA_VOLUME_UP(KeyCode(0xAF), R.string.key_media_volume_up, KeyGroup.MEDIA),
 
     // Typing
-    TILDE(KeyCode(0xC0), "`", KeyGroup.TYPING, R.string.key_desc_tilde),
-    MINUS(KeyCode(0xBD), "−", KeyGroup.TYPING, R.string.key_desc_minus),
-    PLUS(KeyCode(0xBB), "=", KeyGroup.TYPING, R.string.key_desc_plus),
-    SQUARE_BRACKET_LEFT(KeyCode(0xDB), "[", KeyGroup.TYPING, R.string.key_desc_bracket_open),
-    SQUARE_BRACKET_RIGHT(KeyCode(0xDD), "]", KeyGroup.TYPING, R.string.key_desc_bracket_close),
-    SEMICOLON(KeyCode(0xBA), ";", KeyGroup.TYPING, R.string.key_desc_semicolon),
-    QUOTE(KeyCode(0xDE), "'", KeyGroup.TYPING, R.string.key_desc_quote),
-    BACKSLASH(KeyCode(0xDC), "\\", KeyGroup.TYPING, R.string.key_desc_backslash),
-    COMMA(KeyCode(0xBC), ",", KeyGroup.TYPING, R.string.key_desc_comma),
-    PERIOD(KeyCode(0xBE), ".", KeyGroup.TYPING, R.string.key_desc_period),
-    SLASH(KeyCode(0xBF), "/", KeyGroup.TYPING, R.string.key_desc_slash),
+    TILDE(KeyCode(0xC0), R.string.key_tilde, KeyGroup.TYPING, R.string.key_desc_tilde),
+    MINUS(KeyCode(0xBD), R.string.key_minus, KeyGroup.TYPING, R.string.key_desc_minus),
+    PLUS(KeyCode(0xBB), R.string.key_plus, KeyGroup.TYPING, R.string.key_desc_plus),
+    SQUARE_BRACKET_LEFT(
+        KeyCode(0xDB),
+        R.string.key_square_bracket_left,
+        KeyGroup.TYPING,
+        R.string.key_desc_bracket_left
+    ),
+    SQUARE_BRACKET_RIGHT(
+        KeyCode(0xDD),
+        R.string.key_square_bracket_right,
+        KeyGroup.TYPING,
+        R.string.key_desc_bracket_right
+    ),
+    SEMICOLON(KeyCode(0xBA), R.string.key_semicolon, KeyGroup.TYPING, R.string.key_desc_semicolon),
+    QUOTE(KeyCode(0xDE), R.string.key_quote, KeyGroup.TYPING, R.string.key_desc_quote),
+    BACKSLASH(KeyCode(0xDC), R.string.key_backslash, KeyGroup.TYPING, R.string.key_desc_backslash),
+    COMMA(KeyCode(0xBC), R.string.key_comma, KeyGroup.TYPING, R.string.key_desc_comma),
+    PERIOD(KeyCode(0xBE), R.string.key_period, KeyGroup.TYPING, R.string.key_desc_period),
+    SLASH(KeyCode(0xBF), R.string.key_slash, KeyGroup.TYPING, R.string.key_desc_slash),
 
     // Control
-    TAB(KeyCode(0x09), "Tab", KeyGroup.CONTROL),
-    SPACE(KeyCode(0x20), "Space", KeyGroup.CONTROL),
-    BACK(KeyCode(0x08), "Backspace", KeyGroup.CONTROL),
-    ENTER(KeyCode(0x0D), "Enter", KeyGroup.CONTROL),
-    CAPITAL(KeyCode(0x14), "Caps Lock", KeyGroup.CONTROL),
-    ESC(KeyCode(0x1B), "Esc", KeyGroup.CONTROL),
-    PRINT_SCREEN(KeyCode(0x2C), "Print Screen", KeyGroup.CONTROL),
-    SCROLL_LOCK(KeyCode(0x91), "Scroll Lock", KeyGroup.CONTROL),
-    PAUSE(KeyCode(0x13), "Pause", KeyGroup.CONTROL),
+    TAB(KeyCode(0x09), R.string.key_tab, KeyGroup.CONTROL),
+    SPACE(KeyCode(0x20), R.string.key_space, KeyGroup.CONTROL),
+    BACK(KeyCode(0x08), R.string.key_back, KeyGroup.CONTROL),
+    ENTER(KeyCode(0x0D), R.string.key_enter, KeyGroup.CONTROL),
+    CAPITAL(KeyCode(0x14), R.string.key_capital, KeyGroup.CONTROL),
+    ESC(KeyCode(0x1B), R.string.key_esc, KeyGroup.CONTROL),
+    PRINT_SCREEN(KeyCode(0x2C), R.string.key_print_screen, KeyGroup.CONTROL),
+    SCROLL_LOCK(KeyCode(0x91), R.string.key_scroll_lock, KeyGroup.CONTROL),
+    PAUSE(KeyCode(0x13), R.string.key_pause, KeyGroup.CONTROL),
 
     // Navigation
-    INSERT(KeyCode(0x2D), "Insert", KeyGroup.NAVIGATION),
-    DELETE(KeyCode(0x2E), "Delete", KeyGroup.NAVIGATION),
-    HOME(KeyCode(0x24), "Home", KeyGroup.NAVIGATION),
-    END(KeyCode(0x23), "End", KeyGroup.NAVIGATION),
-    PAGE_UP(KeyCode(0x21), "Page Up", KeyGroup.NAVIGATION),
-    PAGE_DOWN(KeyCode(0x22), "Page Down", KeyGroup.NAVIGATION),
-    UP(KeyCode(0x26), "Up", KeyGroup.NAVIGATION),
-    LEFT(KeyCode(0x25), "Left", KeyGroup.NAVIGATION),
-    RIGHT(KeyCode(0x27), "Right", KeyGroup.NAVIGATION),
-    DOWN(KeyCode(0x28), "Down", KeyGroup.NAVIGATION),
+    INSERT(KeyCode(0x2D), R.string.key_insert, KeyGroup.NAVIGATION),
+    DELETE(KeyCode(0x2E), R.string.key_delete, KeyGroup.NAVIGATION),
+    HOME(KeyCode(0x24), R.string.key_home, KeyGroup.NAVIGATION),
+    END(KeyCode(0x23), R.string.key_end, KeyGroup.NAVIGATION),
+    PAGE_UP(KeyCode(0x21), R.string.key_page_up, KeyGroup.NAVIGATION),
+    PAGE_DOWN(KeyCode(0x22), R.string.key_page_down, KeyGroup.NAVIGATION),
+    UP(KeyCode(0x26), R.string.key_up, KeyGroup.NAVIGATION, R.string.key_desc_up),
+    LEFT(KeyCode(0x25), R.string.key_left, KeyGroup.NAVIGATION, R.string.key_desc_left),
+    RIGHT(KeyCode(0x27), R.string.key_right, KeyGroup.NAVIGATION, R.string.key_desc_right),
+    DOWN(KeyCode(0x28), R.string.key_down, KeyGroup.NAVIGATION, R.string.key_desc_down),
 
     // Numpad
-    NUM_0(KeyCode(0x60), "Num 0", KeyGroup.NUM_PAD),
-    NUM_1(KeyCode(0x61), "Num 1", KeyGroup.NUM_PAD),
-    NUM_2(KeyCode(0x62), "Num 2", KeyGroup.NUM_PAD),
-    NUM_3(KeyCode(0x63), "Num 3", KeyGroup.NUM_PAD),
-    NUM_4(KeyCode(0x64), "Num 4", KeyGroup.NUM_PAD),
-    NUM_5(KeyCode(0x65), "Num 5", KeyGroup.NUM_PAD),
-    NUM_6(KeyCode(0x66), "Num 6", KeyGroup.NUM_PAD),
-    NUM_7(KeyCode(0x67), "Num 8", KeyGroup.NUM_PAD),
-    NUM_9(KeyCode(0x69), "Num 9", KeyGroup.NUM_PAD),
-    NUM_MULTIPLY(KeyCode(0x6A), "Num *", KeyGroup.NUM_PAD),
-    NUM_ADD(KeyCode(0x6B), "Num +", KeyGroup.NUM_PAD),
-    NUM_SUBTRACT(KeyCode(0x6D), "Num -", KeyGroup.NUM_PAD),
-    NUM_DECIMAL(KeyCode(0x6E), "Num .", KeyGroup.NUM_PAD),
-    NUM_DIVIDE(KeyCode(0x6F), "Num /", KeyGroup.NUM_PAD),
-    NUM_LOCK(KeyCode(0x90), "Num Lock", KeyGroup.NUM_PAD),
+    NUM_0(KeyCode(0x60), R.string.key_num_0, KeyGroup.NUM_PAD),
+    NUM_1(KeyCode(0x61), R.string.key_num_1, KeyGroup.NUM_PAD),
+    NUM_2(KeyCode(0x62), R.string.key_num_2, KeyGroup.NUM_PAD),
+    NUM_3(KeyCode(0x63), R.string.key_num_3, KeyGroup.NUM_PAD),
+    NUM_4(KeyCode(0x64), R.string.key_num_4, KeyGroup.NUM_PAD),
+    NUM_5(KeyCode(0x65), R.string.key_num_5, KeyGroup.NUM_PAD),
+    NUM_6(KeyCode(0x66), R.string.key_num_6, KeyGroup.NUM_PAD),
+    NUM_7(KeyCode(0x67), R.string.key_num_7, KeyGroup.NUM_PAD),
+    NUM_8(KeyCode(0x67), R.string.key_num_8, KeyGroup.NUM_PAD),
+    NUM_9(KeyCode(0x69), R.string.key_num_9, KeyGroup.NUM_PAD),
+    NUM_MULTIPLY(KeyCode(0x6A), R.string.key_num_multiply, KeyGroup.NUM_PAD),
+    NUM_ADD(KeyCode(0x6B), R.string.key_num_add, KeyGroup.NUM_PAD),
+    NUM_SUBTRACT(KeyCode(0x6D), R.string.key_num_subtract, KeyGroup.NUM_PAD),
+    NUM_DECIMAL(KeyCode(0x6E), R.string.key_num_decimal, KeyGroup.NUM_PAD),
+    NUM_DIVIDE(KeyCode(0x6F), R.string.key_num_divide, KeyGroup.NUM_PAD),
+    NUM_LOCK(KeyCode(0x90), R.string.key_num_lock, KeyGroup.NUM_PAD),
 
     // Function
-    F1(KeyCode(0x70), "F1", KeyGroup.FUNCTION),
-    F2(KeyCode(0x71), "F2", KeyGroup.FUNCTION),
-    F3(KeyCode(0x72), "F3", KeyGroup.FUNCTION),
-    F4(KeyCode(0x73), "F4", KeyGroup.FUNCTION),
-    F5(KeyCode(0x74), "F5", KeyGroup.FUNCTION),
-    F6(KeyCode(0x75), "F6", KeyGroup.FUNCTION),
-    F7(KeyCode(0x76), "F7", KeyGroup.FUNCTION),
-    F8(KeyCode(0x77), "F8", KeyGroup.FUNCTION),
-    F9(KeyCode(0x78), "F9", KeyGroup.FUNCTION),
-    F10(KeyCode(0x79), "F10", KeyGroup.FUNCTION),
-    F11(KeyCode(0x7A), "F11", KeyGroup.FUNCTION),
-    F12(KeyCode(0x7B), "F12", KeyGroup.FUNCTION);
+    F1(KeyCode(0x70), R.string.key_f1, KeyGroup.FUNCTION),
+    F2(KeyCode(0x71), R.string.key_f2, KeyGroup.FUNCTION),
+    F3(KeyCode(0x72), R.string.key_f3, KeyGroup.FUNCTION),
+    F4(KeyCode(0x73), R.string.key_f4, KeyGroup.FUNCTION),
+    F5(KeyCode(0x74), R.string.key_f5, KeyGroup.FUNCTION),
+    F6(KeyCode(0x75), R.string.key_f6, KeyGroup.FUNCTION),
+    F7(KeyCode(0x76), R.string.key_f7, KeyGroup.FUNCTION),
+    F8(KeyCode(0x77), R.string.key_f8, KeyGroup.FUNCTION),
+    F9(KeyCode(0x78), R.string.key_f9, KeyGroup.FUNCTION),
+    F10(KeyCode(0x79), R.string.key_f10, KeyGroup.FUNCTION),
+    F11(KeyCode(0x7A), R.string.key_f11, KeyGroup.FUNCTION),
+    F12(KeyCode(0x7B), R.string.key_f12, KeyGroup.FUNCTION);
 
     override fun toString(): String {
-        return label
+        return name
     }
 }
 
@@ -174,9 +211,12 @@ fun Keystroke.isModActive(mod: ModKey): Boolean {
 
 @JvmInline
 value class KeyCode(val value: Int) {
+
     /**
-     * If this [KeyCode] is a virtual-key code for a digit or an english alphabet letter key, returns a Char
-     * representing the corresponding character. Otherwise, returns null.
+     * If this [KeyCode] is a virtual-key code for a digit or an english alphabet letter key,
+     * returns the `Char` representing the corresponding character. Otherwise, returns null.
+     *
+     * @return `Char` or null
      */
     fun toLetterOrDigitChar(): Char? {
         if (value in 0x30..0x39) {
@@ -188,15 +228,23 @@ value class KeyCode(val value: Int) {
     }
 
     /**
-     * Returns a text label for the virtual-key code
+     * Same as [toLetterOrDigitChar] but converts `Char` into an uppercase `String`.
      *
-     * @return text label
+     * @return `String` or null
      */
-    fun keyLabel(): String {
-        return toLetterOrDigitChar()?.toString()?.uppercase()
-            ?: Key.entries.find { it.keyCode == this }?.label
-            ?: "<?>"
-    }
+    fun toLetterOrDigitString(): String? =
+        toLetterOrDigitChar()?.uppercase()
+
+    /**
+     * If this [KeyCode] is __not__ a virtual-key code for a digit or an english alphabet letter
+     * key, returns resource id of the string containing its label. Returns null if there is no
+     * [Key] with such [KeyCode].
+     *
+     * @return label string resource id or null
+     */
+    @StringRes
+    fun keyLabelId(): Int? =
+        Key.entries.find { it.keyCode == this }?.labelId
 }
 
 @JvmInline
@@ -211,4 +259,14 @@ value class Mods(val value: Int = 0) {
     fun isModActive(mod: ModKey): Boolean {
         return value and mod.bitField != 0
     }
+
+    /**
+     * Creates a string with all the active mods separated by " + " with a trailing " + ".
+     * For example: "Ctrl + Shift + ". Returns an empty string if there are no active mods.
+     *
+     * @return prefix string
+     */
+    fun toPrefixString(): String = ModKey.entries
+        .filter { isModActive(it) }
+        .fold("") { result, mod -> result + "${mod.label} + " }
 }

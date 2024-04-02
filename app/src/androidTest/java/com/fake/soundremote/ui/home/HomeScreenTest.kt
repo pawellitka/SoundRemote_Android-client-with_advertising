@@ -20,6 +20,7 @@ import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Key
+import com.fake.soundremote.util.KeystrokeDescription
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -37,7 +38,7 @@ internal class HomeScreenTest {
     private val disconnect by composeTestRule.stringResource(R.string.disconnect_caption)
     private val showRecentServers by composeTestRule.stringResource(R.string.action_recent_servers)
     private val recentServersTitle by composeTestRule.stringResource(R.string.recent_servers_title)
-    private val mediaStop by composeTestRule.stringResource(R.string.media_stop)
+    private val mediaStop by composeTestRule.stringResource(R.string.key_media_stop)
 
     // Home screen should not contain navigate up arrow
     @Test
@@ -195,7 +196,8 @@ internal class HomeScreenTest {
     fun keystroke_click_sendsKeystroke() {
         val expectedId = 12
         val keystrokeName = "Key Title"
-        val keystroke = HomeKeystrokeUIState(expectedId, keystrokeName, "Key Description")
+        val keystrokeDescription = KeystrokeDescription.WithString("Key Description")
+        val keystroke = HomeKeystrokeUIState(expectedId, keystrokeName, keystrokeDescription)
         var sentKeystrokeId = -1
         composeTestRule.setContent {
             val uiState = HomeUIState(
@@ -214,7 +216,8 @@ internal class HomeScreenTest {
     fun keystroke_longClick_editsKeystroke() {
         val expectedId = 12
         val keystrokeName = "Key Title"
-        val keystroke = HomeKeystrokeUIState(expectedId, keystrokeName, "Key Description")
+        val keystrokeDescription = KeystrokeDescription.WithString("Key Description")
+        val keystroke = HomeKeystrokeUIState(expectedId, keystrokeName, keystrokeDescription)
         var editKeystrokeId = -1
         composeTestRule.setContent {
             val uiState = HomeUIState(
