@@ -50,6 +50,9 @@ android {
     sourceSets {
         getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
+    lint {
+        warning.add("MissingTranslation")
+    }
 }
 
 tasks.withType<Test> {
