@@ -71,14 +71,17 @@ fun generateDescription(keyLabel: String, mods: Mods): String =
 
 // https://support.microsoft.com/en-us/windows/using-your-keyboard-18b2efc1-9e32-ba5a-0896-676f9f3b994f
 // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-enum class KeyGroup(val nameStringId: Int, val label: String) {
-    LETTER_DIGIT(R.string.key_group_letter_digit, "a-9"),
-    MEDIA(R.string.key_group_media, "⏯"),
-    TYPING(R.string.key_group_typing, "' \\"),
-    CONTROL(R.string.key_group_control, "Esc"),
-    NAVIGATION(R.string.key_group_navigation, "➡"),
-    NUM_PAD(R.string.key_group_numpad, "*"),
-    FUNCTION(R.string.key_group_function, "F1");
+enum class KeyGroup(
+    @StringRes val nameStringId: Int,
+    @StringRes val labelStringId: Int,
+) {
+    LETTER_DIGIT(R.string.key_group_letter_digit, R.string.key_group_label_letter_digit),
+    MEDIA(R.string.key_group_media, R.string.key_group_label_media),
+    TYPING(R.string.key_group_typing, R.string.key_group_label_typing),
+    CONTROL(R.string.key_group_control, R.string.key_group_label_control),
+    NAVIGATION(R.string.key_group_navigation, R.string.key_group_label_navigation),
+    NUM_PAD(R.string.key_group_numpad, R.string.key_group_label_numpad),
+    FUNCTION(R.string.key_group_function, R.string.key_group_label_function);
 
     val index: Int
         get() = ordinal

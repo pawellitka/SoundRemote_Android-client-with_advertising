@@ -231,7 +231,7 @@ private fun KeySelect(
                 }
                 Tab(
                     text = { Text(text = stringResource(keyGroup.nameStringId)) },
-                    icon = { Text(text = keyGroup.label) },
+                    icon = { Text(text = stringResource(keyGroup.labelId)) },
                     selected = tabIndex == keyGroupToTabIndex(keyGroup.index),
                     onClick = onTabClick,
                 )
