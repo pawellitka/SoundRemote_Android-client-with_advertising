@@ -3,6 +3,7 @@
 package com.fake.soundremote.util
 
 import android.content.Context
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -69,19 +70,27 @@ fun generateDescription(keyCode: KeyCode, mods: Mods): KeystrokeDescription {
 fun generateDescription(keyLabel: String, mods: Mods): String =
     mods.toPrefixString() + keyLabel
 
+sealed interface KeyLabel {
+    data class String(@StringRes val stringId: Int) : KeyLabel
+    data class Icon(@DrawableRes val iconId: Int) : KeyLabel
+}
+
 // https://support.microsoft.com/en-us/windows/using-your-keyboard-18b2efc1-9e32-ba5a-0896-676f9f3b994f
 // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 enum class KeyGroup(
     @StringRes val nameStringId: Int,
-    @StringRes val labelStringId: Int,
+    val label: KeyLabel,
 ) {
-    LETTER_DIGIT(R.string.key_group_letter_digit, R.string.key_group_label_letter_digit),
-    MEDIA(R.string.key_group_media, R.string.key_group_label_media),
-    TYPING(R.string.key_group_typing, R.string.key_group_label_typing),
-    CONTROL(R.string.key_group_control, R.string.key_group_label_control),
-    NAVIGATION(R.string.key_group_navigation, R.string.key_group_label_navigation),
-    NUM_PAD(R.string.key_group_numpad, R.string.key_group_label_numpad),
-    FUNCTION(R.string.key_group_function, R.string.key_group_label_function);
+    LETTER_DIGIT(
+        R.string.key_group_letter_digit,
+        KeyLabel.String(R.string.key_group_label_letter_digit),
+    ),
+    MEDIA(R.string.key_group_media, KeyLabel.Icon(R.drawable.ic_play_pause)),
+    TYPING(R.string.key_group_typing, KeyLabel.String(R.string.key_group_label_typing)),
+    CONTROL(R.string.key_group_control, KeyLabel.String(R.string.key_group_label_control)),
+    NAVIGATION(R.string.key_group_navigation, KeyLabel.String(R.string.key_group_label_navigation)),
+    NUM_PAD(R.string.key_group_numpad, KeyLabel.String(R.string.key_group_label_numpad)),
+    FUNCTION(R.string.key_group_function, KeyLabel.String(R.string.key_group_label_function));
 
     val index: Int
         get() = ordinal

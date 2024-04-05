@@ -44,17 +44,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.fake.soundremote.R
 import com.fake.soundremote.ui.components.NavigateUpButton
 import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.KeyCode
 import com.fake.soundremote.util.KeyGroup
+import com.fake.soundremote.util.KeyLabel
 import com.fake.soundremote.util.toKeyCode
 
 private val sharedMod = Modifier
@@ -223,6 +227,8 @@ private fun KeySelect(
         ScrollableTabRow(
             selectedTabIndex = tabIndex,
         ) {
+            // adjust icon size according to device's font size
+            val tabIconSize = with(LocalDensity.current) { 24.sp.toDp() }
             for (keyGroup in KeyGroup.entries) {
                 val onTabClick = if (keyGroup.index == KeyGroup.LETTER_DIGIT.index) {
                     { onKeyCodeChange(selectedChar?.toKeyCode()) }
@@ -231,7 +237,21 @@ private fun KeySelect(
                 }
                 Tab(
                     text = { Text(text = stringResource(keyGroup.nameStringId)) },
-                    icon = { Text(text = stringResource(keyGroup.labelId)) },
+                    icon = {
+                        when (keyGroup.label) {
+                            is KeyLabel.Icon -> {
+                                Icon(
+                                    painter = painterResource(keyGroup.label.iconId),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(tabIconSize),
+                                )
+                            }
+
+                            is KeyLabel.String -> {
+                                Text(text = stringResource(keyGroup.label.stringId))
+                            }
+                        }
+                    },
                     selected = tabIndex == keyGroupToTabIndex(keyGroup.index),
                     onClick = onTabClick,
                 )
