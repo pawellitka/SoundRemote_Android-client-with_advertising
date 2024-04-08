@@ -9,6 +9,14 @@
     <string name="key_group_control">Control</string>
     <string name="key_group_function">Function</string>
 
+    <string name="key_group_label_letter_digit" translatable="false">a-9</string>
+    <string name="key_group_label_typing" translatable="false">\' \\</string>
+    <string name="key_group_label_media" translatable="false">⏯</string>
+    <string name="key_group_label_navigation" translatable="false">→</string>
+    <string name="key_group_label_numpad" translatable="false">*</string>
+    <string name="key_group_label_control" translatable="false">Esc</string>
+    <string name="key_group_label_function" translatable="false">F1</string>
+
     <!--Keys descriptions-->
     <string name="key_desc_tilde">Grave accent/Tilde</string>
     <string name="key_desc_minus">Minus/Underscore</string>
