@@ -3,6 +3,7 @@ package com.fake.soundremote.audio
 import androidx.annotation.IntDef
 import com.fake.soundremote.audio.decoder.OpusAudioDecoder
 import com.fake.soundremote.audio.sink.PlaybackSink
+import com.fake.soundremote.util.Audio.PACKET_CONCEAL_LIMIT
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -49,15 +50,12 @@ class AudioPipe(
                 while (isActive) {
                     select {
                         uncompressedAudio.onReceive { audio ->
-                            val packetsToConceal = packetsLost.getAndSet(0)
-                            repeat(packetsToConceal) {
-                                playback.play(silencePacket.duplicate())
-                            }
+                            concealLossesUncompressed()
 
                             playback.play(audio)
                         }
                         opusAudio.onReceive { audio ->
-                            concealLosses()
+                            concealLossesOpus()
 
                             val encoded = ByteArray(audio.remaining())
                             audio.get(encoded)
@@ -72,8 +70,18 @@ class AudioPipe(
         }
     }
 
-    private fun concealLosses() {
-        var packetsToConceal = packetsLost.getAndSet(0)
+    private fun packetsLost(): Int = packetsLost.getAndSet(0)
+        .takeIf { it < PACKET_CONCEAL_LIMIT } ?: 0
+
+    private fun concealLossesUncompressed() {
+        val packetsToConceal = packetsLost()
+        repeat(packetsToConceal) {
+            playback.play(silencePacket.duplicate())
+        }
+    }
+
+    private fun concealLossesOpus() {
+        var packetsToConceal = packetsLost()
         while (packetsToConceal > 0) {
             val packets = packetsToConceal.coerceAtMost(decoder.maxPacketsPerPlc)
             val decodedData = ByteBuffer.allocate(decoder.bytesPerPacket * packets)
