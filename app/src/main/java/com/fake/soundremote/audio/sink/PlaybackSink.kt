@@ -18,7 +18,7 @@ import java.nio.ByteBuffer
 private const val PCM_BUFFER_MULTIPLICATION_FACTOR = 4
 
 /** Minimum length for the AudioTrack buffer, in milliseconds. */
-private const val MIN_PCM_BUFFER_DURATION = 250
+const val MIN_PCM_BUFFER_DURATION = 250
 
 /** Maximum length for the AudioTrack buffer, in milliseconds. */
 private const val MAX_PCM_BUFFER_DURATION = 750
