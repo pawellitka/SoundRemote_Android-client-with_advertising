@@ -42,7 +42,7 @@
     <string name="key_media_volume_mute">Volume Mute</string>
     <string name="key_media_volume_down">Volume Down</string>
     <string name="key_media_volume_up">Volume Up</string>
-    <!--Typing-->
+    <!--Punctuation-->
     <string name="key_tilde" translatable="false">`</string>
     <string name="key_minus" translatable="false">−</string>
     <string name="key_plus" translatable="false">=</string>
