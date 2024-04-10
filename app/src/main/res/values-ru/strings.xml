@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="delete">Удалить</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="edit">Редактировать</string>
+    <string name="clear">Очистить</string>
+    <string name="navigate_up">Назад</string>
+    <string name="app_info">О приложении</string>
+    <string name="input_field">Поле ввода</string>
+    <!--Permission-->
+    <string name="permission_caption">Разрешение</string>
+    <string name="permission_granted_caption">предоставлено</string>
+    <string name="permission_required_caption">требуется</string>
+    <string name="permission_denied_caption">отклонено</string>
+    <string name="permission_show_info_caption">Информация о разрешении</string>
+    <string name="permission_tooltip_title">Требуется разрешение</string>
+    <string name="permission_tooltip_text_template">
+        Для работы этого события необходимо разрешение \"%1$s\".
+        Оно может быть предоставлено на экране \"О приложении\".
+        Возможно потребуется перезапуск приложения.
+    </string>
+    <string name="permission_name_phone">Телефон</string>
+</resources>
