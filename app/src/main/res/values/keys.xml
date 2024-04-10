@@ -50,7 +50,7 @@
     <string name="key_square_bracket_right" translatable="false">]</string>
     <string name="key_semicolon" translatable="false">;</string>
     <string name="key_quote" translatable="false">\'</string>
-    <string name="key_backslash" translatable="false">\</string>
+    <string name="key_backslash" translatable="false">\\</string>
     <string name="key_comma" translatable="false">,</string>
     <string name="key_period" translatable="false">.</string>
     <string name="key_slash" translatable="false">/</string>
