@@ -6,6 +6,7 @@
     <string name="cancel">Cancel</string>
     <string name="edit">Edit</string>
     <string name="clear">Clear</string>
+    <string name="close">Close</string>
     <string name="navigate_up">Navigate up</string>
     <string name="app_info">App info</string>
     <string name="input_field">Input field</string>
@@ -49,12 +50,7 @@
     <string name="action_unmute_app">Unmute application</string>
 
     <!--Notification-->
-    <string name="notification_title">SoundRemote</string>
-    <string name="notification_text">Return to SoundRemote</string>
-    <string name="notification_action_previous">Previous</string>
-    <string name="notification_action_next">Next</string>
-    <string name="notification_action_play_pause">Play/Pause</string>
-    <string name="notification_action_close">Close</string>
+    <string name="notification_title_template">Return to %1$s</string>
 
     <!--Keystrokes-->
     <string name="keystroke_list_title">Keystrokes</string>

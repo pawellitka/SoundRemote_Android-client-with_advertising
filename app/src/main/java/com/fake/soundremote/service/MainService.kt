@@ -373,8 +373,7 @@ internal class MainService : MediaBrowserServiceCompat() {
     private fun createMediaSession(): MediaSessionCompat {
         val playbackState = playbackStateBuilder.build()
         val metadata = MediaMetadataCompat.Builder()
-            .putString(MediaMetadata.METADATA_KEY_TITLE, getString(R.string.notification_title))
-            .putString(MediaMetadata.METADATA_KEY_ARTIST, getString(R.string.notification_text))
+            .putString(MediaMetadata.METADATA_KEY_TITLE, notificationTitle)
             .build()
         return MediaSessionCompat(this, MEDIA_SESSION_TAG).apply {
             setCallback(MediaCallback())
@@ -392,7 +391,7 @@ internal class MainService : MediaBrowserServiceCompat() {
             )
             .addCustomAction(
                 NOTIFICATION_ACTION_CLOSE,
-                getString(R.string.notification_action_close),
+                closeActionTitle,
                 NOTIFICATION_ICON_CLOSE
             )
             .setState(
@@ -481,7 +480,7 @@ internal class MainService : MediaBrowserServiceCompat() {
 
         val previousAction = NotificationCompat.Action(
             R.drawable.ic_skip_previous,
-            getString(R.string.notification_action_previous),
+            getString(R.string.key_media_prev),
             MediaButtonReceiver.buildMediaButtonPendingIntent(
                 this,
                 PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
@@ -489,7 +488,7 @@ internal class MainService : MediaBrowserServiceCompat() {
         )
         val pauseAction = NotificationCompat.Action(
             R.drawable.ic_play_pause,
-            getString(R.string.notification_action_play_pause),
+            getString(R.string.key_media_play_pause),
             MediaButtonReceiver.buildMediaButtonPendingIntent(
                 this,
                 PlaybackStateCompat.ACTION_PLAY_PAUSE
@@ -497,7 +496,7 @@ internal class MainService : MediaBrowserServiceCompat() {
         )
         val nextAction = NotificationCompat.Action(
             R.drawable.ic_skip_next,
-            getString(R.string.notification_action_next),
+            getString(R.string.key_media_next),
             MediaButtonReceiver.buildMediaButtonPendingIntent(
                 this,
                 PlaybackStateCompat.ACTION_SKIP_TO_NEXT
@@ -505,7 +504,7 @@ internal class MainService : MediaBrowserServiceCompat() {
         )
         val closeAction = NotificationCompat.Action(
             NOTIFICATION_ICON_CLOSE,
-            getString(R.string.notification_action_close),
+            closeActionTitle,
             PendingIntent.getBroadcast(
                 this, 0, Intent(ACTION_CLOSE), PendingIntent.FLAG_IMMUTABLE
             )
@@ -517,8 +516,7 @@ internal class MainService : MediaBrowserServiceCompat() {
             }
         return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(getString(R.string.notification_title))
-            .setContentText(getString(R.string.notification_text))
+            .setContentTitle(notificationTitle)
             .setContentIntent(sessionActivityPendingIntent)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setShowWhen(false)
@@ -529,6 +527,12 @@ internal class MainService : MediaBrowserServiceCompat() {
             .addAction(closeAction)
             .build()
     }
+
+    private val notificationTitle: String
+        get() = getString(R.string.notification_title_template).format(getString(R.string.app_name))
+
+    private val closeActionTitle: String
+        get() = getString(R.string.close)
 
     override fun onGetRoot(
         clientPackageName: String,
