@@ -56,7 +56,6 @@
     <string name="keystroke_list_title">Keystrokes</string>
     <string name="keystroke_delete_confirmation">Delete keystroke: %1s?</string>
     <string name="action_keystroke_create">Create</string>
-    <string name="keystroke_favourite_toggle_description">Favourite state toggle</string>
     <string name="drag_handle_description">Drag handle</string>
     <string name="keystroke_actions_menu_description">Actions menu</string>
 
