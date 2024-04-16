@@ -7,8 +7,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.fake.soundremote.util.TestTag
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -35,7 +37,7 @@ class NavigationTest {
     private val appName by composeTestRule.stringResource(R.string.app_name)
 
     // Screen titles
-    private val homeTitle by composeTestRule.stringResource(R.string.home_title)
+    private val homeTitle by composeTestRule.stringResource(R.string.app_name)
     private val eventsTitle by composeTestRule.stringResource(R.string.event_list_title)
     private val settingsTitle by composeTestRule.stringResource(R.string.settings_title)
     private val aboutTitleTemplate by composeTestRule.stringResource(R.string.about_title_template)
@@ -43,7 +45,6 @@ class NavigationTest {
     private val createKeystrokeTitle by composeTestRule.stringResource(R.string.keystroke_create_title)
 
     private val navigationMenu by composeTestRule.stringResource(R.string.navigation_menu)
-    private val navigationMenuDropdown by composeTestRule.stringResource(R.string.navigation_menu_description)
     private val menuEvents by composeTestRule.stringResource(R.string.action_events)
     private val menuSettings by composeTestRule.stringResource(R.string.action_settings)
     private val menuAbout by composeTestRule.stringResource(R.string.action_about)
@@ -62,7 +63,7 @@ class NavigationTest {
     fun navigationMenuButton_onClick_showsNavigationMenu() {
         composeTestRule.apply {
             onNodeWithContentDescription(navigationMenu).performClick()
-            onNodeWithContentDescription(navigationMenuDropdown).assertIsDisplayed()
+            onNodeWithTag(TestTag.NAVIGATION_MENU).assertIsDisplayed()
             onNodeWithText(menuEvents).assertIsDisplayed()
             onNodeWithText(menuSettings).assertIsDisplayed()
             onNodeWithText(menuAbout).assertIsDisplayed()

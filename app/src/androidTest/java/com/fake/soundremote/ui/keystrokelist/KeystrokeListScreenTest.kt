@@ -15,7 +15,7 @@ import com.fake.soundremote.R
 import com.fake.soundremote.stringResource
 import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.KeystrokeDescription
-import com.fake.soundremote.util.TestTags
+import com.fake.soundremote.util.TestTag
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -64,7 +64,7 @@ internal class KeystrokeListScreenTest {
             CreateKeystrokeListScreen(state = KeystrokeListUIState(listOf(keystrokeState)))
         }
 
-        composeTestRule.onNodeWithTag(TestTags.FAVOURITE_SWITCH).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTag.FAVOURITE_SWITCH).assertIsDisplayed()
     }
 
     // Keystroke favoured status switch is on for favoured keystroke
@@ -77,7 +77,7 @@ internal class KeystrokeListScreenTest {
             CreateKeystrokeListScreen(state = KeystrokeListUIState(listOf(keystrokeState)))
         }
 
-        composeTestRule.onNodeWithTag(TestTags.FAVOURITE_SWITCH).assertIsOn()
+        composeTestRule.onNodeWithTag(TestTag.FAVOURITE_SWITCH).assertIsOn()
     }
 
     // Keystroke favoured status switch is off for unfavoured keystroke
@@ -90,7 +90,7 @@ internal class KeystrokeListScreenTest {
             CreateKeystrokeListScreen(state = KeystrokeListUIState(listOf(keystrokeState)))
         }
 
-        composeTestRule.onNodeWithTag(TestTags.FAVOURITE_SWITCH).assertIsOff()
+        composeTestRule.onNodeWithTag(TestTag.FAVOURITE_SWITCH).assertIsOff()
     }
 
     // Keystroke actions menu is displayed on actions menu button click

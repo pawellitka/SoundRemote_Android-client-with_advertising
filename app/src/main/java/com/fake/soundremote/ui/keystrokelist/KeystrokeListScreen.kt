@@ -52,7 +52,7 @@ import com.fake.soundremote.R
 import com.fake.soundremote.ui.components.ListItemHeadline
 import com.fake.soundremote.ui.components.ListItemSupport
 import com.fake.soundremote.ui.components.NavigateUpButton
-import com.fake.soundremote.util.TestTags
+import com.fake.soundremote.util.TestTag
 import java.io.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -222,7 +222,7 @@ private fun KeystrokeItem(
                 onCheckedChange = onChangeFavoured,
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
-                    .testTag(TestTags.FAVOURITE_SWITCH)
+                    .testTag(TestTag.FAVOURITE_SWITCH)
             )
             Column(
                 verticalArrangement = Arrangement.Center,

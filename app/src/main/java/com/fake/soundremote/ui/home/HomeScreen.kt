@@ -50,11 +50,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -67,6 +66,7 @@ import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.ConnectionStatus
 import com.fake.soundremote.util.Key
 import com.fake.soundremote.util.KeystrokeDescription
+import com.fake.soundremote.util.TestTag
 
 private val paddingMod = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp)
 private val keystrokeItemModifier = Modifier
@@ -113,7 +113,7 @@ internal fun HomeScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(stringResource(R.string.home_title))
+                    Text(stringResource(R.string.app_name))
                     if (compactHeight) {
                         ConnectComponent(
                             address = address,
@@ -152,14 +152,10 @@ internal fun HomeScreen(
                             contentDescription = stringResource(R.string.navigation_menu)
                         )
                     }
-                    val menuContentDescription =
-                        stringResource(R.string.navigation_menu_description)
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false },
-                        modifier = Modifier.semantics {
-                            contentDescription = menuContentDescription
-                        }
+                        modifier = Modifier.testTag(TestTag.NAVIGATION_MENU)
                     ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_events)) },
