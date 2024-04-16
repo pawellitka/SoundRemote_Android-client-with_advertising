@@ -2,7 +2,7 @@
 <resources>
     <!--Key groups-->
     <string name="key_group_letter_digit">Letter or digit</string>
-    <string name="key_group_typing">Typing</string>
+    <string name="key_group_typing">Punctuation</string>
     <string name="key_group_media">Media</string>
     <string name="key_group_navigation">Navigation</string>
     <string name="key_group_numpad">Numpad</string>
@@ -18,13 +18,13 @@
     <string name="key_group_label_function" translatable="false">F1</string>
 
     <!--Keys descriptions-->
-    <string name="key_desc_tilde">Grave accent/Tilde</string>
+    <string name="key_desc_tilde">Backtick/Tilde</string>
     <string name="key_desc_minus">Minus/Underscore</string>
     <string name="key_desc_plus">Equals/Plus</string>
     <string name="key_desc_bracket_left">Left square/curly bracket</string>
     <string name="key_desc_bracket_right">Right square/curly bracket</string>
     <string name="key_desc_semicolon">Semicolon/Colon</string>
-    <string name="key_desc_quote">Single/Double quote</string>
+    <string name="key_desc_quote">Apostrophe/Quotation mark</string>
     <string name="key_desc_backslash">Backslash/Vertical bar</string>
     <string name="key_desc_comma">Comma/Less-than sign</string>
     <string name="key_desc_period">Period/More-than sign</string>
@@ -42,7 +42,7 @@
     <string name="key_media_volume_mute">Volume Mute</string>
     <string name="key_media_volume_down">Volume Down</string>
     <string name="key_media_volume_up">Volume Up</string>
-    <!--Typing-->
+    <!--Punctuation-->
     <string name="key_tilde" translatable="false">`</string>
     <string name="key_minus" translatable="false">−</string>
     <string name="key_plus" translatable="false">=</string>
@@ -50,7 +50,7 @@
     <string name="key_square_bracket_right" translatable="false">]</string>
     <string name="key_semicolon" translatable="false">;</string>
     <string name="key_quote" translatable="false">\'</string>
-    <string name="key_backslash" translatable="false">\</string>
+    <string name="key_backslash" translatable="false">\\</string>
     <string name="key_comma" translatable="false">,</string>
     <string name="key_period" translatable="false">.</string>
     <string name="key_slash" translatable="false">/</string>
