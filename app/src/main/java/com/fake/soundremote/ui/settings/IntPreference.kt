@@ -16,13 +16,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.fake.soundremote.R
+import com.fake.soundremote.util.TestTag
 
 @Composable
 internal fun IntPreference(
@@ -67,7 +67,6 @@ internal fun IntPreference(
                 SideEffect {
                     editFocusRequester.requestFocus()
                 }
-                val inputFieldDescription = stringResource(R.string.input_field)
                 TextField(
                     value = editValue,
                     onValueChange = { newEditValue ->
@@ -86,7 +85,7 @@ internal fun IntPreference(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
                         .focusRequester(editFocusRequester)
-                        .semantics { contentDescription = inputFieldDescription }
+                        .testTag(TestTag.INPUT_FIELD)
                 )
             },
             confirmButton = {

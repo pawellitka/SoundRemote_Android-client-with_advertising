@@ -11,6 +11,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
@@ -21,6 +22,7 @@ import com.fake.soundremote.ui.theme.SoundRemoteTheme
 import com.fake.soundremote.util.Net
 import com.fake.soundremote.util.Net.COMPRESSION_320
 import com.fake.soundremote.util.Net.COMPRESSION_NONE
+import com.fake.soundremote.util.TestTag
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +38,6 @@ internal class SettingsScreenTest {
     private val compressionNone by composeTestRule.stringResource(R.string.compression_none)
     private val compression320 by composeTestRule.stringResource(R.string.compression_320)
     private val ok by composeTestRule.stringResource(android.R.string.ok)
-    private val inputField by composeTestRule.stringResource(R.string.input_field)
 
     // Settings screen should contain navigate up arrow
     @Test
@@ -70,7 +71,7 @@ internal class SettingsScreenTest {
             CreateSettingsScreen(settings = SettingsUIState(audioCompression = value))
         }
 
-        composeTestRule.onNodeWithContentDescription(this.audioCompression)
+        composeTestRule.onNodeWithText(this.audioCompression)
             .assertTextContains(compression320, true)
     }
 
@@ -82,7 +83,7 @@ internal class SettingsScreenTest {
             CreateSettingsScreen(settings = SettingsUIState(audioCompression = value))
         }
 
-        composeTestRule.onNodeWithContentDescription(this.audioCompression)
+        composeTestRule.onNodeWithText(audioCompression)
             .assertTextContains(compressionNone, true)
     }
 
@@ -94,7 +95,7 @@ internal class SettingsScreenTest {
             CreateSettingsScreen(settings = SettingsUIState(serverPort = value))
         }
 
-        composeTestRule.onNodeWithContentDescription(this.serverPort)
+        composeTestRule.onNodeWithText(this.serverPort)
             .assertTextContains("$value", true)
     }
 
@@ -106,7 +107,7 @@ internal class SettingsScreenTest {
             CreateSettingsScreen(settings = SettingsUIState(clientPort = value))
         }
 
-        composeTestRule.onNodeWithContentDescription(this.clientPort)
+        composeTestRule.onNodeWithText(this.clientPort)
             .assertTextContains("$value", true)
     }
 
@@ -189,8 +190,8 @@ internal class SettingsScreenTest {
         val expected = 22_322
         composeTestRule.apply {
             onNodeWithText(serverPort).performClick()
-            onNodeWithContentDescription(inputField).performTextClearance()
-            onNodeWithContentDescription(inputField).performTextInput("$expected")
+            onNodeWithTag(TestTag.INPUT_FIELD).performTextClearance()
+            onNodeWithTag(TestTag.INPUT_FIELD).performTextInput("$expected")
             onNodeWithText(ok).performClick()
         }
 
@@ -211,8 +212,8 @@ internal class SettingsScreenTest {
         val expected = 22_322
         composeTestRule.apply {
             onNodeWithText(clientPort).performClick()
-            onNodeWithContentDescription(inputField).performTextClearance()
-            onNodeWithContentDescription(inputField).performTextInput("$expected")
+            onNodeWithTag(TestTag.INPUT_FIELD).performTextClearance()
+            onNodeWithTag(TestTag.INPUT_FIELD).performTextInput("$expected")
             onNodeWithText(ok).performClick()
         }
 

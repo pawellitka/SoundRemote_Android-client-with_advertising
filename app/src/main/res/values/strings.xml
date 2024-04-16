@@ -9,7 +9,6 @@
     <string name="close">Close</string>
     <string name="navigate_up">Navigate up</string>
     <string name="app_info">App info</string>
-    <string name="input_field">Input field</string>
 
     <!--Permission-->
     <string name="permission_caption">Permission</string>

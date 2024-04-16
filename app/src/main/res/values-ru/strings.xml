@@ -8,7 +8,6 @@
     <string name="close">Закрыть</string>
     <string name="navigate_up">Назад</string>
     <string name="app_info">О приложении</string>
-    <string name="input_field">Поле ввода</string>
     <!--Permission-->
     <string name="permission_caption">Разрешение</string>
     <string name="permission_granted_caption">предоставлено</string>
