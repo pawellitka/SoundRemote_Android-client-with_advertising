@@ -6,8 +6,10 @@ import com.fake.soundremote.util.DEFAULT_CLIENT_PORT
 import com.fake.soundremote.util.DEFAULT_SERVER_ADDRESS
 import com.fake.soundremote.util.DEFAULT_SERVER_PORT
 import com.fake.soundremote.util.Net
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -18,9 +20,10 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 
 @DisplayName("UserPreferencesRepository")
+@OptIn(ExperimentalCoroutinesApi::class)
 class UserPreferencesRepositoryTest {
 
-    private val testScope = TestScope()
+    private val dataStoreScope = TestScope(UnconfinedTestDispatcher())
 
     @TempDir
     lateinit var tempDir: Path
@@ -30,7 +33,7 @@ class UserPreferencesRepositoryTest {
     @BeforeEach
     fun setup() {
         val dataStore = PreferenceDataStoreFactory.create(
-            scope = testScope,
+            scope = dataStoreScope,
         ) {
             tempDir.resolve("test_user_preferences.preferences_pb").toFile()
         }
@@ -39,7 +42,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("default client port value is correct")
-    fun getClientPort_defaultValue() = testScope.runTest {
+    fun getClientPort_defaultValue() = runTest {
         val actual = testRepo.getClientPort()
 
         assertEquals(DEFAULT_CLIENT_PORT, actual)
@@ -47,7 +50,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("default server port value is correct")
-    fun getServerPort_defaultValue() = testScope.runTest {
+    fun getServerPort_defaultValue() = runTest {
         val actual = testRepo.getServerPort()
 
         assertEquals(DEFAULT_SERVER_PORT, actual)
@@ -55,7 +58,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("default server address value is correct")
-    fun getServerAddress_defaultValue() = testScope.runTest {
+    fun getServerAddress_defaultValue() = runTest {
         val actual = testRepo.getServerAddress()
 
         assertEquals(DEFAULT_SERVER_ADDRESS, actual)
@@ -63,7 +66,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("default audio compression value is correct")
-    fun getAudioCompression_defaultValue() = testScope.runTest {
+    fun getAudioCompression_defaultValue() = runTest {
         val actual = testRepo.getAudioCompression()
 
         assertEquals(DEFAULT_AUDIO_COMPRESSION, actual)
@@ -71,7 +74,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("setClientPort sets client port correctly")
-    fun setClientPort_setsCorrectly() = testScope.runTest {
+    fun setClientPort_setsCorrectly() = runTest {
         val expected = DEFAULT_CLIENT_PORT + 123
 
         testRepo.setClientPort(expected)
@@ -82,7 +85,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("setServerPort sets server port correctly")
-    fun setServerPort_setsCorrectly() = testScope.runTest {
+    fun setServerPort_setsCorrectly() = runTest {
         val expected = DEFAULT_SERVER_PORT + 123
 
         testRepo.setServerPort(expected)
@@ -93,7 +96,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("setServerAddress sets server address correctly")
-    fun setServerAddress_setsCorrectly() = testScope.runTest {
+    fun setServerAddress_setsCorrectly() = runTest {
         val expected = "123.45.67.89"
 
         testRepo.setServerAddress(expected)
@@ -104,7 +107,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("setAudioCompression sets audio compression correctly")
-    fun setAudioCompression_setsCorrectly() = testScope.runTest {
+    fun setAudioCompression_setsCorrectly() = runTest {
         val expected = Net.COMPRESSION_320
         assertNotEquals(DEFAULT_AUDIO_COMPRESSION, expected)
 
@@ -116,7 +119,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("settingsScreenPreferencesFlow updates client port")
-    fun settingsScreenPreferencesFlow_updatesClientPort() = testScope.runTest {
+    fun settingsScreenPreferencesFlow_updatesClientPort() = runTest {
         val expected = DEFAULT_CLIENT_PORT + 100
 
         testRepo.setClientPort(expected)
@@ -127,7 +130,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("settingsScreenPreferencesFlow updates server port")
-    fun settingsScreenPreferencesFlow_updatesServerPort() = testScope.runTest {
+    fun settingsScreenPreferencesFlow_updatesServerPort() = runTest {
         val expected = DEFAULT_SERVER_PORT + 100
 
         testRepo.setServerPort(expected)
@@ -138,7 +141,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("settingsScreenPreferencesFlow updates audio compression")
-    fun settingsScreenPreferencesFlow_updatesAudioCompression() = testScope.runTest {
+    fun settingsScreenPreferencesFlow_updatesAudioCompression() = runTest {
         val expected = Net.COMPRESSION_320
         assertNotEquals(DEFAULT_AUDIO_COMPRESSION, expected)
 
@@ -150,7 +153,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("serverAddressesFlow updates")
-    fun serverAddressFlow_updates() = testScope.runTest {
+    fun serverAddressFlow_updates() = runTest {
         val expected = "123.45.67.89"
         val initialAddresses = testRepo.serverAddressesFlow.first()
         // Make sure that initial list contains only the default address
@@ -164,7 +167,7 @@ class UserPreferencesRepositoryTest {
 
     @Test
     @DisplayName("audioCompressionFlow updates")
-    fun audioCompressionFlow_updates() = testScope.runTest {
+    fun audioCompressionFlow_updates() = runTest {
         val expected = Net.COMPRESSION_320
         assertNotEquals(DEFAULT_AUDIO_COMPRESSION, expected)
 
