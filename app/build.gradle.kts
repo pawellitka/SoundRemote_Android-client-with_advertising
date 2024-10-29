@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    id("org.jetbrains.kotlin.kapt")
+    id("kotlin-kapt")
     alias(libs.plugins.room)
     id("kotlin-parcelize")
 }
@@ -67,8 +67,6 @@ room {
 }
 
 dependencies {
-    implementation(fileTree(mapOf("include" to listOf("*.aar", "*.jar"), "dir" to "libs")))
-
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.media)
     implementation(libs.androidx.ktx)
@@ -95,6 +93,8 @@ dependencies {
     androidTestImplementation(libs.androidx.room.testing)
 // Local tests
     testImplementation(libs.bundles.local.tests)
+// JOpus
+    implementation(libs.jopus)
 // Room
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
