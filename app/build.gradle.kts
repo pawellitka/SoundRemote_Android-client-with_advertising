@@ -41,9 +41,6 @@ android {
         compose = true
         buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.12"
-    }
     ksp {
         arg("room.generateKotlin", "true")
     }
@@ -89,7 +86,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 // Instrumented tests
     androidTestImplementation(libs.androidx.runner)
-    androidTestImplementation(libs.androidx.core.ktx)
+    androidTestImplementation(libs.androidx.test.ktx)
     androidTestImplementation(libs.androidx.navigation.testing)
     androidTestImplementation(libs.androidx.room.testing)
 // Local tests
