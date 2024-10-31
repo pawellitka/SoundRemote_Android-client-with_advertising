@@ -1,5 +1,6 @@
 package com.fake.soundremote.audio.sink
 
+import android.annotation.SuppressLint
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
@@ -113,6 +114,9 @@ class PlaybackSink {
         return targetBufferSize.coerceIn(MIN_BUFFER_SIZE..MAX_BUFFER_SIZE)
     }
 
+    // Suppress range check on setSessionId because its documentation states that
+    // AudioManager.AUDIO_SESSION_ID_GENERATE is an acceptable value
+    @SuppressLint("Range")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createAudioTrackV26(
         audioAttributes: AudioAttributes,
@@ -127,6 +131,9 @@ class PlaybackSink {
         .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
         .build()
 
+    // Suppress range check on setSessionId because its documentation states that
+    // AudioManager.AUDIO_SESSION_ID_GENERATE is an acceptable value
+    @SuppressLint("Range")
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createAudioTrackV23(
         audioAttributes: AudioAttributes,

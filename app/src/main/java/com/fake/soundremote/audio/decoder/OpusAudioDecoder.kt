@@ -35,7 +35,7 @@ class OpusAudioDecoder(
         }
         val initResult = opus.initDecoder(sampleRate, channels)
         if (initResult != OPUS_OK) {
-            val errorString = opus.strerror(initResult)
+            val errorString = opus.getErrorString(initResult)
             throw DecoderException("Opus decoder init error: $errorString")
         }
     }
@@ -49,7 +49,7 @@ class OpusAudioDecoder(
         val framesDecodedOrError =
             opus.decode(encodedData, encodedBytes, decodedData, framesPerPacket, 0)
         if (framesDecodedOrError < 0) {
-            val errorString = opus.strerror(framesDecodedOrError)
+            val errorString = opus.getErrorString(framesDecodedOrError)
             throw DecoderException("Opus decode error: $errorString")
         }
         return framesToBytes(framesDecodedOrError)
@@ -65,9 +65,9 @@ class OpusAudioDecoder(
      * @return number of frames generated
      */
     fun plc(decodedData: ByteArray, decodedFrames: Int): Int {
-        val framesDecodedOrError = opus.plc(decodedData, decodedFrames, 0)
+        val framesDecodedOrError = opus.plc(decodedData, decodedFrames)
         if (framesDecodedOrError < 0) {
-            val errorString = opus.strerror(framesDecodedOrError)
+            val errorString = opus.getErrorString(framesDecodedOrError)
             throw DecoderException("Opus PLC error: $errorString")
         }
         return framesToBytes(framesDecodedOrError)

@@ -5,9 +5,10 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    id("org.jetbrains.kotlin.kapt")
     alias(libs.plugins.room)
+    alias(libs.plugins.compose.compiler)
     id("kotlin-parcelize")
+    id("kotlin-kapt")
 }
 
 kotlin {
@@ -16,7 +17,7 @@ kotlin {
 
 android {
     namespace = "com.fake.soundremote"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.fake.soundremote"
         minSdk = 21
@@ -40,13 +41,10 @@ android {
         compose = true
         buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.12"
-    }
     ksp {
         arg("room.generateKotlin", "true")
     }
-    buildToolsVersion = "34.0.0"
+    buildToolsVersion = "35.0.0"
     sourceSets {
         getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
@@ -67,8 +65,6 @@ room {
 }
 
 dependencies {
-    implementation(fileTree(mapOf("include" to listOf("*.aar", "*.jar"), "dir" to "libs")))
-
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.media)
     implementation(libs.androidx.ktx)
@@ -90,11 +86,13 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 // Instrumented tests
     androidTestImplementation(libs.androidx.runner)
-    androidTestImplementation(libs.androidx.core.ktx)
+    androidTestImplementation(libs.androidx.test.ktx)
     androidTestImplementation(libs.androidx.navigation.testing)
     androidTestImplementation(libs.androidx.room.testing)
 // Local tests
     testImplementation(libs.bundles.local.tests)
+// JOpus
+    implementation(libs.jopus)
 // Room
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
