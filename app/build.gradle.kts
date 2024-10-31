@@ -5,9 +5,9 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    id("kotlin-kapt")
     alias(libs.plugins.room)
     id("kotlin-parcelize")
+    id("kotlin-kapt")
 }
 
 kotlin {
@@ -16,7 +16,7 @@ kotlin {
 
 android {
     namespace = "com.fake.soundremote"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.fake.soundremote"
         minSdk = 21
@@ -46,7 +46,7 @@ android {
     ksp {
         arg("room.generateKotlin", "true")
     }
-    buildToolsVersion = "34.0.0"
+    buildToolsVersion = "35.0.0"
     sourceSets {
         getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
