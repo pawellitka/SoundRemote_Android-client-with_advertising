@@ -16,7 +16,7 @@
     </queries>
 
     <application
-        android:name="com.fake.soundremote.SoundRemoteApplication"
+        android:name=".SoundRemoteApplication"
         android:allowBackup="true"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher_plain"
@@ -26,7 +26,7 @@
         android:theme="@style/Theme.SoundRemote"
         tools:targetApi="tiramisu">
         <activity
-            android:name="com.fake.soundremote.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
             android:launchMode="singleTask">
@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name="com.fake.soundremote.service.MainService"
+            android:name=".service.MainService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
