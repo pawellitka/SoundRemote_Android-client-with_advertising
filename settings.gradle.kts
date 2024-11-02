@@ -16,5 +16,5 @@ dependencyResolutionManagement {
         }
     }
 }
-rootProject.name = "SoundRemote"
+rootProject.name = "soundremote"
 include(":app")
