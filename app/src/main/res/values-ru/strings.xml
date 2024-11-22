@@ -45,7 +45,7 @@
     <string name="notification_title_template">Открыть %1$s</string>
     <!--Hotkeys-->
     <string name="hotkey_list_title">Сочетания клавиш</string>
-    <string name="hotkey_delete_confirmation">Удалить сочетание клавиш: %1s?</string>
+    <string name="hotkey_delete_confirmation">Удалить сочетание клавиш?</string>
     <string name="action_hotkey_create">Создать</string>
     <string name="drag_handle_description">Ручка перетаскивания</string>
     <string name="hotkey_actions_menu_description">Меню действий</string>

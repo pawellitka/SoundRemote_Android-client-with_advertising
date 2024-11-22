@@ -51,7 +51,7 @@
 
     <!--Hotkeys-->
     <string name="hotkey_list_title">Hotkeys</string>
-    <string name="hotkey_delete_confirmation">Delete hotkey: %1s?</string>
+    <string name="hotkey_delete_confirmation">Delete hotkey?</string>
     <string name="action_hotkey_create">Create</string>
     <string name="drag_handle_description">Drag handle</string>
     <string name="hotkey_actions_menu_description">Actions menu</string>

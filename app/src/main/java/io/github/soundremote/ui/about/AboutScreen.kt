@@ -3,6 +3,7 @@ package io.github.soundremote.ui.about
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -61,11 +62,22 @@ internal fun AboutScreen(
             },
             navigationIcon = { NavigateUpButton(onNavigateUp) },
         )
-        Text(
-            text = appName + ' ' + BuildConfig.VERSION_NAME,
-            style = MaterialTheme.typography.titleMedium,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = paddingMod
-        )
+        ) {
+            Text(
+                text = appName + ' ' + BuildConfig.VERSION_NAME,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(
+                onClick = { openUrl("https://soundremote.github.io", context) },
+            ) {
+                Text(stringResource(R.string.open_homepage))
+            }
+        }
         Text(
             text = "© 2024 Aleksandr Shipovskii",
             style = MaterialTheme.typography.bodyLarge,
@@ -80,39 +92,33 @@ internal fun AboutScreen(
         }
         Credit(
             name = "Accompanist",
-            url = "https://google.github.io/accompanist",
             onShowLicense = { loadLicense(apache2File) },
-            context = context,
+            onOpenHomepage = { openUrl("https://google.github.io/accompanist", context) }
         )
         Credit(
             name = "Guava",
-            url = "https://guava.dev",
             onShowLicense = { loadLicense(apache2File) },
-            context = context,
+            onOpenHomepage = { openUrl("https://guava.dev", context) }
         )
         Credit(
             name = "Hilt",
-            url = "https://dagger.dev/hilt/",
             onShowLicense = { loadLicense(apache2File) },
-            context = context,
+            onOpenHomepage = { openUrl("https://dagger.dev/hilt/", context) }
         )
         Credit(
             name = "Opus",
-            url = "https://opus-codec.org",
             onShowLicense = { loadLicense(opusFile) },
-            context = context,
+            onOpenHomepage = { openUrl("https://opus-codec.org", context) }
         )
         Credit(
             name = "Seismic",
-            url = "https://github.com/square/seismic",
             onShowLicense = { loadLicense(apache2File) },
-            context = context,
+            onOpenHomepage = { openUrl("https://github.com/square/seismic", context) }
         )
         Credit(
             name = "Timber",
-            url = "https://github.com/JakeWharton/timber",
             onShowLicense = { loadLicense(apache2File) },
-            context = context,
+            onOpenHomepage = { openUrl("https://github.com/JakeWharton/timber", context) }
         )
     }
     if (showLicense) {
@@ -136,6 +142,14 @@ internal fun AboutScreen(
     }
 }
 
+private fun openUrl(url: String, context: Context) {
+    val webpage: Uri = Uri.parse(url)
+    val intent = Intent(Intent.ACTION_VIEW, webpage)
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+    }
+}
+
 private suspend fun getLicense(context: Context, fileName: String): String =
     withContext(Dispatchers.IO) {
         try {
@@ -150,9 +164,8 @@ private val paddingMod = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.
 @Composable
 private fun Credit(
     name: String,
-    url: String,
     onShowLicense: () -> Unit,
-    context: Context,
+    onOpenHomepage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(modifier.then(paddingMod), verticalAlignment = Alignment.CenterVertically) {
@@ -163,13 +176,7 @@ private fun Credit(
             Text(stringResource(R.string.show_license))
         }
         TextButton(
-            onClick = {
-                val webpage: Uri = Uri.parse(url)
-                val intent = Intent(Intent.ACTION_VIEW, webpage)
-                if (intent.resolveActivity(context.packageManager) != null) {
-                    context.startActivity(intent)
-                }
-            },
+            onClick = onOpenHomepage,
         ) {
             Text(stringResource(R.string.open_homepage))
         }

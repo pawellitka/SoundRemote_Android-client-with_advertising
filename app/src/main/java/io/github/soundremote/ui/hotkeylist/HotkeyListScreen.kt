@@ -31,6 +31,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -170,7 +172,16 @@ private fun HotkeyList(
                     Text(stringResource(R.string.cancel))
                 }
             },
-            text = { Text(stringResource(R.string.hotkey_delete_confirmation).format(name)) }
+            title = {
+                Text(stringResource(R.string.hotkey_delete_confirmation))
+            },
+            text = {
+                Text(
+                    text = name,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 2,
+                )
+            }
         )
     }
 }
@@ -234,13 +245,15 @@ private fun HotkeyItem(
             Icon(
                 Icons.Default.Menu,
                 contentDescription = stringResource(R.string.drag_handle_description),
-                modifier = Modifier.draggable(
-                    state = rememberDraggableState { onDrag(it) },
-                    orientation = Orientation.Vertical,
-                    startDragImmediately = true,
-                    onDragStarted = { onDragStart() },
-                    onDragStopped = { onDragStop() },
-                )
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .draggable(
+                        state = rememberDraggableState { onDrag(it) },
+                        orientation = Orientation.Vertical,
+                        startDragImmediately = true,
+                        onDragStarted = { onDragStart() },
+                        onDragStopped = { onDragStop() },
+                    )
             )
             Box {
                 var showMenu by remember { mutableStateOf(false) }
