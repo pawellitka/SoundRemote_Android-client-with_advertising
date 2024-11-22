@@ -31,6 +31,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -244,13 +245,15 @@ private fun HotkeyItem(
             Icon(
                 Icons.Default.Menu,
                 contentDescription = stringResource(R.string.drag_handle_description),
-                modifier = Modifier.draggable(
-                    state = rememberDraggableState { onDrag(it) },
-                    orientation = Orientation.Vertical,
-                    startDragImmediately = true,
-                    onDragStarted = { onDragStart() },
-                    onDragStopped = { onDragStop() },
-                )
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .draggable(
+                        state = rememberDraggableState { onDrag(it) },
+                        orientation = Orientation.Vertical,
+                        startDragImmediately = true,
+                        onDragStarted = { onDragStart() },
+                        onDragStopped = { onDragStop() },
+                    )
             )
             Box {
                 var showMenu by remember { mutableStateOf(false) }
