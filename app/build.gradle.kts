@@ -17,11 +17,11 @@ kotlin {
 
 android {
     namespace = "io.github.soundremote"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         applicationId = "io.github.soundremote"
         minSdk = 21
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 6
         versionName = "0.4.1"
         testInstrumentationRunner = "io.github.soundremote.CustomTestRunner"
