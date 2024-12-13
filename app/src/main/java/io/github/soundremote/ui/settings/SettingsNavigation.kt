@@ -8,18 +8,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import kotlinx.serialization.Serializable
 
-private const val SETTINGS_ROUTE = "settings"
+@Serializable
+object SettingsRoute
 
 fun NavController.navigateToSettings() {
-    navigate(SETTINGS_ROUTE)
+    navigate(SettingsRoute)
 }
 
 fun NavGraphBuilder.settingsScreen(
     onNavigateUp: () -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
 ) {
-    composable(SETTINGS_ROUTE) {
+    composable<SettingsRoute> {
         val viewModel: SettingsViewModel = hiltViewModel()
         val settings by viewModel.settings.collectAsStateWithLifecycle()
         SettingsScreen(

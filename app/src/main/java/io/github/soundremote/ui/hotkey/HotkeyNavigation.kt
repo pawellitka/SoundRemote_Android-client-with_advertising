@@ -5,26 +5,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import io.github.soundremote.util.ModKey
+import kotlinx.serialization.Serializable
 
-const val HOTKEY_ID_ARG = "hotkeyId"
-private const val HOTKEY_CREATE_ROUTE = "hotkey_create"
-private const val HOTKEY_EDIT_PREFIX = "hotkey_edit/"
-private const val HOTKEY_EDIT_ROUTE = "$HOTKEY_EDIT_PREFIX{$HOTKEY_ID_ARG}"
+@Serializable
+object HotkeyCreateRoute
+
+@Serializable
+data class HotkeyEditRoute(val hotkeyId: Int)
 
 fun NavController.navigateToHotkeyCreate() {
-    navigate(HOTKEY_CREATE_ROUTE)
+    navigate(HotkeyCreateRoute)
 }
 
 fun NavController.navigateToHotkeyEdit(hotkeyId: Int) {
-    navigate("$HOTKEY_EDIT_PREFIX$hotkeyId")
+    navigate(HotkeyEditRoute(hotkeyId))
 }
 
 fun NavGraphBuilder.hotkeyCreateScreen(
@@ -33,7 +33,7 @@ fun NavGraphBuilder.hotkeyCreateScreen(
     setFab: ((@Composable () -> Unit)?) -> Unit,
     compactHeight: Boolean,
 ) {
-    composable(HOTKEY_CREATE_ROUTE) {
+    composable<HotkeyCreateRoute> {
         HotkeyScreenRoute(
             onNavigateUp = onNavigateUp,
             showSnackbar = showSnackbar,
@@ -45,22 +45,16 @@ fun NavGraphBuilder.hotkeyCreateScreen(
     }
 }
 
-internal class HotkeyEditArgs(val hotkeyId: Int?) {
-    constructor(savedStateHandle: SavedStateHandle) :
-            this(savedStateHandle.get<Int?>(HOTKEY_ID_ARG))
-}
-
 fun NavGraphBuilder.hotkeyEditScreen(
     onNavigateUp: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
     compactHeight: Boolean,
 ) {
-    composable(
-        route = HOTKEY_EDIT_ROUTE,
-        arguments = listOf(navArgument(HOTKEY_ID_ARG) { type = NavType.IntType }),
-    ) {
+    composable<HotkeyEditRoute> { backStackEntry ->
+        val route: HotkeyEditRoute = backStackEntry.toRoute()
         HotkeyScreenRoute(
+            hotkeyId = route.hotkeyId,
             onNavigateUp = onNavigateUp,
             showSnackbar = showSnackbar,
             compactHeight = compactHeight
@@ -73,11 +67,13 @@ fun NavGraphBuilder.hotkeyEditScreen(
 
 @Composable
 private fun HotkeyScreenRoute(
+    hotkeyId: Int? = null,
     onNavigateUp: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
     compactHeight: Boolean,
 ) {
     val viewModel: HotkeyViewModel = hiltViewModel()
+    hotkeyId?.let { viewModel.loadHotkey(it) }
     val state by viewModel.hotkeyScreenState.collectAsStateWithLifecycle()
     HotkeyScreen(
         state = state,

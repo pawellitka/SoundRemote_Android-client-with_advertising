@@ -19,8 +19,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import io.github.soundremote.R
+import kotlinx.serialization.Serializable
 
-const val homeRoute = "home"
+@Serializable
+object HomeRoute
 
 fun NavGraphBuilder.homeScreen(
     onNavigateToHotkeyList: () -> Unit,
@@ -32,7 +34,7 @@ fun NavGraphBuilder.homeScreen(
     setFab: ((@Composable () -> Unit)?) -> Unit,
     compactHeight: Boolean,
 ) {
-    composable(homeRoute) {
+    composable<HomeRoute> {
         val viewModel: HomeViewModel = hiltViewModel()
         val homeUIState by viewModel.homeUIState.collectAsStateWithLifecycle()
         val lifecycleOwner = LocalLifecycleOwner.current

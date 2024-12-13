@@ -8,18 +8,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import kotlinx.serialization.Serializable
 
-private const val EVENTS_ROUTE = "events"
+@Serializable
+object EventsRoute
 
 fun NavController.navigateToEvents() {
-    navigate(EVENTS_ROUTE)
+    navigate(EventsRoute)
 }
 
 fun NavGraphBuilder.eventsScreen(
     onNavigateUp: () -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
 ) {
-    composable(EVENTS_ROUTE) {
+    composable<EventsRoute> {
         val viewModel: EventsViewModel = hiltViewModel()
         val eventsUIState by viewModel.uiState.collectAsStateWithLifecycle()
         EventsScreen(

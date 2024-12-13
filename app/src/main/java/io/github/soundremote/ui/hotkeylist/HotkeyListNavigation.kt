@@ -10,11 +10,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import kotlinx.serialization.Serializable
 
-private const val HOTKEY_LIST_ROUTE = "hotkey_list"
+@Serializable
+object HotkeyListRoute
 
 fun NavController.navigateToHotkeyList() {
-    navigate(HOTKEY_LIST_ROUTE)
+    navigate(HotkeyListRoute)
 }
 
 fun NavGraphBuilder.hotkeyListScreen(
@@ -23,7 +25,7 @@ fun NavGraphBuilder.hotkeyListScreen(
     onNavigateUp: () -> Unit,
     setFab: ((@Composable () -> Unit)?) -> Unit,
 ) {
-    composable(HOTKEY_LIST_ROUTE) {
+    composable<HotkeyListRoute> {
         val viewModel: HotkeyListViewModel = hiltViewModel()
         val state by viewModel.hotkeyListState.collectAsStateWithLifecycle()
         val lifecycleOwner = LocalLifecycleOwner.current

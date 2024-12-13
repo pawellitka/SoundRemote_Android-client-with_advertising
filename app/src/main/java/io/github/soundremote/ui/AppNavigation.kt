@@ -14,7 +14,7 @@ import io.github.soundremote.ui.about.aboutScreen
 import io.github.soundremote.ui.about.navigateToAbout
 import io.github.soundremote.ui.events.eventsScreen
 import io.github.soundremote.ui.events.navigateToEvents
-import io.github.soundremote.ui.home.homeRoute
+import io.github.soundremote.ui.home.HomeRoute
 import io.github.soundremote.ui.home.homeScreen
 import io.github.soundremote.ui.hotkey.hotkeyCreateScreen
 import io.github.soundremote.ui.hotkey.hotkeyEditScreen
@@ -36,7 +36,7 @@ fun AppNavigation(
     val compactHeight = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
     NavHost(
         navController = navController,
-        startDestination = homeRoute,
+        startDestination = HomeRoute,
         Modifier
             .padding(padding)
             .consumeWindowInsets(padding)
