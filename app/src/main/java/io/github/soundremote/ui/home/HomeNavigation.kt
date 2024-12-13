@@ -13,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import io.github.soundremote.R
@@ -41,42 +41,24 @@ fun NavGraphBuilder.homeScreen(
         HomeScreen(
             uiState = homeUIState,
             messageId = viewModel.messageState,
-            onNavigateToEditHotkey = {
-                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    onNavigateToEditHotkey(it)
-                }
-            },
+            onNavigateToEditHotkey = { onNavigateToEditHotkey(it) },
             onConnect = { viewModel.connect(it) },
             onDisconnect = viewModel::disconnect,
             onSendHotkey = { viewModel.sendHotkey(it) },
             onSendKey = { viewModel.sendKey(it) },
             onSetMuted = { viewModel.setMuted(it) },
             onMessageShown = viewModel::messageShown,
-            onNavigateToEvents = {
-                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    onNavigateToEvents.invoke()
-                }
-            },
-            onNavigateToSettings = {
-                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    onNavigateToSettings.invoke()
-                }
-            },
-            onNavigateToAbout = {
-                if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    onNavigateToAbout.invoke()
-                }
-            },
+            onNavigateToEvents = onNavigateToEvents,
+            onNavigateToSettings = onNavigateToSettings,
+            onNavigateToAbout = onNavigateToAbout,
             showSnackbar = showSnackbar,
             compactHeight = compactHeight,
         )
         LaunchedEffect(Unit) {
             setFab {
                 FloatingActionButton(
-                    onClick = {
-                        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                            onNavigateToHotkeyList.invoke()
-                        }
+                    onClick = dropUnlessResumed(lifecycleOwner) {
+                        onNavigateToHotkeyList()
                     },
                     modifier = Modifier
                         .padding(bottom = 48.dp),

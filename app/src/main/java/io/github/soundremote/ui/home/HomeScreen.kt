@@ -59,13 +59,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.dropUnlessResumed
 import io.github.soundremote.R
 import io.github.soundremote.ui.components.ListItemHeadline
 import io.github.soundremote.ui.components.ListItemSupport
 import io.github.soundremote.ui.theme.SoundRemoteTheme
 import io.github.soundremote.util.ConnectionStatus
-import io.github.soundremote.util.Key
 import io.github.soundremote.util.HotkeyDescription
+import io.github.soundremote.util.Key
 import io.github.soundremote.util.TestTag
 
 private val paddingMod = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp)
@@ -76,7 +78,7 @@ private val hotkeyItemModifier = Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun HomeScreen(
+fun HomeScreen(
     uiState: HomeUIState,
     @StringRes messageId: Int?,
     onSendHotkey: (hotkeyId: Int) -> Unit,
@@ -106,6 +108,7 @@ internal fun HomeScreen(
     val onAddressChange: (TextFieldValue) -> Unit = { newAddressValue ->
         cleanAddressInput(newAddressValue, address)?.let { address = it }
     }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     Column(modifier = modifier) {
         TopAppBar(
@@ -159,14 +162,14 @@ internal fun HomeScreen(
                     ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_events)) },
-                            onClick = {
+                            onClick = dropUnlessResumed(lifecycleOwner) {
                                 showMenu = false
                                 onNavigateToEvents()
                             },
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_settings)) },
-                            onClick = {
+                            onClick = dropUnlessResumed(lifecycleOwner) {
                                 showMenu = false
                                 onNavigateToSettings()
                             },
@@ -174,7 +177,7 @@ internal fun HomeScreen(
                         HorizontalDivider()
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_about)) },
-                            onClick = {
+                            onClick = dropUnlessResumed(lifecycleOwner) {
                                 showMenu = false
                                 onNavigateToAbout()
                             },
@@ -203,7 +206,9 @@ internal fun HomeScreen(
                     name = hotkey.name,
                     description = hotkey.description.asString(),
                     onClick = { onSendHotkey(hotkey.id) },
-                    onLongClick = { onNavigateToEditHotkey(hotkey.id) },
+                    onLongClick = dropUnlessResumed(lifecycleOwner) {
+                        onNavigateToEditHotkey(hotkey.id)
+                    },
                 )
             }
         }
