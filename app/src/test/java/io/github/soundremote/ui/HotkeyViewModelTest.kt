@@ -1,10 +1,8 @@
 package io.github.soundremote.ui
 
-import androidx.lifecycle.SavedStateHandle
 import io.github.soundremote.MainDispatcherExtension
 import io.github.soundremote.data.TestHotkeyRepository
 import io.github.soundremote.getHotkey
-import io.github.soundremote.ui.hotkey.HOTKEY_ID_ARG
 import io.github.soundremote.ui.hotkey.HotkeyScreenMode
 import io.github.soundremote.ui.hotkey.HotkeyViewModel
 import io.github.soundremote.util.KeyCode
@@ -45,8 +43,7 @@ class HotkeyViewModelTest {
     inner class CreateHotkey {
         @BeforeEach
         fun setup() {
-            val savedState = SavedStateHandle(emptyMap())
-            viewModel = HotkeyViewModel(savedState, hotkeyRepository)
+            viewModel = HotkeyViewModel(hotkeyRepository)
         }
 
         @Test
@@ -167,14 +164,15 @@ class HotkeyViewModelTest {
     @Nested
     @DisplayName("Edit Hotkey mode")
     inner class EditHotkey {
+
         @Test
         @DisplayName("Sets screen mode correctly")
         fun screenMode_isCorrect() {
             val id = 1
             val hotkey = getHotkey(id = id)
             hotkeyRepository.setHotkeys(listOf(hotkey))
-            val savedState = SavedStateHandle(mapOf(HOTKEY_ID_ARG to id))
-            viewModel = HotkeyViewModel(savedState, hotkeyRepository)
+            viewModel = HotkeyViewModel(hotkeyRepository)
+            viewModel.loadHotkey(id)
 
             val actual = viewModel.hotkeyScreenState.value.mode
 
@@ -188,8 +186,8 @@ class HotkeyViewModelTest {
             val id = 1
             val hotkey = getHotkey(id = id, mods = mods)
             hotkeyRepository.setHotkeys(listOf(hotkey))
-            val savedState = SavedStateHandle(mapOf(HOTKEY_ID_ARG to id))
-            viewModel = HotkeyViewModel(savedState, hotkeyRepository)
+            viewModel = HotkeyViewModel(hotkeyRepository)
+            viewModel.loadHotkey(id)
 
             val state = viewModel.hotkeyScreenState.value
 
@@ -208,8 +206,8 @@ class HotkeyViewModelTest {
             val id = 1
             val hotkey = getHotkey(id = id, keyCode = KeyCode(keyCode))
             hotkeyRepository.setHotkeys(listOf(hotkey))
-            val savedState = SavedStateHandle(mapOf(HOTKEY_ID_ARG to id))
-            viewModel = HotkeyViewModel(savedState, hotkeyRepository)
+            viewModel = HotkeyViewModel(hotkeyRepository)
+            viewModel.loadHotkey(id)
 
             val actual = viewModel.hotkeyScreenState.value.keyGroupIndex
 
@@ -228,8 +226,8 @@ class HotkeyViewModelTest {
                 name = "Original name"
             )
             hotkeyRepository.setHotkeys(listOf(hotkey))
-            val savedState = SavedStateHandle(mapOf(HOTKEY_ID_ARG to id))
-            viewModel = HotkeyViewModel(savedState, hotkeyRepository)
+            viewModel = HotkeyViewModel(hotkeyRepository)
+            viewModel.loadHotkey(id)
             val expectedName = "New name"
             val expectedKeyCode = KeyCode(0x42)
 

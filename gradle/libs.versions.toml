@@ -4,6 +4,8 @@ androidGradlePlugin = "8.7.3"
 # https://github.com/google/dagger/issues/4525
 kotlin = "2.0.21"
 ksp = "2.0.21-1.0.26"
+kotlinSerialization = "2.0.21"
+kotlinxSerializationJson = "1.7.3"
 
 accompanist = "0.36.0"
 androidxActivity = "1.9.3"
@@ -62,6 +64,7 @@ jopus = { group = "com.github.ashipo", name = "jopus", version.ref = "jopus" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiter" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
 mockk-agent = { group = "io.mockk", name = "mockk-agent", version.ref = "mockk" }
 seismic = { group = "com.squareup", name = "seismic", version.ref = "seismic" }
@@ -86,3 +89,4 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization" }

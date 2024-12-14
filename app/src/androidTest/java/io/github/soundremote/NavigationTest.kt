@@ -94,6 +94,25 @@ class NavigationTest {
         composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
     }
 
+    // Multiple clicks on events menu navigate only once
+    @Test
+    fun menuEvents_multipleClicks_navigatesOnce() {
+        // Double click events menu
+        composeTestRule.apply {
+            onNodeWithContentDescription(navigationMenu).performClick()
+            onNodeWithText(menuEvents).performSimultaneousDoubleClick(composeTestRule.mainClock)
+            onNodeWithText(eventsTitle).assertIsDisplayed()
+        }
+
+        // Press back
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+
+        // Assert that app is back on Home screen
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
+    }
+
     // Menu Settings navigates to settings screen
     @Test
     fun menuSettings_onClick_navigatesToSettingsScreen() {
@@ -115,6 +134,25 @@ class NavigationTest {
         composeTestRule.activityRule.scenario.onActivity { activity ->
             activity.onBackPressedDispatcher.onBackPressed()
         }
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
+    }
+
+    // Multiple clicks on settings menu navigate only once
+    @Test
+    fun menuSettings_multipleClicks_navigatesOnce() {
+        // Double click settings menu
+        composeTestRule.apply {
+            onNodeWithContentDescription(navigationMenu).performClick()
+            onNodeWithText(menuSettings).performSimultaneousDoubleClick(composeTestRule.mainClock)
+            onNodeWithText(settingsTitle).assertIsDisplayed()
+        }
+
+        // Press back
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+
+        // Assert that app is back on Home screen
         composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
     }
 
@@ -141,6 +179,26 @@ class NavigationTest {
         composeTestRule.activityRule.scenario.onActivity { activity ->
             activity.onBackPressedDispatcher.onBackPressed()
         }
+        composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
+    }
+
+    // Multiple clicks on about menu navigate only once
+    @Test
+    fun menuAbout_multipleClicks_navigatesOnce() {
+        // Double click events menu
+        composeTestRule.apply {
+            onNodeWithContentDescription(navigationMenu).performClick()
+            onNodeWithText(menuAbout).performSimultaneousDoubleClick(composeTestRule.mainClock)
+            val screenTitle = aboutTitleTemplate.format(appName)
+            onNodeWithText(screenTitle).assertIsDisplayed()
+        }
+
+        // Press back
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+
+        // Assert that app is back on Home screen
         composeTestRule.onNodeWithText(homeTitle).assertIsDisplayed()
     }
 

@@ -14,7 +14,7 @@ import io.github.soundremote.ui.about.aboutScreen
 import io.github.soundremote.ui.about.navigateToAbout
 import io.github.soundremote.ui.events.eventsScreen
 import io.github.soundremote.ui.events.navigateToEvents
-import io.github.soundremote.ui.home.homeRoute
+import io.github.soundremote.ui.home.HomeRoute
 import io.github.soundremote.ui.home.homeScreen
 import io.github.soundremote.ui.hotkey.hotkeyCreateScreen
 import io.github.soundremote.ui.hotkey.hotkeyEditScreen
@@ -29,14 +29,13 @@ import io.github.soundremote.ui.settings.settingsScreen
 fun AppNavigation(
     windowSizeClass: WindowSizeClass,
     showSnackbar: (String, SnackbarDuration) -> Unit,
-    setFab: ((@Composable () -> Unit)?) -> Unit,
     padding: PaddingValues
 ) {
     val navController = rememberNavController()
     val compactHeight = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
     NavHost(
         navController = navController,
-        startDestination = homeRoute,
+        startDestination = HomeRoute,
         Modifier
             .padding(padding)
             .consumeWindowInsets(padding)
@@ -50,7 +49,6 @@ fun AppNavigation(
                 navController.navigateToHotkeyEdit(hotkeyId)
             },
             showSnackbar = showSnackbar,
-            setFab = setFab,
             compactHeight = compactHeight,
         )
         hotkeyListScreen(
@@ -59,31 +57,25 @@ fun AppNavigation(
                 navController.navigateToHotkeyEdit(hotkeyId)
             },
             onNavigateUp = navController::navigateUp,
-            setFab = setFab,
         )
         hotkeyCreateScreen(
             onNavigateUp = navController::navigateUp,
             showSnackbar = showSnackbar,
-            setFab = setFab,
             compactHeight = compactHeight,
         )
         hotkeyEditScreen(
             onNavigateUp = navController::navigateUp,
             showSnackbar = showSnackbar,
-            setFab = setFab,
             compactHeight = compactHeight,
         )
         eventsScreen(
             onNavigateUp = navController::navigateUp,
-            setFab = setFab,
         )
         settingsScreen(
             onNavigateUp = navController::navigateUp,
-            setFab = setFab,
         )
         aboutScreen(
             onNavigateUp = navController::navigateUp,
-            setFab = setFab,
         )
     }
 }

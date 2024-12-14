@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     id("kotlin-parcelize")
     id("kotlin-kapt")
+    id("kotlinx-serialization")
 }
 
 kotlin {
@@ -107,6 +108,8 @@ dependencies {
     kaptAndroidTest(libs.hilt.compiler)
 // Navigation
     implementation(libs.androidx.navigation.compose)
+// Serialization
+    implementation(libs.kotlinx.serialization.json)
 // Accompanist
     implementation(libs.accompanist.permissions)
 // Guava

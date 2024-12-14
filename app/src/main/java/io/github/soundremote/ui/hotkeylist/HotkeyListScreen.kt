@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.dropUnlessResumed
 import io.github.soundremote.R
 import io.github.soundremote.ui.components.ListItemHeadline
 import io.github.soundremote.ui.components.ListItemSupport
@@ -75,7 +76,9 @@ internal fun HotkeyListScreen(
             navigationIcon = { NavigateUpButton(onNavigateUp) },
             actions = {
                 IconButton(
-                    onClick = onNavigateToHotkeyCreate
+                    onClick = dropUnlessResumed {
+                        onNavigateToHotkeyCreate()
+                    },
                 ) {
                     Icon(Icons.Default.Add, stringResource(R.string.action_hotkey_create))
                 }
@@ -139,7 +142,9 @@ private fun HotkeyList(
                 description = hotkeyState.description.asString(),
                 favoured = hotkeyState.favoured,
                 onChangeFavoured = { onChangeFavoured(hotkeyState.id, it) },
-                onEdit = { onEdit(hotkeyState.id) },
+                onEdit = dropUnlessResumed {
+                    onEdit(hotkeyState.id)
+                },
                 onDelete = { toDelete = DeleteInfo(hotkeyState.id, hotkeyState.name) },
                 onDragStart = { listDragState.onDragStart(index) },
                 onDrag = { listDragState.onDrag(it) },

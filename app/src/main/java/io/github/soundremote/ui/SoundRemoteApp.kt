@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -29,7 +28,6 @@ internal fun SoundRemoteApp(
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val (fab, setFab) = remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
     val systemMessageId by viewModel.systemMessage.collectAsStateWithLifecycle()
 
     // Binding and unbinding the connection
@@ -58,7 +56,6 @@ internal fun SoundRemoteApp(
     Scaffold(
         modifier = Modifier.safeDrawingPadding(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButton = { fab?.invoke() },
     ) { paddingValues ->
         AppNavigation(
             windowSizeClass,
@@ -67,7 +64,6 @@ internal fun SoundRemoteApp(
                     snackbarHostState.showSnackbar(message = message, duration = duration)
                 }
             },
-            setFab = setFab,
             padding = paddingValues,
         )
     }

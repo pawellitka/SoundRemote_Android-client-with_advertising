@@ -1,8 +1,8 @@
 package io.github.soundremote.ui.hotkey
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.soundremote.data.Hotkey
 import io.github.soundremote.data.HotkeyRepository
 import io.github.soundremote.util.Key
@@ -12,7 +12,6 @@ import io.github.soundremote.util.ModKey
 import io.github.soundremote.util.Mods
 import io.github.soundremote.util.generateDescription
 import io.github.soundremote.util.isModActive
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -33,7 +32,6 @@ data class HotkeyScreenUIState(
 
 @HiltViewModel
 internal class HotkeyViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val hotkeyRepository: HotkeyRepository
 ) : ViewModel() {
     private var initialHotkey: Hotkey? = null
@@ -43,23 +41,19 @@ internal class HotkeyViewModel @Inject constructor(
     val hotkeyScreenState: StateFlow<HotkeyScreenUIState>
         get() = _hotkeyScreenState
 
-    init {
-        HotkeyEditArgs(savedStateHandle).hotkeyId?.let { id ->
-            viewModelScope.launch {
-                hotkeyRepository.getById(id)?.let { hotkey ->
-                    initialHotkey = hotkey
-                    _hotkeyScreenState.value = HotkeyScreenUIState(
-                        mode = HotkeyScreenMode.EDIT,
-                        name = hotkey.name,
-                        win = hotkey.isModActive(ModKey.WIN),
-                        ctrl = hotkey.isModActive(ModKey.CTRL),
-                        shift = hotkey.isModActive(ModKey.SHIFT),
-                        alt = hotkey.isModActive(ModKey.ALT),
-                        keyCode = hotkey.keyCode,
-                        keyGroupIndex = getKeyGroupIndex(hotkey.keyCode),
-                    )
-                }
-            }
+    fun loadHotkey(id: Int) = viewModelScope.launch {
+        hotkeyRepository.getById(id)?.let { hotkey ->
+            initialHotkey = hotkey
+            _hotkeyScreenState.value = HotkeyScreenUIState(
+                mode = HotkeyScreenMode.EDIT,
+                name = hotkey.name,
+                win = hotkey.isModActive(ModKey.WIN),
+                ctrl = hotkey.isModActive(ModKey.CTRL),
+                shift = hotkey.isModActive(ModKey.SHIFT),
+                alt = hotkey.isModActive(ModKey.ALT),
+                keyCode = hotkey.keyCode,
+                keyGroupIndex = getKeyGroupIndex(hotkey.keyCode),
+            )
         }
     }
 
@@ -103,6 +97,7 @@ internal class HotkeyViewModel @Inject constructor(
             val name: String = currentState.name.ifBlank {
                 generateDescription(keyLabel, mods)
             }
+
             val hotkeyToUpdate = initialHotkey
             if (hotkeyToUpdate == null) {
                 val hotkey = Hotkey(currentKeyCode, name, mods)
@@ -110,10 +105,11 @@ internal class HotkeyViewModel @Inject constructor(
                     hotkeyRepository.insert(hotkey)
                 }
             } else {
-                val id = hotkeyToUpdate.id
-                val favoured = hotkeyToUpdate.isFavoured
-                val order = hotkeyToUpdate.order
-                val hotkey = Hotkey(id, currentKeyCode, mods, name, favoured, order)
+                val hotkey = hotkeyToUpdate.copy(
+                    keyCode = currentKeyCode,
+                    mods = mods,
+                    name = name,
+                )
                 viewModelScope.launch {
                     hotkeyRepository.update(hotkey)
                 }
