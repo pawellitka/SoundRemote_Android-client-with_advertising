@@ -1,24 +1,11 @@
 package io.github.soundremote.ui.home
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import io.github.soundremote.R
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -31,13 +18,11 @@ fun NavGraphBuilder.homeScreen(
     onNavigateToAbout: () -> Unit,
     onNavigateToEditHotkey: (hotkeyId: Int) -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
-    setFab: ((@Composable () -> Unit)?) -> Unit,
     compactHeight: Boolean,
 ) {
     composable<HomeRoute> {
         val viewModel: HomeViewModel = hiltViewModel()
         val homeUIState by viewModel.homeUIState.collectAsStateWithLifecycle()
-        val lifecycleOwner = LocalLifecycleOwner.current
         HomeScreen(
             uiState = homeUIState,
             messageId = viewModel.messageState,
@@ -48,24 +33,12 @@ fun NavGraphBuilder.homeScreen(
             onSendKey = { viewModel.sendKey(it) },
             onSetMuted = { viewModel.setMuted(it) },
             onMessageShown = viewModel::messageShown,
+            onNavigateToHotkeyList = onNavigateToHotkeyList,
             onNavigateToEvents = onNavigateToEvents,
             onNavigateToSettings = onNavigateToSettings,
             onNavigateToAbout = onNavigateToAbout,
             showSnackbar = showSnackbar,
             compactHeight = compactHeight,
         )
-        LaunchedEffect(Unit) {
-            setFab {
-                FloatingActionButton(
-                    onClick = dropUnlessResumed(lifecycleOwner) {
-                        onNavigateToHotkeyList()
-                    },
-                    modifier = Modifier
-                        .padding(bottom = 48.dp),
-                ) {
-                    Icon(Icons.Default.Edit, stringResource(R.string.action_edit_hotkeys))
-                }
-            }
-        }
     }
 }

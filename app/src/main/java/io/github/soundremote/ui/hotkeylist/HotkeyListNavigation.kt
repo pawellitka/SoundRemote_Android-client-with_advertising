@@ -1,7 +1,5 @@
 package io.github.soundremote.ui.hotkeylist
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,7 +19,6 @@ fun NavGraphBuilder.hotkeyListScreen(
     onNavigateToHotkeyCreate: () -> Unit,
     onNavigateToHotkeyEdit: (hotkeyId: Int) -> Unit,
     onNavigateUp: () -> Unit,
-    setFab: ((@Composable () -> Unit)?) -> Unit,
 ) {
     composable<HotkeyListRoute> {
         val viewModel: HotkeyListViewModel = hiltViewModel()
@@ -39,8 +36,5 @@ fun NavGraphBuilder.hotkeyListScreen(
             },
             onNavigateUp = onNavigateUp,
         )
-        LaunchedEffect(Unit) {
-            setFab(null)
-        }
     }
 }

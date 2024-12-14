@@ -1,7 +1,5 @@
 package io.github.soundremote.ui.events
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,7 +17,6 @@ fun NavController.navigateToEvents() {
 
 fun NavGraphBuilder.eventsScreen(
     onNavigateUp: () -> Unit,
-    setFab: ((@Composable () -> Unit)?) -> Unit,
 ) {
     composable<EventsRoute> {
         val viewModel: EventsViewModel = hiltViewModel()
@@ -31,8 +28,5 @@ fun NavGraphBuilder.eventsScreen(
             },
             onNavigateUp = onNavigateUp,
         )
-        LaunchedEffect(Unit) {
-            setFab(null)
-        }
     }
 }

@@ -25,18 +25,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -88,6 +91,7 @@ fun HomeScreen(
     onDisconnect: () -> Unit,
     onSetMuted: (muted: Boolean) -> Unit,
     onMessageShown: () -> Unit,
+    onNavigateToHotkeyList: () -> Unit,
     onNavigateToEvents: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit,
@@ -110,109 +114,128 @@ fun HomeScreen(
     }
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    Column(modifier = modifier) {
-        TopAppBar(
-            title = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(stringResource(R.string.app_name))
-                    if (compactHeight) {
-                        ConnectComponent(
-                            address = address,
-                            recentAddresses = uiState.recentServersAddresses,
-                            onAddressChange = onAddressChange,
-                            connectionStatus = uiState.connectionStatus,
-                            onConnect = { onConnect(it) },
-                            onDisconnect = onDisconnect,
-                            topBar = true,
-                        )
-                    }
-                }
-            },
-            actions = {
-                IconToggleButton(
-                    checked = uiState.isMuted,
-                    onCheckedChange = { onSetMuted(it) }
-                ) {
-                    if (uiState.isMuted) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_volume_mute),
-                            contentDescription = stringResource(R.string.action_unmute_app)
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_volume_up),
-                            contentDescription = stringResource(R.string.action_mute_app)
-                        )
-                    }
-                }
-                Box {
-                    var showMenu by remember { mutableStateOf(false) }
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = stringResource(R.string.navigation_menu)
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false },
-                        modifier = Modifier.testTag(TestTag.NAVIGATION_MENU)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_events)) },
-                            onClick = dropUnlessResumed(lifecycleOwner) {
-                                showMenu = false
-                                onNavigateToEvents()
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_settings)) },
-                            onClick = dropUnlessResumed(lifecycleOwner) {
-                                showMenu = false
-                                onNavigateToSettings()
-                            },
-                        )
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_about)) },
-                            onClick = dropUnlessResumed(lifecycleOwner) {
-                                showMenu = false
-                                onNavigateToAbout()
-                            },
-                        )
+                        Text(stringResource(R.string.app_name))
+                        if (compactHeight) {
+                            ConnectComponent(
+                                address = address,
+                                recentAddresses = uiState.recentServersAddresses,
+                                onAddressChange = onAddressChange,
+                                connectionStatus = uiState.connectionStatus,
+                                onConnect = { onConnect(it) },
+                                onDisconnect = onDisconnect,
+                                topBar = true,
+                            )
+                        }
+                    }
+                },
+                actions = {
+                    IconToggleButton(
+                        checked = uiState.isMuted,
+                        onCheckedChange = { onSetMuted(it) }
+                    ) {
+                        if (uiState.isMuted) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_volume_mute),
+                                contentDescription = stringResource(R.string.action_unmute_app)
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_volume_up),
+                                contentDescription = stringResource(R.string.action_mute_app)
+                            )
+                        }
+                    }
+                    Box {
+                        var showMenu by remember { mutableStateOf(false) }
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = stringResource(R.string.navigation_menu)
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                            modifier = Modifier.testTag(TestTag.NAVIGATION_MENU)
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.action_events)) },
+                                onClick = dropUnlessResumed(lifecycleOwner) {
+                                    showMenu = false
+                                    onNavigateToEvents()
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.action_settings)) },
+                                onClick = dropUnlessResumed(lifecycleOwner) {
+                                    showMenu = false
+                                    onNavigateToSettings()
+                                },
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.action_about)) },
+                                onClick = dropUnlessResumed(lifecycleOwner) {
+                                    showMenu = false
+                                    onNavigateToAbout()
+                                },
+                            )
+                        }
                     }
                 }
-            }
-        )
-        if (!compactHeight) {
-            ConnectComponent(
-                address = address,
-                recentAddresses = uiState.recentServersAddresses,
-                onAddressChange = onAddressChange,
-                connectionStatus = uiState.connectionStatus,
-                onConnect = { onConnect(it) },
-                onDisconnect = onDisconnect,
-                topBar = false,
             )
-        }
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f),
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = dropUnlessResumed {
+                    onNavigateToHotkeyList()
+                },
+                modifier = Modifier
+                    .padding(bottom = 48.dp),
+            ) {
+                Icon(Icons.Default.Edit, stringResource(R.string.action_edit_hotkeys))
+            }
+        },
+        modifier = modifier
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier.padding(paddingValues)
         ) {
-            items(items = uiState.hotkeys, key = { it.id }) { hotkey ->
-                HotkeyItem(
-                    name = hotkey.name,
-                    description = hotkey.description.asString(),
-                    onClick = { onSendHotkey(hotkey.id) },
-                    onLongClick = dropUnlessResumed(lifecycleOwner) {
-                        onNavigateToEditHotkey(hotkey.id)
-                    },
+            if (!compactHeight) {
+                ConnectComponent(
+                    address = address,
+                    recentAddresses = uiState.recentServersAddresses,
+                    onAddressChange = onAddressChange,
+                    connectionStatus = uiState.connectionStatus,
+                    onConnect = { onConnect(it) },
+                    onDisconnect = onDisconnect,
+                    topBar = false,
                 )
             }
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f),
+            ) {
+                items(items = uiState.hotkeys, key = { it.id }) { hotkey ->
+                    HotkeyItem(
+                        name = hotkey.name,
+                        description = hotkey.description.asString(),
+                        onClick = { onSendHotkey(hotkey.id) },
+                        onLongClick = dropUnlessResumed {
+                            onNavigateToEditHotkey(hotkey.id)
+                        },
+                    )
+                }
+            }
+            MediaBar(onSendKey)
         }
-        MediaBar(onSendKey)
     }
 }
 
@@ -480,6 +503,7 @@ private fun HomePreview(compactHeight: Boolean) {
             onSendHotkey = {},
             onSendKey = {},
             onMessageShown = {},
+            onNavigateToHotkeyList = {},
             onNavigateToEvents = {},
             onNavigateToSettings = {},
             onNavigateToAbout = {},

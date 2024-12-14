@@ -1,7 +1,5 @@
 package io.github.soundremote.ui.settings
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,7 +17,6 @@ fun NavController.navigateToSettings() {
 
 fun NavGraphBuilder.settingsScreen(
     onNavigateUp: () -> Unit,
-    setFab: ((@Composable () -> Unit)?) -> Unit,
 ) {
     composable<SettingsRoute> {
         val viewModel: SettingsViewModel = hiltViewModel()
@@ -31,8 +28,5 @@ fun NavGraphBuilder.settingsScreen(
             onSetAudioCompression = { viewModel.setAudioCompression(it) },
             onNavigateUp = onNavigateUp,
         )
-        LaunchedEffect(Unit) {
-            setFab(null)
-        }
     }
 }

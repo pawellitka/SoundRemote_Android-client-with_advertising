@@ -2,7 +2,6 @@ package io.github.soundremote.ui.hotkey
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,7 +29,6 @@ fun NavController.navigateToHotkeyEdit(hotkeyId: Int) {
 fun NavGraphBuilder.hotkeyCreateScreen(
     onNavigateUp: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
-    setFab: ((@Composable () -> Unit)?) -> Unit,
     compactHeight: Boolean,
 ) {
     composable<HotkeyCreateRoute> {
@@ -39,16 +37,12 @@ fun NavGraphBuilder.hotkeyCreateScreen(
             showSnackbar = showSnackbar,
             compactHeight = compactHeight
         )
-        LaunchedEffect(Unit) {
-            setFab(null)
-        }
     }
 }
 
 fun NavGraphBuilder.hotkeyEditScreen(
     onNavigateUp: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
-    setFab: ((@Composable () -> Unit)?) -> Unit,
     compactHeight: Boolean,
 ) {
     composable<HotkeyEditRoute> { backStackEntry ->
@@ -59,9 +53,6 @@ fun NavGraphBuilder.hotkeyEditScreen(
             showSnackbar = showSnackbar,
             compactHeight = compactHeight
         )
-        LaunchedEffect(Unit) {
-            setFab(null)
-        }
     }
 }
 

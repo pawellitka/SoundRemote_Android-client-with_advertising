@@ -29,7 +29,6 @@ import io.github.soundremote.ui.settings.settingsScreen
 fun AppNavigation(
     windowSizeClass: WindowSizeClass,
     showSnackbar: (String, SnackbarDuration) -> Unit,
-    setFab: ((@Composable () -> Unit)?) -> Unit,
     padding: PaddingValues
 ) {
     val navController = rememberNavController()
@@ -50,7 +49,6 @@ fun AppNavigation(
                 navController.navigateToHotkeyEdit(hotkeyId)
             },
             showSnackbar = showSnackbar,
-            setFab = setFab,
             compactHeight = compactHeight,
         )
         hotkeyListScreen(
@@ -59,31 +57,25 @@ fun AppNavigation(
                 navController.navigateToHotkeyEdit(hotkeyId)
             },
             onNavigateUp = navController::navigateUp,
-            setFab = setFab,
         )
         hotkeyCreateScreen(
             onNavigateUp = navController::navigateUp,
             showSnackbar = showSnackbar,
-            setFab = setFab,
             compactHeight = compactHeight,
         )
         hotkeyEditScreen(
             onNavigateUp = navController::navigateUp,
             showSnackbar = showSnackbar,
-            setFab = setFab,
             compactHeight = compactHeight,
         )
         eventsScreen(
             onNavigateUp = navController::navigateUp,
-            setFab = setFab,
         )
         settingsScreen(
             onNavigateUp = navController::navigateUp,
-            setFab = setFab,
         )
         aboutScreen(
             onNavigateUp = navController::navigateUp,
-            setFab = setFab,
         )
     }
 }
