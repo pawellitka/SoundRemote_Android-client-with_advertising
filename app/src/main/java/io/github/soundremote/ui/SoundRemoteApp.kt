@@ -1,5 +1,6 @@
 package io.github.soundremote.ui
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -61,7 +62,7 @@ internal fun SoundRemoteApp(
                     snackbarHostState.showSnackbar(message = message, duration = duration)
                 }
             },
-            padding = paddingValues,
+            modifier = Modifier.padding(paddingValues)
         )
     }
 }

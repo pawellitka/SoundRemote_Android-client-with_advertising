@@ -1,26 +1,24 @@
 package io.github.soundremote
 
-import androidx.annotation.StringRes
 import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import io.github.soundremote.util.TestTag
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import io.github.soundremote.util.TestTag
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import kotlin.properties.ReadOnlyProperty
 
 @HiltAndroidTest
 class NavigationTest {
+
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
@@ -30,9 +28,6 @@ class NavigationTest {
 
     @get:Rule(order = 2)
     val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    private fun AndroidComposeTestRule<*, *>.stringResource(@StringRes resId: Int) =
-        ReadOnlyProperty<Any?, String> { _, _ -> activity.getString(resId) }
 
     private val appName by composeTestRule.stringResource(R.string.app_name)
 
@@ -50,7 +45,6 @@ class NavigationTest {
     private val menuAbout by composeTestRule.stringResource(R.string.action_about)
     private val editHotkeys by composeTestRule.stringResource(R.string.action_edit_hotkeys)
     private val createHotkey by composeTestRule.stringResource(R.string.action_hotkey_create)
-
 
     // First screen is HomeScreen
     @Test
