@@ -1,12 +1,10 @@
 package io.github.soundremote.ui
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowHeightSizeClass
@@ -27,18 +25,16 @@ import io.github.soundremote.ui.settings.settingsScreen
 
 @Composable
 fun AppNavigation(
+    navController: NavHostController = rememberNavController(),
     showSnackbar: (String, SnackbarDuration) -> Unit,
-    padding: PaddingValues
+    modifier: Modifier = Modifier
 ) {
-    val navController = rememberNavController()
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val compactHeight = windowSizeClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT
     NavHost(
         navController = navController,
         startDestination = HomeRoute,
-        Modifier
-            .padding(padding)
-            .consumeWindowInsets(padding)
+        modifier = modifier
     ) {
         homeScreen(
             onNavigateToHotkeyList = navController::navigateToHotkeyList,
