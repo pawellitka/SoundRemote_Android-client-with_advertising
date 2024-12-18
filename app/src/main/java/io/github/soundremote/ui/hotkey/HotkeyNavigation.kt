@@ -2,7 +2,11 @@ package io.github.soundremote.ui.hotkey
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -62,9 +66,17 @@ private fun HotkeyScreenRoute(
     onNavigateUp: () -> Unit,
     showSnackbar: (String, SnackbarDuration) -> Unit,
     compactHeight: Boolean,
+    viewModel: HotkeyViewModel = hiltViewModel()
 ) {
-    val viewModel: HotkeyViewModel = hiltViewModel()
-    hotkeyId?.let { viewModel.loadHotkey(it) }
+    var needToLoadHotkey by rememberSaveable {
+        mutableStateOf(hotkeyId != null)
+    }
+    LaunchedEffect(Unit) {
+        if (needToLoadHotkey) {
+            needToLoadHotkey = false
+            hotkeyId?.let { viewModel.loadHotkey(it) }
+        }
+    }
     val state by viewModel.hotkeyScreenState.collectAsStateWithLifecycle()
     HotkeyScreen(
         state = state,
