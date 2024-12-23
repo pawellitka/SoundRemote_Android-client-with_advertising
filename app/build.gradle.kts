@@ -66,6 +66,10 @@ android {
     lint {
         warning.add("MissingTranslation")
     }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
 }
 
 tasks.withType<Test> {
