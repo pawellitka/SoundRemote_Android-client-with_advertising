@@ -40,15 +40,17 @@ internal class Connection(
     private val opusAudio: SendChannel<ByteBuffer>,
     private val packetsLost: AtomicInteger,
     private val connectionMessages: SendChannel<SystemMessage>,
+    receivePort: Int,
+    private val addAddress: suspend (address: String) -> Unit,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) {
     private var connectJob: Job? = null
-    private var receiveJob: Job? = null
+    private var receiveJob: Job = receive()
     private var keepAliveJob: Job? = null
     private var pendingRequests = mutableMapOf<Net.PacketCategory, Request>()
 
     private var serverAddress: InetSocketAddress? = null
-    private var dataChannel: DatagramChannel? = null
+    private var dataChannel: DatagramChannel? = createReceiveChannel(InetSocketAddress(receivePort))
     private var sendChannel: DatagramChannel? = null
     private val connectLock = Any()
     private val sendLock = Any()
@@ -86,6 +88,11 @@ internal class Connection(
         @Net.Compression compression: Int
     ) = withContext(scope.coroutineContext) {
         shutdown()
+        receiveJob.cancel()
+        // Close channel after cancelling receiving job to avoid trying to invoke receive
+        // from closed or null channel
+        dataChannel?.close()
+        dataChannel = null
         synchronized(connectLock) {
             currentStatus = ConnectionStatus.CONNECTING
             try {
@@ -140,10 +147,7 @@ internal class Connection(
         synchronized(connectLock) {
             if (currentStatus == ConnectionStatus.DISCONNECTED) return@withContext
             connectJob?.cancel()
-            receiveJob?.cancel()
             keepAliveJob?.cancel()
-            // Close channel after cancelling receiving job to avoid trying to invoke receive
-            // from closed or null channel
             releaseChannels()
             currentStatus = ConnectionStatus.DISCONNECTED
             audioSequenceNumber = null
@@ -156,8 +160,6 @@ internal class Connection(
             sendChannel?.close()
             sendChannel = null
         }
-        dataChannel?.close()
-        dataChannel = null
     }
 
     /**
@@ -167,7 +169,10 @@ internal class Connection(
         try {
             while (isActive) {
                 val buf = Net.createPacketBuffer(Net.RECEIVE_BUFFER_CAPACITY)
-                dataChannel?.receive(buf)
+                val socket = dataChannel?.receive(buf)
+                ((socket as? InetSocketAddress)?.address?.hostAddress)?.let {
+                    addAddress(it)
+                }
                 buf.flip()
                 val header: PacketHeader? = PacketHeader.read(buf)
                 when (header?.category) {
@@ -175,6 +180,7 @@ internal class Connection(
                     Net.PacketCategory.AUDIO_DATA_OPUS.value -> processAudioData(buf, true)
                     Net.PacketCategory.AUDIO_DATA_UNCOMPRESSED.value -> processAudioData(buf, false)
                     Net.PacketCategory.SERVER_KEEP_ALIVE.value -> updateServerLastContact()
+                    Net.PacketCategory.ADVERTISE.value -> processAdvertise(buf)
                     Net.PacketCategory.ACK.value -> processAck(buf)
                     else -> {}
                 }
@@ -291,6 +297,20 @@ internal class Connection(
         }
     }
 
+    private suspend fun processAdvertise(buffer: ByteBuffer) {
+        buffer.position(PacketHeader.SIZE)
+        while (buffer.remaining() >= IP_ADDRESSES_OCTETS) {
+            val bytes = ByteArray(IP_ADDRESSES_OCTETS)
+            buffer.get(bytes, 0, IP_ADDRESSES_OCTETS)
+            val ip = bytes.map({value -> value.toUByte()}).reversed().joinToString(IP_ADDRESSES_DELIMITER.toString())
+            if(ip != "0.0.0.0") {
+                addAddress(ip)
+            }
+            else
+                break
+        }
+    }
+
     /**
      * Process ACK response on a Connect request.
      * @param buffer [ByteBuffer] must be positioned on ACK packet custom data.
@@ -352,6 +372,8 @@ internal class Connection(
             }
             return channel
         }
+        private val IP_ADDRESSES_DELIMITER = '.'
+        private val IP_ADDRESSES_OCTETS = 4
     }
 }
 

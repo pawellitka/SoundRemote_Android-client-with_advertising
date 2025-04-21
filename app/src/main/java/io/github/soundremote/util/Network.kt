@@ -43,6 +43,7 @@ object Net {
         AUDIO_DATA_OPUS(0x21u),
         CLIENT_KEEP_ALIVE(0x30u),
         SERVER_KEEP_ALIVE(0x31u),
+        ADVERTISE(0x40u),
         ACK(0xF0u),
     }
 

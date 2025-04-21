@@ -52,6 +52,7 @@ import io.github.soundremote.util.Net
 import io.github.soundremote.util.SystemMessage
 import com.squareup.seismic.ShakeDetector
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.soundremote.util.DEFAULT_CLIENT_PORT
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -95,7 +96,13 @@ internal class MainService : MediaBrowserServiceCompat() {
     private val opusAudio = Channel<ByteBuffer>(5, BufferOverflow.SUSPEND)
     private val packetsLost = AtomicInteger()
 
-    private val connection = Connection(uncompressedAudio, opusAudio, packetsLost, _systemMessages)
+    private val connection = Connection(
+        uncompressedAudio,
+        opusAudio,
+        packetsLost,
+        _systemMessages,
+        DEFAULT_CLIENT_PORT, {address -> userPreferencesRepo.setServerAddress(address)}
+    )
     private val audioPipe = AudioPipe(uncompressedAudio, opusAudio, packetsLost)
     val connectionStatus = connection.connectionStatus
     private var _isMuted = MutableStateFlow(false)

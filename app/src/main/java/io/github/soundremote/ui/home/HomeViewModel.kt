@@ -74,12 +74,6 @@ internal class HomeViewModel @Inject constructor(
     var messageState by mutableStateOf<Int?>(null)
         private set
 
-    private fun setServerAddress(address: String) {
-        viewModelScope.launch {
-            userPreferencesRepo.setServerAddress(address)
-        }
-    }
-
     private fun setMessage(@StringRes messageId: Int) {
         messageState = messageId
     }
@@ -88,10 +82,15 @@ internal class HomeViewModel @Inject constructor(
         messageState = null
     }
 
+    fun setServerAddress(address: String) {
+        viewModelScope.launch {
+            userPreferencesRepo.setServerAddress(address)
+        }
+    }
+
     fun connect(address: String) {
         val newAddress = address.trim()
         if (InetAddresses.isInetAddress(newAddress)) {
-            setServerAddress(newAddress)
             serviceManager.connect(newAddress)
         } else {
             setMessage(R.string.message_invalid_address)

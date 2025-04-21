@@ -75,8 +75,9 @@ class UserPreferencesRepository @Inject constructor(
 
     override suspend fun setServerAddress(serverAddress: String) {
         val current = LinkedHashSet(serverAddressesFlow.first())
-        current.remove(serverAddress)
-        current.add(serverAddress)
+        if(!(current.contains(serverAddress))) {
+            current.add(serverAddress)
+        }
         while (current.size > SERVER_ADDRESSES_LIMIT) {
             current.remove(current.first())
         }

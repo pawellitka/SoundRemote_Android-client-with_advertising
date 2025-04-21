@@ -42,7 +42,7 @@
     <string name="action_edit_hotkeys">Edit hotkeys</string>
     <string name="action_events">Events</string>
     <string name="action_recent_servers">Show recent servers</string>
-    <string name="recent_servers_title">Recent servers</string>
+    <string name="recent_servers_title">Detected servers</string>
     <string name="action_mute_app">Mute application</string>
     <string name="action_unmute_app">Unmute application</string>
 

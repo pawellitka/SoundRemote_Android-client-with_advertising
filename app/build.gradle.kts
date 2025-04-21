@@ -18,9 +18,9 @@ kotlin {
     jvmToolchain(17)
 }
 
-val keystorePropertiesFile = rootProject.file("keystore.properties")
+/*val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
-keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+keystoreProperties.load(FileInputStream(keystorePropertiesFile))*/
 
 android {
     namespace = "io.github.soundremote"
@@ -33,14 +33,14 @@ android {
         versionName = "0.4.5"
         testInstrumentationRunner = "io.github.soundremote.CustomTestRunner"
     }
-    signingConfigs {
+    /*signingConfigs {
         create("release config") {
             keyAlias = keystoreProperties["keyAlias"] as String
             keyPassword = keystoreProperties["keyPassword"] as String
             storeFile = file(keystoreProperties["storeFile"] as String)
             storePassword = keystoreProperties["storePassword"] as String
         }
-    }
+    }*/
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -49,7 +49,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release config")
+            //signingConfig = signingConfigs.getByName("release config")
         }
     }
     buildFeatures {
